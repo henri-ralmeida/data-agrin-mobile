@@ -2,21 +2,17 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-
-    //Banco de Dados Persistente
-    id("com.google.devtools.ksp") version "1.9.23-1.0.20"
+    alias(libs.plugins.ksp)
 }
 
 android {
     namespace = "com.example.dataagrin.app"
-    compileSdk {
-        version = release(36)
-    }
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.example.dataagrin.app"
         minSdk = 26
-        targetSdk = 36
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
@@ -45,7 +41,7 @@ android {
 }
 
 dependencies {
-    // Compose & Android Core
+    //Compose & Android Core
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -54,33 +50,24 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.navigation.compose)
 
-    //Room
-    val roomVersion = "2.6.1"
-    implementation("androidx.room:room-ktx:$roomVersion")
-    ksp("androidx.room:room-compiler:$roomVersion")
+    //Data
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
+    implementation(libs.retrofit.core)
+    implementation(libs.retrofit.converter.gson)
 
-    //Retrofit
-    val retrofitVersion = "2.9.0"
-    implementation("com.squareup.retrofit2:retrofit:$retrofitVersion")
-    implementation("com.squareup.retrofit2:converter-gson:$retrofitVersion")
+    //DI
+    implementation(libs.koin.android)
 
-    //Coroutines
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
-
-    //Koin
-    val koinVersion = "3.5.0"
-    implementation("io.insert-koin:koin-android:$koinVersion")
-
-    //Navigation Compose
-    val navigationVersion = "2.7.7"
-    implementation("androidx.navigation:navigation-compose:$navigationVersion")
-
-    //Compose Lifecycle
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
+    //Concurrency
+    implementation(libs.kotlinx.coroutines.android)
 
     //Testes
     testImplementation(libs.junit)
+    testImplementation(libs.mockk)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
