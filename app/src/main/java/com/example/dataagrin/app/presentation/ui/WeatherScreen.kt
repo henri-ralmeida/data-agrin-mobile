@@ -19,7 +19,6 @@ import androidx.compose.material.icons.filled.Cloud
 import androidx.compose.material.icons.filled.CloudQueue
 import androidx.compose.material.icons.filled.Grain
 import androidx.compose.material.icons.filled.WbSunny
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -62,7 +61,7 @@ fun WeatherScreen(viewModel: WeatherViewModel = koinViewModel()) {
                 }
             }
             weather != null -> {
-                WeatherContent(weather!!, onRefresh = viewModel::loadWeather)
+                WeatherContent(weather!!)
             }
             else -> {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -86,7 +85,7 @@ fun WeatherScreen(viewModel: WeatherViewModel = koinViewModel()) {
 }
 
 @Composable
-fun WeatherContent(weather: Weather, onRefresh: () -> Unit) {
+fun WeatherContent(weather: Weather) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Card(
             elevation = CardDefaults.cardElevation(4.dp)
@@ -126,10 +125,6 @@ fun WeatherContent(weather: Weather, onRefresh: () -> Unit) {
                 if (weather.isFromCache) {
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(text = "Última atualização: ${weather.lastUpdated}", fontSize = 12.sp, color = Color.Gray)
-                }
-                Spacer(modifier = Modifier.height(32.dp))
-                Button(onClick = onRefresh) {
-                    Text("Atualizar")
                 }
             }
         }
