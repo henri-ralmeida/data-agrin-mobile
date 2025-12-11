@@ -122,6 +122,10 @@ fun WeatherContent(weather: Weather, onRefresh: () -> Unit) {
                 Text(text = "${weather.temperature}°C", fontSize = 48.sp)
                 Text(text = weather.weatherDescription, fontSize = 20.sp)
                 Text(text = "Umidade: ${weather.humidity}%", fontSize = 16.sp)
+                if (weather.isFromCache) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(text = "Última atualização: ${weather.lastUpdated}", fontSize = 12.sp, color = Color.Gray)
+                }
                 Spacer(modifier = Modifier.height(32.dp))
                 Button(onClick = onRefresh) {
                     Text("Atualizar")
