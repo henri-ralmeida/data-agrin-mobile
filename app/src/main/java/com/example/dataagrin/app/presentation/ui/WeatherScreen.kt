@@ -62,7 +62,7 @@ fun WeatherScreen(viewModel: WeatherViewModel = koinViewModel()) {
                 }
             }
             weather != null -> {
-                WeatherContent(weather!!)
+                WeatherContent(weather!!, onRefresh = viewModel::loadWeather)
             }
             else -> {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -86,7 +86,7 @@ fun WeatherScreen(viewModel: WeatherViewModel = koinViewModel()) {
 }
 
 @Composable
-fun WeatherContent(weather: Weather) {
+fun WeatherContent(weather: Weather, onRefresh: () -> Unit) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Card(
             elevation = CardDefaults.cardElevation(4.dp)
@@ -126,6 +126,10 @@ fun WeatherContent(weather: Weather) {
                 if (weather.isFromCache) {
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(text = "Última atualização: ${weather.lastUpdated}", fontSize = 12.sp, color = Color.Gray)
+                }
+                Spacer(modifier = Modifier.height(32.dp))
+                Button(onClick = onRefresh) {
+                    Text("Atualizar")
                 }
             }
         }
