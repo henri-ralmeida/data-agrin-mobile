@@ -1,0 +1,16 @@
+package com.example.dataagrin.app.data.local
+
+import androidx.room.Dao
+import androidx.room.Query
+import androidx.room.Update
+import com.example.dataagrin.app.domain.model.Task
+import kotlinx.coroutines.flow.Flow
+
+@Dao
+interface TaskDao {
+    @Query("SELECT * FROM tasks")
+    fun getAllTasks(): Flow<List<Task>>
+
+    @Update
+    suspend fun updateTask(task: Task)
+}
