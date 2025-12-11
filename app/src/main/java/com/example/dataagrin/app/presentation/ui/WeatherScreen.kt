@@ -138,13 +138,8 @@ fun WeatherContent(weather: Weather, onRefresh: () -> Unit) {
             Spacer(modifier = Modifier.height(16.dp))
             Text("Próximas Horas", fontSize = 20.sp)
             
-            // Calcular a próxima hora cheia
-            val calendar = Calendar.getInstance()
-            val nextHourIndex = if (calendar.get(Calendar.MINUTE) > 0) {
-                calendar.get(Calendar.HOUR_OF_DAY) + 1 - calendar.get(Calendar.HOUR_OF_DAY)
-            } else {
-                0
-            }
+            // Sempre mostrar a partir da próxima hora (pula 1h)
+            val nextHourIndex = 1
             
             LazyRow(modifier = Modifier.padding(top = 8.dp)) {
                 items(
