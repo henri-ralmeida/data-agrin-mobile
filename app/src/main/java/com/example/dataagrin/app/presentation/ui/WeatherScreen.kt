@@ -66,7 +66,7 @@ fun WeatherScreen(viewModel: WeatherViewModel = koinViewModel()) {
             else -> {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Icon(
-                        imageVector = Icons.Outlined.Cloud,
+                        imageVector = Icons.Filled.Cloud,
                         contentDescription = null,
                         modifier = Modifier.size(64.dp),
                         tint = Color.Gray
