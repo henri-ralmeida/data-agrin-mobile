@@ -137,9 +137,21 @@ fun WeatherContent(weather: Weather, onRefresh: () -> Unit) {
         if (!weather.isFromCache) {
             Spacer(modifier = Modifier.height(16.dp))
             Text("Próximas Horas", fontSize = 20.sp)
+            
+            // Calcular a próxima hora cheia
+            val calendar = Calendar.getInstance()
+            val nextHourIndex = if (calendar.get(Calendar.MINUTE) > 0) {
+                calendar.get(Calendar.HOUR_OF_DAY) + 1 - calendar.get(Calendar.HOUR_OF_DAY)
+            } else {
+                0
+            }
+            
             LazyRow(modifier = Modifier.padding(top = 8.dp)) {
-                items(weather.hourlyForecast, key = { it.time }) { hourly ->
-                    HourlyForecastItem(hourly)
+                items(
+                    weather.hourlyForecast.drop(nextHourIndex),
+                    key = { it.time }
+                ) { hourly ->
+                    HourlyForecastItem(hourly, nextHourIndex)
                 }
             }
         }
@@ -147,10 +159,10 @@ fun WeatherContent(weather: Weather, onRefresh: () -> Unit) {
 }
 
 @Composable
-fun HourlyForecastItem(hourly: HourlyWeather) {
+fun HourlyForecastItem(hourly: HourlyWeather, offsetIndex: Int = 0) {
     val hourIndex = hourly.time.toIntOrNull() ?: 0
     val calendar = Calendar.getInstance().apply {
-        add(Calendar.HOUR_OF_DAY, hourIndex)
+        add(Calendar.HOUR_OF_DAY, hourIndex + offsetIndex)
     }
     val formattedHour = String.format("%02d:00", calendar.get(Calendar.HOUR_OF_DAY))
 
