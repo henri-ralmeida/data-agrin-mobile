@@ -167,6 +167,12 @@ fun HourlyForecastItem(hourly: HourlyWeather, offsetIndex: Int = 0) {
     ) {
         Column(modifier = Modifier.padding(12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
             Text(text = formattedHour, fontSize = 14.sp)
+            Icon(
+                imageVector = getWeatherIconByCode(hourly.weatherCode),
+                contentDescription = null,
+                modifier = Modifier.size(32.dp),
+                tint = Color.Gray
+            )
             Text(text = "${hourly.temperature}°C", fontSize = 18.sp)
         }
     }
@@ -176,6 +182,24 @@ fun HourlyForecastItem(hourly: HourlyWeather, offsetIndex: Int = 0) {
 private fun getWeatherIcon(weatherDescription: String): ImageVector {
     return when {
         weatherDescription.contains("sol", ignoreCase = true) || weatherDescription.contains("limpo", ignoreCase = true) -> Icons.Filled.WbSunny
+        weatherDescription.contains("nuvem", ignoreCase = true) -> Icons.Filled.Cloud
+        weatherDescription.contains("chuva", ignoreCase = true) -> Icons.Filled.CloudQueue
+        weatherDescription.contains("drizzle", ignoreCase = true) || weatherDescription.contains("chuvisco", ignoreCase = true) -> Icons.Filled.Grain
+        else -> Icons.Filled.Cloud
+    }
+}
+
+private fun getWeatherIconByCode(code: Int): ImageVector {
+    return when (code) {
+        0 -> Icons.Filled.WbSunny // Céu limpo
+        1, 2, 3 -> Icons.Filled.Cloud // Parcialmente nublado / nublado
+        45, 48 -> Icons.Filled.Cloud // Nevoeiro
+        51, 53, 55 -> Icons.Filled.Grain // Chuvisco
+        61, 63, 65 -> Icons.Filled.CloudQueue // Chuva
+        80, 81, 82 -> Icons.Filled.CloudQueue // Pancadas de chuva
+        else -> Icons.Filled.Cloud // Desconhecido
+    }
+}
         weatherDescription.contains("chuva", ignoreCase = true) || weatherDescription.contains("pancada", ignoreCase = true) -> Icons.Filled.CloudQueue
         weatherDescription.contains("chuvisco", ignoreCase = true) || weatherDescription.contains("neblina", ignoreCase = true) -> Icons.Filled.Grain
         weatherDescription.contains("nuvem", ignoreCase = true) || weatherDescription.contains("nublado", ignoreCase = true) -> Icons.Filled.Cloud

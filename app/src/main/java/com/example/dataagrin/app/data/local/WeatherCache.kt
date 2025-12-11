@@ -39,7 +39,8 @@ data class HourlyWeatherCache(
     @ColumnInfo(name = "weatherId")
     val weatherId: Int = 1,
     val time: String,
-    val temperature: Double
+    val temperature: Double,
+    val weatherCode: Int = 0
 )
 
 data class FullWeatherCache(
@@ -58,8 +59,13 @@ fun WeatherDto.toCache(): Pair<WeatherCache, List<HourlyWeatherCache>> {
         weatherCode = this.current.weatherCode,
         lastUpdated = System.currentTimeMillis()
     )
-    val hourlyCache = this.hourly.time.zip(this.hourly.temperatures).map {
-        HourlyWeatherCache(weatherId = 1, time = it.first, temperature = it.second)
+    val hourlyCache = this.hourly.time.zip(this.hourly.temperatures).zip(this.hourly.weatherCodes).map { (timeTempPair, weatherCode) ->
+        HourlyWeatherCache(
+            weatherId = 1, 
+            time = timeTempPair.first, 
+            temperature = timeTempPair.second,
+            weatherCode = weatherCode
+        )
     }
     return Pair(weatherCache, hourlyCache)
 }
@@ -71,16 +77,16 @@ fun FullWeatherCache.toDomain(): Weather {
         humidity = this.weather.humidity,
         weatherDescription = mapWeatherCodeToDescription(this.weather.weatherCode),
         isFromCache = true,
-        hourlyForecast = this.hourly.map { HourlyWeather(it.time.substringAfter('T'), it.temperature) },
+        hourlyForecast = this.hourly.map { HourlyWeather(it.time.substringAfter('T'), it.temperature, it.weatherCode) },
         lastUpdated = sdf.format(Date(this.weather.lastUpdated))
     )
 }
 
 fun WeatherDto.toDomain(): Weather {
-    val next24Hours = this.hourly.time.zip(this.hourly.temperatures)
+    val next24Hours = this.hourly.time.zip(this.hourly.temperatures).zip(this.hourly.weatherCodes)
         .take(24)
-        .mapIndexed { index, (_, temp) -> 
-            HourlyWeather(index.toString().padStart(2, '0'), temp) 
+        .mapIndexed { index, (timeTempPair, weatherCode) -> 
+            HourlyWeather(index.toString().padStart(2, '0'), timeTempPair.second, weatherCode) 
         }
     
     return Weather(
