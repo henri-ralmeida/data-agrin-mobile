@@ -15,10 +15,10 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Cloud
-import androidx.compose.material.icons.outlined.CloudRain
-import androidx.compose.material.icons.outlined.Opacity
-import androidx.compose.material.icons.outlined.WbSunny
+import androidx.compose.material.icons.filled.Cloud
+import androidx.compose.material.icons.filled.CloudQueue
+import androidx.compose.material.icons.filled.Grain
+import androidx.compose.material.icons.filled.Wb Sunny
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -157,10 +157,10 @@ fun HourlyForecastItem(hourly: HourlyWeather) {
 @Composable
 private fun getWeatherIcon(weatherDescription: String): ImageVector {
     return when {
-        weatherDescription.contains("sol", ignoreCase = true) || weatherDescription.contains("limpo", ignoreCase = true) -> Icons.Outlined.WbSunny
-        weatherDescription.contains("chuva", ignoreCase = true) || weatherDescription.contains("pancada", ignoreCase = true) -> Icons.Outlined.CloudRain
-        weatherDescription.contains("chuvisco", ignoreCase = true) || weatherDescription.contains("neblina", ignoreCase = true) -> Icons.Outlined.Opacity
-        weatherDescription.contains("nuvem", ignoreCase = true) || weatherDescription.contains("nublado", ignoreCase = true) -> Icons.Outlined.Cloud
-        else -> Icons.Outlined.WbSunny
+        weatherDescription.contains("sol", ignoreCase = true) || weatherDescription.contains("limpo", ignoreCase = true) -> Icons.Filled.WbSunny
+        weatherDescription.contains("chuva", ignoreCase = true) || weatherDescription.contains("pancada", ignoreCase = true) -> Icons.Filled.CloudQueue
+        weatherDescription.contains("chuvisco", ignoreCase = true) || weatherDescription.contains("neblina", ignoreCase = true) -> Icons.Filled.Grain
+        weatherDescription.contains("nuvem", ignoreCase = true) || weatherDescription.contains("nublado", ignoreCase = true) -> Icons.Filled.Cloud
+        else -> Icons.Filled.WbSunny
     }
 }
