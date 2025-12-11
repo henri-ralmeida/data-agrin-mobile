@@ -1,5 +1,6 @@
 package com.example.dataagrin.app.data.repository
 
+import android.util.Log
 import com.example.dataagrin.app.data.local.WeatherDao
 import com.example.dataagrin.app.data.local.toCache
 import com.example.dataagrin.app.data.local.toDomain
@@ -16,11 +17,18 @@ class WeatherRepositoryImpl(
     override fun getWeather(): Flow<Weather?> = flow {
         try {
             val remoteWeather = weatherApi.getWeather()
-            weatherDao.saveWeatherCache(remoteWeather.toCache())
+            val (weatherCache, hourlyCache) = remoteWeather.toCache()
+            weatherDao.updateCache(weatherCache, hourlyCache)
             emit(remoteWeather.toDomain())
         } catch (e: Exception) {
+            Log.e("WeatherRepository", "Erro ao buscar clima da API, usando cache", e)
             val cachedWeather = weatherDao.getWeatherCache()
-            emit(cachedWeather?.toDomain())
+            if (cachedWeather != null) {
+                emit(cachedWeather.toDomain())
+            } else {
+                Log.e("WeatherRepository", "Sem cache disponivel e API falhou")
+                emit(null)
+            }
         }
     }
 }

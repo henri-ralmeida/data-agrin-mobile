@@ -1,42 +1,95 @@
 package com.example.dataagrin.app.data.local
 
+import androidx.room.ColumnInfo
+import androidx.room.Embedded
 import androidx.room.Entity
+import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
+import androidx.room.Relation
+
 import com.example.dataagrin.app.data.remote.WeatherDto
+import com.example.dataagrin.app.domain.model.HourlyWeather
 import com.example.dataagrin.app.domain.model.Weather
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @Entity(tableName = "weather_cache")
 data class WeatherCache(
     @PrimaryKey
-    val id: Int = 1, // Always use the same ID to overwrite the cache
+    val id: Int = 1, 
     val temperature: Double,
     val humidity: Int,
-    val weatherCode: Int
+    val weatherCode: Int,
+    val lastUpdated: Long
 )
 
-fun WeatherDto.toCache(): WeatherCache {
-    return WeatherCache(
+@Entity(
+    tableName = "hourly_weather_cache",
+    foreignKeys = [ForeignKey(
+        entity = WeatherCache::class,
+        parentColumns = ["id"],
+        childColumns = ["weatherId"],
+        onDelete = ForeignKey.CASCADE
+    )]
+)
+data class HourlyWeatherCache(
+    @PrimaryKey(autoGenerate = true)
+    val id: Int = 0,
+    @ColumnInfo(name = "weatherId")
+    val weatherId: Int = 1,
+    val time: String,
+    val temperature: Double
+)
+
+data class FullWeatherCache(
+    @Embedded val weather: WeatherCache,
+    @Relation(
+        parentColumn = "id",
+        entityColumn = "weatherId"
+    )
+    val hourly: List<HourlyWeatherCache>
+)
+
+fun WeatherDto.toCache(): Pair<WeatherCache, List<HourlyWeatherCache>> {
+    val weatherCache = WeatherCache(
         temperature = this.current.temperature,
         humidity = this.current.humidity,
-        weatherCode = this.current.weatherCode
+        weatherCode = this.current.weatherCode,
+        lastUpdated = System.currentTimeMillis()
     )
+    val hourlyCache = this.hourly.time.zip(this.hourly.temperatures).map {
+        HourlyWeatherCache(weatherId = 1, time = it.first, temperature = it.second)
+    }
+    return Pair(weatherCache, hourlyCache)
 }
 
-fun WeatherCache.toDomain(): Weather {
+fun FullWeatherCache.toDomain(): Weather {
+    val sdf = SimpleDateFormat("HH:mm", Locale.getDefault())
     return Weather(
-        temperature = this.temperature,
-        humidity = this.humidity,
-        weatherDescription = mapWeatherCodeToDescription(this.weatherCode),
-        isFromCache = true
+        temperature = this.weather.temperature,
+        humidity = this.weather.humidity,
+        weatherDescription = mapWeatherCodeToDescription(this.weather.weatherCode),
+        isFromCache = true,
+        hourlyForecast = this.hourly.map { HourlyWeather(it.time.substringAfter('T'), it.temperature) },
+        lastUpdated = sdf.format(Date(this.weather.lastUpdated))
     )
 }
 
 fun WeatherDto.toDomain(): Weather {
+    val next24Hours = this.hourly.time.zip(this.hourly.temperatures)
+        .take(24)
+        .map { (time, temp) -> 
+            HourlyWeather(time.substringAfter('T').substringBefore(":").padStart(2, '0'), temp) 
+        }
+    
     return Weather(
         temperature = this.current.temperature,
         humidity = this.current.humidity,
         weatherDescription = mapWeatherCodeToDescription(this.current.weatherCode),
-        isFromCache = false
+        isFromCache = false,
+        hourlyForecast = next24Hours,
+        lastUpdated = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
     )
 }
 
