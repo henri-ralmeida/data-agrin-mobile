@@ -79,8 +79,8 @@ fun FullWeatherCache.toDomain(): Weather {
 fun WeatherDto.toDomain(): Weather {
     val next24Hours = this.hourly.time.zip(this.hourly.temperatures)
         .take(24)
-        .map { (time, temp) -> 
-            HourlyWeather(time.substringAfter('T').substringBefore(":").padStart(2, '0'), temp) 
+        .mapIndexed { index, (_, temp) -> 
+            HourlyWeather(index.toString().padStart(2, '0'), temp) 
         }
     
     return Weather(

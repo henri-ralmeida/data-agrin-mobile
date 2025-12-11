@@ -40,6 +40,7 @@ import com.example.dataagrin.app.domain.model.HourlyWeather
 import com.example.dataagrin.app.domain.model.Weather
 import com.example.dataagrin.app.presentation.viewmodel.WeatherViewModel
 import org.koin.androidx.compose.koinViewModel
+import java.util.Calendar
 
 @Composable
 fun WeatherScreen(viewModel: WeatherViewModel = koinViewModel()) {
@@ -147,12 +148,18 @@ fun WeatherContent(weather: Weather, onRefresh: () -> Unit) {
 
 @Composable
 fun HourlyForecastItem(hourly: HourlyWeather) {
+    val hourIndex = hourly.time.toIntOrNull() ?: 0
+    val calendar = Calendar.getInstance().apply {
+        add(Calendar.HOUR_OF_DAY, hourIndex)
+    }
+    val formattedHour = String.format("%02d:00", calendar.get(Calendar.HOUR_OF_DAY))
+
     Card(
         modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
         elevation = CardDefaults.cardElevation(2.dp)
     ) {
         Column(modifier = Modifier.padding(12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(text = hourly.time, fontSize = 14.sp)
+            Text(text = formattedHour, fontSize = 14.sp)
             Text(text = "${hourly.temperature}°C", fontSize = 18.sp)
         }
     }
