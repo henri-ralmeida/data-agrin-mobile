@@ -200,9 +200,3 @@ private fun getWeatherIconByCode(code: Int): ImageVector {
         else -> Icons.Filled.Cloud // Desconhecido
     }
 }
-        weatherDescription.contains("chuva", ignoreCase = true) || weatherDescription.contains("pancada", ignoreCase = true) -> Icons.Filled.CloudQueue
-        weatherDescription.contains("chuvisco", ignoreCase = true) || weatherDescription.contains("neblina", ignoreCase = true) -> Icons.Filled.Grain
-        weatherDescription.contains("nuvem", ignoreCase = true) || weatherDescription.contains("nublado", ignoreCase = true) -> Icons.Filled.Cloud
-        else -> Icons.Filled.WbSunny
-    }
-}
