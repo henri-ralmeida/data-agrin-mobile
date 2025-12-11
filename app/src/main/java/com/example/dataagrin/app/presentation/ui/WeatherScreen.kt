@@ -97,21 +97,21 @@ fun WeatherContent(weather: Weather, onRefresh: () -> Unit) {
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                     Text(text = "Clima Agora", fontSize = 24.sp)
                     Spacer(modifier = Modifier.weight(1f))
-                    if (weather.isFromCache) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Box(
-                                modifier = Modifier
-                                    .size(12.dp)
-                                    .clip(CircleShape)
-                                    .background(Color.Yellow)
-                            )
-                        }
-                    } else {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(
                             modifier = Modifier
                                 .size(12.dp)
                                 .clip(CircleShape)
-                                .background(Color.Green)
+                                .background(
+                                    if (weather.isFromCache) Color.Red else Color.Green
+                                )
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = if (weather.isFromCache) "Offline" else "Online",
+                            fontSize = 12.sp,
+                            color = if (weather.isFromCache) Color.Red else Color.Green,
+                            fontWeight = FontWeight.SemiBold
                         )
                     }
                 }
