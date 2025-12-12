@@ -18,7 +18,8 @@ import kotlinx.coroutines.launch
 class TaskRegistryViewModel(
     private val getTaskRegistriesUseCase: GetTaskRegistriesUseCase,
     private val insertTaskRegistryUseCase: InsertTaskRegistryUseCase,
-    private val insertTaskUseCase: InsertTaskUseCase
+    private val insertTaskUseCase: InsertTaskUseCase,
+    private val taskViewModel: TaskViewModel
 ) : ViewModel() {
 
     private val _taskRegistries = MutableStateFlow<List<TaskRegistry>>(emptyList())
@@ -49,7 +50,16 @@ class TaskRegistryViewModel(
                 observations = taskRegistry.observations,
                 status = TaskStatus.PENDING
             )
-            insertTaskUseCase(task)
+            
+            // Insere no banco local e obtém o ID gerado pelo Room
+            val generatedId = insertTaskUseCase(task)
+            
+            // Cria task com o ID correto gerado pelo Room para sincronizar com Firebase
+            val taskWithCorrectId = task.copy(id = generatedId.toInt())
+            
+            // Sincroniza com Firebase usando o ID correto
+            taskViewModel.createTask(taskWithCorrectId)
         }
     }
 }
+

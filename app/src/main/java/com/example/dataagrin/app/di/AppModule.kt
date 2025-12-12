@@ -1,5 +1,8 @@
 package com.example.dataagrin.app.di
 
+import com.example.dataagrin.app.data.firebase.FirebaseManager
+import com.example.dataagrin.app.data.firebase.TaskFirestoreRepository
+import com.example.dataagrin.app.data.firebase.TaskRegistryFirestoreRepository
 import com.example.dataagrin.app.data.local.AppDatabase
 import com.example.dataagrin.app.data.remote.WeatherApi
 import com.example.dataagrin.app.data.repository.TaskRegistryRepositoryImpl
@@ -18,6 +21,8 @@ import com.example.dataagrin.app.domain.usecase.UpdateTaskUseCase
 import com.example.dataagrin.app.presentation.viewmodel.TaskRegistryViewModel
 import com.example.dataagrin.app.presentation.viewmodel.TaskViewModel
 import com.example.dataagrin.app.presentation.viewmodel.WeatherViewModel
+import com.google.firebase.Firebase
+import com.google.firebase.firestore.firestore
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
@@ -29,6 +34,11 @@ val appModule = module {
     single { get<AppDatabase>().taskDao() }
     single { get<AppDatabase>().taskRegistryDao() }
     single { get<AppDatabase>().weatherDao() }
+
+    // Firebase
+    single { Firebase.firestore }
+    single { TaskFirestoreRepository(get()) }
+    single { TaskRegistryFirestoreRepository(get()) }
 
     single<TaskRepository> { TaskRepositoryImpl(get<AppDatabase>().taskDao()) }
     single<TaskRegistryRepository> { TaskRegistryRepositoryImpl(get<AppDatabase>().taskRegistryDao()) }
@@ -44,7 +54,7 @@ val appModule = module {
 
     viewModel { TaskViewModel(get(), get(), get(), get()) }
     viewModel { WeatherViewModel(get(), androidContext()) }
-    viewModel { TaskRegistryViewModel(get(), get(), get()) }
+    viewModel { TaskRegistryViewModel(get(), get(), get(), get()) }
 
     single {
         Retrofit.Builder()

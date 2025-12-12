@@ -39,10 +39,11 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -63,6 +64,7 @@ import com.example.dataagrin.app.domain.model.TaskStatus
 import com.example.dataagrin.app.presentation.viewmodel.TaskViewModel
 import org.koin.androidx.compose.koinViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskScreen(viewModel: TaskViewModel = koinViewModel()) {
     val tasks by viewModel.tasks.collectAsState()
@@ -578,6 +580,7 @@ private fun StatusBadge(status: TaskStatus) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun EditTaskDialog(
     taskName: String,
@@ -622,32 +625,30 @@ private fun EditTaskDialog(
                 )
 
                 // Scheduled Time Field
-                Column {
-                    OutlinedTextField(
-                        value = scheduledTime,
-                        onValueChange = {
-                            onScheduledTimeChange(it)
-                            onTimeErrorChange("")
-                        },
-                        label = { Text("Horário de Início") },
-                        placeholder = { Text("hh:mm") },
-                        modifier = Modifier.fillMaxWidth(),
-                        isError = timeError.isNotEmpty(),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = if (timeError.isNotEmpty()) Color.Red else Color(0xFF1B5E20),
-                            focusedLabelColor = Color(0xFF1B5E20),
-                            errorBorderColor = Color.Red,
-                            errorLabelColor = Color.Red
-                        )
+                OutlinedTextField(
+                    value = scheduledTime,
+                    onValueChange = {
+                        onScheduledTimeChange(it)
+                        onTimeErrorChange("")
+                    },
+                    label = { Text("Horário de Início") },
+                    placeholder = { Text("hh:mm") },
+                    modifier = Modifier.fillMaxWidth(),
+                    isError = timeError.isNotEmpty(),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = if (timeError.isNotEmpty()) Color.Red else Color(0xFF1B5E20),
+                        focusedLabelColor = Color(0xFF1B5E20),
+                        errorBorderColor = Color.Red,
+                        errorLabelColor = Color.Red
                     )
-                    if (timeError.isNotEmpty()) {
-                        Text(
-                            timeError,
-                            color = Color.Red,
-                            fontSize = 12.sp,
-                            modifier = Modifier.padding(top = 4.dp, start = 16.dp)
-                        )
-                    }
+                )
+                if (timeError.isNotEmpty()) {
+                    Text(
+                        timeError,
+                        color = Color.Red,
+                        fontSize = 12.sp,
+                        modifier = Modifier.padding(top = 4.dp, start = 16.dp)
+                    )
                 }
 
                 // End Time Field

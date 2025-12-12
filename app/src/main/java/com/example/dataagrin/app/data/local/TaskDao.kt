@@ -13,7 +13,7 @@ interface TaskDao {
     fun getAllTasks(): Flow<List<Task>>
 
     @Insert
-    suspend fun insertTask(task: Task)
+    suspend fun insertTask(task: Task): Long
 
     @Update
     suspend fun updateTask(task: Task)
