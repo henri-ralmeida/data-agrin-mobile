@@ -45,6 +45,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -249,10 +250,11 @@ private fun TaskScreenHeader() {
         // Emoji decorativo de trator
         Text(
             "🚜",
-            fontSize = 64.sp,
+            fontSize = 120.sp,
             modifier = Modifier
-                .align(Alignment.CenterEnd)
-                .alpha(0.3f)
+                .align(Alignment.BottomEnd)
+                .rotate(15f)
+                .alpha(0.5f)
         )
     }
 }

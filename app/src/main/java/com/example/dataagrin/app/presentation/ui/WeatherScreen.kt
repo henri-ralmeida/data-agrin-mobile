@@ -37,6 +37,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -140,10 +141,11 @@ private fun WeatherScreenHeader() {
         // Emoji decorativo de nuvem
         Text(
             "☁️",
-            fontSize = 64.sp,
+            fontSize = 120.sp,
             modifier = Modifier
-                .align(Alignment.CenterEnd)
-                .alpha(0.3f)
+                .align(Alignment.BottomEnd)
+                .rotate(-15f)
+                .alpha(0.5f)
         )
     }
 }
