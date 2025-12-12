@@ -44,6 +44,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -244,6 +245,15 @@ private fun TaskScreenHeader() {
                 modifier = Modifier.padding(bottom = 8.dp)
             )
         }
+        
+        // Emoji decorativo de trator
+        Text(
+            "🚜",
+            fontSize = 64.sp,
+            modifier = Modifier
+                .align(Alignment.CenterEnd)
+                .alpha(0.3f)
+        )
     }
 }
 
@@ -496,19 +506,19 @@ private fun StatusBadge(status: TaskStatus) {
 
     val statusInfo = when (status) {
         TaskStatus.PENDING -> StatusInfo(
-            Color(0xFFFFC107),
-            Color.Black,
+            Color(0xFFD32F2F),
+            Color.White,
             "Pendente",
             Icons.Filled.Schedule
         )
         TaskStatus.IN_PROGRESS -> StatusInfo(
-            Color(0xFF2196F3),
+            Color(0xFFF57C00),
             Color.White,
             "Em andamento",
             Icons.Filled.PlayCircle
         )
         TaskStatus.COMPLETED -> StatusInfo(
-            Color(0xFF4CAF50),
+            Color(0xFF1B5E20),
             Color.White,
             "Finalizada",
             Icons.Filled.CheckCircleOutline

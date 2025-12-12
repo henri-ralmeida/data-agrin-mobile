@@ -17,6 +17,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.AccessTime
+import androidx.compose.material.icons.filled.Terrain
+import androidx.compose.material.icons.filled.Notes
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -34,6 +37,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -102,6 +106,15 @@ private fun ActivityScreenHeader() {
                 modifier = Modifier.padding(bottom = 8.dp)
             )
         }
+        
+        // Emoji decorativo de caderneta
+        Text(
+            "📓",
+            fontSize = 64.sp,
+            modifier = Modifier
+                .align(Alignment.CenterEnd)
+                .alpha(0.3f)
+        )
     }
 }
 
@@ -315,7 +328,8 @@ fun TaskRegistryForm(onInsertTaskRegistry: (TaskRegistry) -> Unit) {
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFF1B5E20),
                         contentColor = Color.White
-                    )
+                    ),
+                    shape = RoundedCornerShape(8.dp)
                 ) {
                     Icon(
                         Icons.Filled.Add,
@@ -389,8 +403,8 @@ fun TaskRegistryItem(taskRegistry: TaskRegistry) {
                     .padding(bottom = 12.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                DetailItem(label = "Talhão", value = taskRegistry.area)
-                DetailItem(label = "Horário", value = "${taskRegistry.startTime} - ${taskRegistry.endTime}")
+                DetailItemWithIcon(label = "Talhão", value = taskRegistry.area, icon = Icons.Filled.Terrain)
+                DetailItemWithIcon(label = "Horário", value = "${taskRegistry.startTime} - ${taskRegistry.endTime}", icon = Icons.Filled.AccessTime)
             }
 
             // Observações
@@ -402,13 +416,24 @@ fun TaskRegistryItem(taskRegistry: TaskRegistry) {
                         .padding(12.dp)
                 ) {
                     Column {
-                        Text(
-                            "Observações",
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            color = Color(0xFF666666)
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            modifier = Modifier.padding(bottom = 6.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Notes,
+                                contentDescription = "Observações",
+                                tint = Color(0xFF666666),
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Text(
+                                "Observações",
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = Color(0xFF666666)
+                            )
+                        }
                         Text(
                             taskRegistry.observations,
                             fontSize = 13.sp,
@@ -440,6 +465,34 @@ private fun DetailItem(label: String, value: String) {
     }
 }
 
+@Composable
+private fun DetailItemWithIcon(label: String, value: String, icon: androidx.compose.ui.graphics.vector.ImageVector) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = label,
+            tint = Color(0xFF1B5E20),
+            modifier = Modifier.size(18.dp)
+        )
+        Column {
+            Text(
+                label,
+                fontSize = 11.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = Color(0xFF9E9E9E)
+            )
+            Text(
+                value,
+                fontSize = 13.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = Color.Black
+            )
+        }
+    }
+}
 // Validadores de horário
 private fun isValidHourFormat(time: String): Boolean {
     // Valida formato HH:mm
