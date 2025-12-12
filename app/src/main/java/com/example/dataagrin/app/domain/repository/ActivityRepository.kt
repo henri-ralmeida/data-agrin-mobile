@@ -1,9 +1,9 @@
 package com.example.dataagrin.app.domain.repository
 
-import com.example.dataagrin.app.domain.model.Activity
+import com.example.dataagrin.app.domain.model.TaskRegistry
 import kotlinx.coroutines.flow.Flow
 
-interface ActivityRepository {
-    fun getAllActivities(): Flow<List<Activity>>
-    suspend fun insertActivity(activity: Activity)
+interface TaskRegistryRepository {
+    fun getAllTaskRegistries(): Flow<List<TaskRegistry>>
+    suspend fun insertTaskRegistry(taskRegistry: TaskRegistry)
 }

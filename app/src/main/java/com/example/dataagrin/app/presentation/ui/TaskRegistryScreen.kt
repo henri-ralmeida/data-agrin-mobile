@@ -38,16 +38,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.dataagrin.app.domain.model.Activity
-import com.example.dataagrin.app.presentation.viewmodel.ActivityViewModel
+import com.example.dataagrin.app.domain.model.TaskRegistry
+import com.example.dataagrin.app.presentation.viewmodel.TaskRegistryViewModel
 import org.koin.androidx.compose.koinViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
 @Composable
-fun ActivityScreen(viewModel: ActivityViewModel = koinViewModel()) {
-    val activities by viewModel.activities.collectAsState()
+fun TaskRegistryScreen(viewModel: TaskRegistryViewModel = koinViewModel()) {
+    val taskRegistries by viewModel.taskRegistries.collectAsState()
     
     Column(
         modifier = Modifier
@@ -65,15 +65,15 @@ fun ActivityScreen(viewModel: ActivityViewModel = koinViewModel()) {
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             item {
-                ActivityForm(onInsertActivity = viewModel::insertActivity)
+                TaskRegistryForm(onInsertTaskRegistry = viewModel::insertTaskRegistry)
             }
 
             item {
-                ActivityHistoryHeader(count = activities.size)
+                TaskRegistryHistoryHeader(count = taskRegistries.size)
             }
 
-            items(activities, key = { it.id }) { activity ->
-                ActivityItem(activity = activity)
+            items(taskRegistries, key = { it.id }) { taskRegistry ->
+                TaskRegistryItem(taskRegistry = taskRegistry)
             }
         }
     }
@@ -106,7 +106,7 @@ private fun ActivityScreenHeader() {
 }
 
 @Composable
-private fun ActivityHistoryHeader(count: Int) {
+private fun TaskRegistryHistoryHeader(count: Int) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -131,7 +131,7 @@ private fun ActivityHistoryHeader(count: Int) {
 }
 
 @Composable
-fun ActivityForm(onInsertActivity: (Activity) -> Unit) {
+fun TaskRegistryForm(onInsertTaskRegistry: (TaskRegistry) -> Unit) {
     var type by remember { mutableStateOf("") }
     var area by remember { mutableStateOf("") }
     var startTime by remember { mutableStateOf("") }
@@ -289,15 +289,19 @@ fun ActivityForm(onInsertActivity: (Activity) -> Unit) {
                             area.isBlank() -> "Talhão/Área é obrigatório"
                             startTime.isBlank() -> "Hora de início é obrigatória"
                             endTime.isBlank() -> "Hora de término é obrigatória"
+                            !isValidHourFormat(startTime) -> "Hora de início inválida (use hh:mm)"
+                            !isValidHourFormat(endTime) -> "Hora de término inválida (use hh:mm)"
+                            !isValidHourRange(startTime) -> "Hora de início deve estar entre 00:00 e 23:59"
+                            !isValidHourRange(endTime) -> "Hora de término deve estar entre 00:00 e 23:59"
                             else -> {
-                                val newActivity = Activity(
+                                val newTaskRegistry = TaskRegistry(
                                     type = type.trim(),
                                     area = area.trim(),
                                     startTime = startTime,
                                     endTime = endTime,
                                     observations = observations.trim()
                                 )
-                                onInsertActivity(newActivity)
+                                onInsertTaskRegistry(newTaskRegistry)
                                 type = ""
                                 area = ""
                                 startTime = ""
@@ -331,7 +335,7 @@ fun ActivityForm(onInsertActivity: (Activity) -> Unit) {
 }
 
 @Composable
-fun ActivityItem(activity: Activity) {
+fun TaskRegistryItem(taskRegistry: TaskRegistry) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
@@ -341,7 +345,7 @@ fun ActivityItem(activity: Activity) {
         Column(
             modifier = Modifier.padding(16.dp)
         ) {
-            // Tipo de atividade
+            // Tipo de tarefa registrada
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -350,7 +354,7 @@ fun ActivityItem(activity: Activity) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = activity.type,
+                    text = taskRegistry.type,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF1B5E20),
@@ -359,7 +363,7 @@ fun ActivityItem(activity: Activity) {
                 
                 // Badge de status de tempo
                 val statusColor = when {
-                    activity.startTime.isEmpty() -> Color(0xFF9E9E9E)
+                    taskRegistry.startTime.isEmpty() -> Color(0xFF9E9E9E)
                     else -> Color(0xFF4CAF50)
                 }
                 
@@ -385,12 +389,12 @@ fun ActivityItem(activity: Activity) {
                     .padding(bottom = 12.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                DetailItem(label = "Talhão", value = activity.area)
-                DetailItem(label = "Horário", value = "${activity.startTime} - ${activity.endTime}")
+                DetailItem(label = "Talhão", value = taskRegistry.area)
+                DetailItem(label = "Horário", value = "${taskRegistry.startTime} - ${taskRegistry.endTime}")
             }
 
             // Observações
-            if (activity.observations.isNotEmpty()) {
+            if (taskRegistry.observations.isNotEmpty()) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -406,7 +410,7 @@ fun ActivityItem(activity: Activity) {
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            activity.observations,
+                            taskRegistry.observations,
                             fontSize = 13.sp,
                             color = Color(0xFF333333),
                             lineHeight = 18.sp
@@ -434,4 +438,20 @@ private fun DetailItem(label: String, value: String) {
             color = Color.Black
         )
     }
+}
+
+// Validadores de horário
+private fun isValidHourFormat(time: String): Boolean {
+    // Valida formato HH:mm
+    val regex = Regex("^([0-1]?\\d|2[0-3]):[0-5]\\d$")
+    return regex.matches(time)
+}
+
+private fun isValidHourRange(time: String): Boolean {
+    // Extrai horas e minutos e valida range
+    if (!isValidHourFormat(time)) return false
+    val parts = time.split(":")
+    return parts.size == 2 && 
+           parts[0].toIntOrNull()?.let { it in 0..23 } ?: false &&
+           parts[1].toIntOrNull()?.let { it in 0..59 } ?: false
 }

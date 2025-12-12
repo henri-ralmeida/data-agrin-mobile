@@ -5,11 +5,11 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import com.example.dataagrin.app.domain.model.Activity
+import com.example.dataagrin.app.domain.model.TaskRegistry
 import com.example.dataagrin.app.domain.model.Task
 
 @Database(
-    entities = [Task::class, Activity::class, WeatherCache::class, HourlyWeatherCache::class], 
+    entities = [Task::class, TaskRegistry::class, WeatherCache::class, HourlyWeatherCache::class], 
     version = 2, 
     exportSchema = false
 )
@@ -17,7 +17,7 @@ import com.example.dataagrin.app.domain.model.Task
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun taskDao(): TaskDao
-    abstract fun activityDao(): ActivityDao
+    abstract fun taskRegistryDao(): TaskRegistryDao
     abstract fun weatherDao(): WeatherDao
 
     companion object {

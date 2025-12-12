@@ -17,13 +17,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Cloud
-import androidx.compose.material.icons.filled.CloudOff
-import androidx.compose.material.icons.filled.Error
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -35,7 +31,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.dataagrin.app.domain.model.SyncStatus
 import com.example.dataagrin.app.domain.model.Task
 import com.example.dataagrin.app.domain.model.TaskStatus
 import com.example.dataagrin.app.presentation.viewmodel.TaskViewModel
@@ -153,23 +148,14 @@ fun TaskCard(
         Column(
             modifier = Modifier.padding(16.dp)
         ) {
-            // Linha 1: Nome + Sync Status
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 12.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = task.name,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF1B5E20),
-                    modifier = Modifier.weight(1f)
-                )
-                SyncStatusIcon(task.syncStatus)
-            }
+            // Linha 1: Nome da tarefa
+            Text(
+                text = task.name,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF1B5E20),
+                modifier = Modifier.padding(bottom = 12.dp)
+            )
 
             // Linha 2: Talhão + Hora
             Row(
@@ -274,24 +260,8 @@ private fun StatusBadge(status: TaskStatus) {
     }
 }
 
-@Composable
-private fun SyncStatusIcon(syncStatus: SyncStatus) {
-    val (icon, tint, contentDescription) = when (syncStatus) {
-        SyncStatus.LOCAL -> Triple(Icons.Filled.CloudOff, Color(0xFF9E9E9E), "Apenas local")
-        SyncStatus.SYNCING -> Triple(Icons.Filled.Cloud, Color(0xFF2196F3), "Sincronizando...")
-        SyncStatus.SYNCED -> Triple(Icons.Filled.CheckCircle, Color(0xFF4CAF50), "Sincronizado")
-        SyncStatus.SYNC_ERROR -> Triple(Icons.Filled.Error, Color(0xFFF44336), "Erro na sincronização")
-    }
-
-    IconButton(
-        onClick = { },
-        modifier = Modifier.size(24.dp)
-    ) {
-        Icon(
-            icon,
-            contentDescription = contentDescription,
-            modifier = Modifier.size(20.dp),
-            tint = tint
-        )
-    }
+fun TaskStatus.displayName(): String = when (this) {
+    TaskStatus.PENDING -> "Pendente"
+    TaskStatus.IN_PROGRESS -> "Em andamento"
+    TaskStatus.COMPLETED -> "Finalizada"
 }

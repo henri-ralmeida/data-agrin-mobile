@@ -2,11 +2,11 @@ package com.example.dataagrin.app.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.dataagrin.app.domain.model.Activity
+import com.example.dataagrin.app.domain.model.TaskRegistry
 import com.example.dataagrin.app.domain.model.Task
 import com.example.dataagrin.app.domain.model.TaskStatus
-import com.example.dataagrin.app.domain.usecase.GetActivitiesUseCase
-import com.example.dataagrin.app.domain.usecase.InsertActivityUseCase
+import com.example.dataagrin.app.domain.usecase.GetTaskRegistriesUseCase
+import com.example.dataagrin.app.domain.usecase.InsertTaskRegistryUseCase
 import com.example.dataagrin.app.domain.usecase.InsertTaskUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,36 +15,36 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
-class ActivityViewModel(
-    private val getActivitiesUseCase: GetActivitiesUseCase,
-    private val insertActivityUseCase: InsertActivityUseCase,
+class TaskRegistryViewModel(
+    private val getTaskRegistriesUseCase: GetTaskRegistriesUseCase,
+    private val insertTaskRegistryUseCase: InsertTaskRegistryUseCase,
     private val insertTaskUseCase: InsertTaskUseCase
 ) : ViewModel() {
 
-    private val _activities = MutableStateFlow<List<Activity>>(emptyList())
-    val activities: StateFlow<List<Activity>> = _activities.asStateFlow()
+    private val _taskRegistries = MutableStateFlow<List<TaskRegistry>>(emptyList())
+    val taskRegistries: StateFlow<List<TaskRegistry>> = _taskRegistries.asStateFlow()
 
     init {
-        loadActivities()
+        loadTaskRegistries()
     }
 
-    private fun loadActivities() {
-        getActivitiesUseCase().onEach { activityList ->
-            _activities.value = activityList
+    private fun loadTaskRegistries() {
+        getTaskRegistriesUseCase().onEach { registryList ->
+            _taskRegistries.value = registryList
         }.launchIn(viewModelScope)
     }
 
-    fun insertActivity(activity: Activity) {
+    fun insertTaskRegistry(taskRegistry: TaskRegistry) {
         viewModelScope.launch {
-            // Insere a atividade
-            insertActivityUseCase(activity)
+            // Insere o registro de tarefa
+            insertTaskRegistryUseCase(taskRegistry)
 
             // Cria uma tarefa correspondente automaticamente
             // Usa a hora de início como hora prevista
             val task = Task(
-                name = activity.type,
-                area = activity.area,
-                scheduledTime = activity.startTime,
+                name = taskRegistry.type,
+                area = taskRegistry.area,
+                scheduledTime = taskRegistry.startTime,
                 status = TaskStatus.PENDING
             )
             insertTaskUseCase(task)

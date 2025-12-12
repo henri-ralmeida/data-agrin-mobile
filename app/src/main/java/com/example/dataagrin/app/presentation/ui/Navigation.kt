@@ -23,13 +23,13 @@ import androidx.navigation.compose.rememberNavController
 
 sealed class Screen(val route: String, val label: String, val icon: ImageVector) {
     object Tasks : Screen("tasks", "Tarefas", Icons.Default.CheckCircle)
-    object Activities : Screen("activities", "Registros", Icons.Default.EventNote)
+    object TaskRegistry : Screen("taskregistry", "Registros", Icons.Default.EventNote)
     object Weather : Screen("weather", "Clima", Icons.Default.CloudQueue)
 }
 
 val items = listOf(
     Screen.Tasks,
-    Screen.Activities,
+    Screen.TaskRegistry,
     Screen.Weather,
 )
 
@@ -66,7 +66,7 @@ fun AppNavigation() {
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(Screen.Tasks.route) { TaskScreen() }
-            composable(Screen.Activities.route) { ActivityScreen() }
+            composable(Screen.TaskRegistry.route) { TaskRegistryScreen() }
             composable(Screen.Weather.route) { WeatherScreen() }
         }
     }

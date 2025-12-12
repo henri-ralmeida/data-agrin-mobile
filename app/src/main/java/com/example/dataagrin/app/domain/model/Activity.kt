@@ -4,7 +4,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "activities")
-data class Activity(
+data class TaskRegistry(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
     val type: String,
