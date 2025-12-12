@@ -1,30 +1,182 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:aapt="http://schemas.android.com/aapt"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <path android:pathData="M31,63.928c0,0 6.4,-11 12.1,-13.1c7.2,-2.6 26,-1.4 26,-1.4l38.1,38.1L107,108.928l-32,-1L31,63.928z">
-        <aapt:attr name="android:fillColor">
-            <gradient
-                android:endX="85.84757"
-                android:endY="92.4963"
-                android:startX="42.9492"
-                android:startY="49.59793"
-                android:type="linear">
-                <item
-                    android:color="#44000000"
-                    android:offset="0.0" />
-                <item
-                    android:color="#00000000"
-                    android:offset="1.0" />
-            </gradient>
-        </aapt:attr>
-    </path>
+    <!-- Fundo verde -->
     <path
-        android:fillColor="#FFFFFF"
-        android:fillType="nonZero"
-        android:pathData="M65.3,45.828l3.8,-6.6c0.2,-0.4 0.1,-0.9 -0.3,-1.1c-0.4,-0.2 -0.9,-0.1 -1.1,0.3l-3.9,6.7c-6.3,-2.8 -13.4,-2.8 -19.7,0l-3.9,-6.7c-0.2,-0.4 -0.7,-0.5 -1.1,-0.3C38.8,38.328 38.7,38.828 38.9,39.228l3.8,6.6C36.2,49.428 31.7,56.028 31,63.928h46C76.3,56.028 71.8,49.428 65.3,45.828zM43.4,57.328c-0.8,0 -1.5,-0.5 -1.8,-1.2c-0.3,-0.7 -0.1,-1.5 0.4,-2.1c0.5,-0.5 1.4,-0.7 2.1,-0.4c0.7,0.3 1.2,1 1.2,1.8C45.3,56.528 44.5,57.328 43.4,57.328L43.4,57.328zM64.6,57.328c-0.8,0 -1.5,-0.5 -1.8,-1.2s-0.1,-1.5 0.4,-2.1c0.5,-0.5 1.4,-0.7 2.1,-0.4c0.7,0.3 1.2,1 1.2,1.8C66.5,56.528 65.6,57.328 64.6,57.328L64.6,57.328z"
-        android:strokeWidth="1"
-        android:strokeColor="#00000000" />
+        android:pathData="M0,0h108v108h-108z"
+        android:fillColor="#1B5E20" />
+    
+    <!-- Círculo central branco -->
+    <path
+        android:pathData="M54,18C32.91,18 16,34.91 16,56C16,77.09 32.91,94 54,94C75.09,94 92,77.09 92,56C92,34.91 75.09,18 54,18Z"
+        android:fillColor="#FFFFFF" />
+    
+    <!-- Haste/caule do trigo principal -->
+    <path
+        android:pathData="M54,25L54,75"
+        android:strokeColor="#8B7500"
+        android:strokeWidth="5"
+        android:strokeLineCap="round" />
+    
+    <!-- NÍVEL 1 - TOPO: Grão no topo -->
+    <!-- Triângulo do grão em ouro -->
+    <path
+        android:pathData="M54,23L51.5,27L56.5,27Z"
+        android:fillColor="#FFD54F"
+        android:strokeColor="#FBC02D"
+        android:strokeWidth="1.5"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+    
+    <!-- NÍVEL 2 - Topo (4 espigas bem em pé) -->
+    <!-- Espiga topo-1 esquerda-frente -->
+    <path
+        android:pathData="M54,28L51,24"
+        android:strokeColor="#FFD54F"
+        android:strokeWidth="5"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000" />
+    <!-- Espiga topo-1 direita-frente -->
+    <path
+        android:pathData="M54,28L57,24"
+        android:strokeColor="#FFD54F"
+        android:strokeWidth="5"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000" />
+    <!-- Espiga topo-1 esquerda-trás -->
+    <path
+        android:pathData="M54,28L51.5,23"
+        android:strokeColor="#FBC02D"
+        android:strokeWidth="4"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000" />
+    <!-- Espiga topo-1 direita-trás -->
+    <path
+        android:pathData="M54,28L56.5,23"
+        android:strokeColor="#FBC02D"
+        android:strokeWidth="4"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000" />
+    
+    <!-- NÍVEL 3 - Superior (4 espigas bem em pé) -->
+    <!-- Espiga superior esquerda-1 -->
+    <path
+        android:pathData="M54,35L50,30"
+        android:strokeColor="#FBC02D"
+        android:strokeWidth="5"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000" />
+    <!-- Espiga superior direita-1 -->
+    <path
+        android:pathData="M54,35L58,30"
+        android:strokeColor="#FBC02D"
+        android:strokeWidth="5"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000" />
+    <!-- Espiga superior esquerda-2 -->
+    <path
+        android:pathData="M54,36L51,31"
+        android:strokeColor="#FFD54F"
+        android:strokeWidth="4"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000" />
+    <!-- Espiga superior direita-2 -->
+    <path
+        android:pathData="M54,36L57,31"
+        android:strokeColor="#FFD54F"
+        android:strokeWidth="4"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000" />
+    
+    <!-- NÍVEL 4 - Meio-superior (4 espigas bem em pé) -->
+    <!-- Espiga meio-sup esquerda-1 -->
+    <path
+        android:pathData="M54,44L49,38"
+        android:strokeColor="#FFD54F"
+        android:strokeWidth="5"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000" />
+    <!-- Espiga meio-sup direita-1 -->
+    <path
+        android:pathData="M54,44L59,38"
+        android:strokeColor="#FFD54F"
+        android:strokeWidth="5"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000" />
+    <!-- Espiga meio-sup esquerda-2 -->
+    <path
+        android:pathData="M54,45L49.5,39"
+        android:strokeColor="#FBC02D"
+        android:strokeWidth="4"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000" />
+    <!-- Espiga meio-sup direita-2 -->
+    <path
+        android:pathData="M54,45L58.5,39"
+        android:strokeColor="#FBC02D"
+        android:strokeWidth="4"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000" />
+    
+    <!-- NÍVEL 5 - Meio (4 espigas bem em pé, ligeiramente maiores) -->
+    <!-- Espiga meio esquerda-1 -->
+    <path
+        android:pathData="M54,53L48,46"
+        android:strokeColor="#FBC02D"
+        android:strokeWidth="5"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000" />
+    <!-- Espiga meio direita-1 -->
+    <path
+        android:pathData="M54,53L60,46"
+        android:strokeColor="#FBC02D"
+        android:strokeWidth="5"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000" />
+    <!-- Espiga meio esquerda-2 -->
+    <path
+        android:pathData="M54,54L48.5,47"
+        android:strokeColor="#FFD54F"
+        android:strokeWidth="4"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000" />
+    <!-- Espiga meio direita-2 -->
+    <path
+        android:pathData="M54,54L59.5,47"
+        android:strokeColor="#FFD54F"
+        android:strokeWidth="4"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000" />
+    
+    <!-- NÍVEL 6 - Meio-inferior (4 espigas mais abertas para base) -->
+    <!-- Espiga meio-inf esquerda-1 -->
+    <path
+        android:pathData="M54,62L47,53"
+        android:strokeColor="#FFD54F"
+        android:strokeWidth="5"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000" />
+    <!-- Espiga meio-inf direita-1 -->
+    <path
+        android:pathData="M54,62L61,53"
+        android:strokeColor="#FFD54F"
+        android:strokeWidth="5"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000" />
+    <!-- Espiga meio-inf esquerda-2 -->
+    <path
+        android:pathData="M54,63L47.5,54"
+        android:strokeColor="#FBC02D"
+        android:strokeWidth="4"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000" />
+    <!-- Espiga meio-inf direita-2 -->
+    <path
+        android:pathData="M54,63L60.5,54"
+        android:strokeColor="#FBC02D"
+        android:strokeWidth="4"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000" />
 </vector>
