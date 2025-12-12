@@ -1,5 +1,13 @@
 package com.example.dataagrin.app.presentation.ui
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -23,9 +31,9 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.PlayCircle
 import androidx.compose.material.icons.filled.CheckCircleOutline
-import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Terrain
-import androidx.compose.material.icons.filled.Notes
+import androidx.compose.material.icons.filled.AccessTime
+import androidx.compose.material.icons.automirrored.filled.Notes
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -46,6 +54,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -87,25 +96,31 @@ fun TaskScreen(viewModel: TaskViewModel = koinViewModel()) {
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(tasks) { task ->
-                    TaskCard(
-                        task = task,
-                        onStatusChange = { newStatus ->
-                            viewModel.updateTask(task.copy(status = newStatus))
-                        },
-                        onEdit = {
-                            selectedTask = task
-                            editName = task.name
-                            editScheduledTime = task.scheduledTime
-                            editEndTime = task.endTime
-                            editArea = task.area
-                            editObservations = task.observations
-                            showEditDialog = true
-                        },
-                        onDelete = {
-                            taskToDelete = task.id
-                            showDeleteConfirm = true
-                        }
-                    )
+                    AnimatedVisibility(
+                        visible = true,
+                        enter = slideInVertically(initialOffsetY = { 100 }) + fadeIn(),
+                        exit = slideOutVertically() + fadeOut()
+                    ) {
+                        TaskCard(
+                            task = task,
+                            onStatusChange = { newStatus ->
+                                viewModel.updateTask(task.copy(status = newStatus))
+                            },
+                            onEdit = {
+                                selectedTask = task
+                                editName = task.name
+                                editScheduledTime = task.scheduledTime
+                                editEndTime = task.endTime
+                                editArea = task.area
+                                editObservations = task.observations
+                                showEditDialog = true
+                            },
+                            onDelete = {
+                                taskToDelete = task.id
+                                showDeleteConfirm = true
+                            }
+                        )
+                    }
                 }
             }
         }
@@ -134,6 +149,10 @@ fun TaskScreen(viewModel: TaskViewModel = koinViewModel()) {
                     }
                     if (editEndTime.isNotEmpty() && !isValidTimeFormat(editEndTime)) {
                         timeError = "Horário de término inválido. Use o formato hh:mm"
+                        return@EditTaskDialog
+                    }
+                    if (editEndTime.isNotEmpty() && !isValidTimeRange(editScheduledTime, editEndTime)) {
+                        timeError = "Hora de término deve ser após a hora de início"
                         return@EditTaskDialog
                     }
                     selectedTask?.let { task ->
@@ -299,6 +318,19 @@ fun TaskCard(
     onEdit: () -> Unit = {},
     onDelete: () -> Unit = {}
 ) {
+    var editPressed by remember { mutableStateOf(false) }
+    var deletePressed by remember { mutableStateOf(false) }
+    
+    val editScale by animateFloatAsState(
+        targetValue = if (editPressed) 0.95f else 1f,
+        animationSpec = spring(dampingRatio = 0.8f)
+    )
+    
+    val deleteScale by animateFloatAsState(
+        targetValue = if (deletePressed) 0.95f else 1f,
+        animationSpec = spring(dampingRatio = 0.8f)
+    )
+    
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -354,7 +386,7 @@ fun TaskCard(
                             modifier = Modifier.padding(bottom = 6.dp)
                         ) {
                             Icon(
-                                imageVector = Icons.Filled.Notes,
+                                imageVector = Icons.AutoMirrored.Filled.Notes,
                                 contentDescription = "Observações",
                                 tint = Color(0xFF666666),
                                 modifier = Modifier.size(16.dp)
@@ -422,8 +454,13 @@ fun TaskCard(
             ) {
                 // Edit button
                 IconButton(
-                    onClick = onEdit,
-                    modifier = Modifier.size(36.dp)
+                    onClick = {
+                        editPressed = true
+                        onEdit()
+                    },
+                    modifier = Modifier
+                        .size(36.dp)
+                        .graphicsLayer(scaleX = editScale, scaleY = editScale)
                 ) {
                     Icon(
                         imageVector = Icons.Default.Edit,
@@ -434,8 +471,13 @@ fun TaskCard(
 
                 // Delete button
                 IconButton(
-                    onClick = onDelete,
-                    modifier = Modifier.size(36.dp)
+                    onClick = {
+                        deletePressed = true
+                        onDelete()
+                    },
+                    modifier = Modifier
+                        .size(36.dp)
+                        .graphicsLayer(scaleX = deleteScale, scaleY = deleteScale)
                 ) {
                     Icon(
                         imageVector = Icons.Default.Delete,
@@ -525,9 +567,15 @@ private fun StatusBadge(status: TaskStatus) {
         )
     }
 
+    // Animação de cor
+    val backgroundColor by animateColorAsState(
+        targetValue = statusInfo.backgroundColor,
+        label = "statusColorAnimation"
+    )
+
     Box(
         modifier = Modifier
-            .background(statusInfo.backgroundColor, shape = RoundedCornerShape(8.dp))
+            .background(backgroundColor, shape = RoundedCornerShape(8.dp))
             .padding(horizontal = 12.dp, vertical = 6.dp),
         contentAlignment = Alignment.Center
     ) {
@@ -714,4 +762,22 @@ private fun isValidTimeFormat(time: String): Boolean {
     if (time.isEmpty()) return false
     val regex = Regex("^([0-1][0-9]|2[0-3]):[0-5][0-9]$")
     return regex.matches(time)
+}
+
+private fun isValidTimeRange(startTime: String, endTime: String): Boolean {
+    // Valida se endTime é maior que startTime (não permite voltar no tempo!)
+    if (!isValidTimeFormat(startTime) || !isValidTimeFormat(endTime)) return false
+    
+    val startParts = startTime.split(":")
+    val endParts = endTime.split(":")
+    
+    val startHour = startParts[0].toIntOrNull() ?: return false
+    val startMinute = startParts[1].toIntOrNull() ?: return false
+    val endHour = endParts[0].toIntOrNull() ?: return false
+    val endMinute = endParts[1].toIntOrNull() ?: return false
+    
+    val startTotalMinutes = startHour * 60 + startMinute
+    val endTotalMinutes = endHour * 60 + endMinute
+    
+    return endTotalMinutes > startTotalMinutes
 }

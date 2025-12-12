@@ -1,5 +1,14 @@
 package com.example.dataagrin.app.presentation.ui
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -39,13 +48,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import android.content.Context
-import androidx.compose.runtime.remember
 import com.example.dataagrin.app.domain.model.HourlyWeather
 import com.example.dataagrin.app.domain.model.Weather
 import com.example.dataagrin.app.presentation.viewmodel.WeatherViewModel
@@ -56,6 +65,14 @@ import androidx.compose.ui.platform.LocalContext
 fun WeatherScreen(viewModel: WeatherViewModel = koinViewModel()) {
     val weather by viewModel.weather.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
+    
+    val pulseAlpha by animateFloatAsState(
+        targetValue = if (isLoading) 0.7f else 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 1000),
+            repeatMode = RepeatMode.Reverse
+        )
+    )
 
     LaunchedEffect(Unit) {
         viewModel.loadWeather()
@@ -79,7 +96,9 @@ fun WeatherScreen(viewModel: WeatherViewModel = koinViewModel()) {
             when {
                 isLoading -> {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        CircularProgressIndicator()
+                        CircularProgressIndicator(
+                            modifier = Modifier.graphicsLayer(alpha = pulseAlpha)
+                        )
                         Spacer(modifier = Modifier.height(16.dp))
                         Text("Carregando dados de clima...", fontSize = 14.sp, color = Color.Gray)
                     }
@@ -276,8 +295,13 @@ fun WeatherContent(weather: Weather, onRefresh: () -> Unit, weatherData: Weather
                 horizontalArrangement = androidx.compose.foundation.layout.Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                upcomingHours.take(3).forEach { hourly ->
-                    HourlyForecastItem(hourly)
+                upcomingHours.take(3).forEachIndexed { index, hourly ->
+                    AnimatedVisibility(
+                        visible = true,
+                        enter = slideInVertically(initialOffsetY = { 100 }) + fadeIn()
+                    ) {
+                        HourlyForecastItem(hourly)
+                    }
                 }
             }
         } else if (hasLoadedSuccessfully.value && upcomingHours.isEmpty() && weather.hourlyForecast.isNotEmpty()) {
@@ -287,8 +311,13 @@ fun WeatherContent(weather: Weather, onRefresh: () -> Unit, weatherData: Weather
                 horizontalArrangement = androidx.compose.foundation.layout.Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                weather.hourlyForecast.take(3).forEach { hourly ->
-                    HourlyForecastItem(hourly)
+                weather.hourlyForecast.take(3).forEachIndexed { index, hourly ->
+                    AnimatedVisibility(
+                        visible = true,
+                        enter = slideInVertically(initialOffsetY = { 100 }) + fadeIn()
+                    ) {
+                        HourlyForecastItem(hourly)
+                    }
                 }
             }
         }

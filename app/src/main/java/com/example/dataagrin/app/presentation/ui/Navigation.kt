@@ -4,7 +4,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.CloudQueue
-import androidx.compose.material.icons.filled.EventNote
+import androidx.compose.material.icons.automirrored.filled.Notes
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -23,7 +23,7 @@ import androidx.navigation.compose.rememberNavController
 
 sealed class Screen(val route: String, val label: String, val icon: ImageVector) {
     object Tasks : Screen("tasks", "Tarefas", Icons.Default.CheckCircle)
-    object TaskRegistry : Screen("taskregistry", "Registros", Icons.Default.EventNote)
+    object TaskRegistry : Screen("taskregistry", "Registros", Icons.AutoMirrored.Filled.Notes)
     object Weather : Screen("weather", "Clima", Icons.Default.CloudQueue)
 }
 

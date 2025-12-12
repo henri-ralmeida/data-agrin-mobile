@@ -1,5 +1,13 @@
 package com.example.dataagrin.app.presentation.ui
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,7 +27,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Terrain
-import androidx.compose.material.icons.filled.Notes
+import androidx.compose.material.icons.automirrored.filled.Notes
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -39,6 +47,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -69,7 +78,12 @@ fun TaskRegistryScreen(viewModel: TaskRegistryViewModel = koinViewModel()) {
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             item {
-                TaskRegistryForm(onInsertTaskRegistry = viewModel::insertTaskRegistry)
+                AnimatedVisibility(
+                    visible = true,
+                    enter = fadeIn() + slideInVertically(initialOffsetY = { -100 })
+                ) {
+                    TaskRegistryForm(onInsertTaskRegistry = viewModel::insertTaskRegistry)
+                }
             }
 
             item {
@@ -77,7 +91,13 @@ fun TaskRegistryScreen(viewModel: TaskRegistryViewModel = koinViewModel()) {
             }
 
             items(taskRegistries, key = { it.id }) { taskRegistry ->
-                TaskRegistryItem(taskRegistry = taskRegistry)
+                AnimatedVisibility(
+                    visible = true,
+                    enter = slideInVertically(initialOffsetY = { 100 }) + fadeIn(),
+                    exit = slideOutVertically() + fadeOut()
+                ) {
+                    TaskRegistryItem(taskRegistry = taskRegistry)
+                }
             }
         }
     }
@@ -152,6 +172,12 @@ fun TaskRegistryForm(onInsertTaskRegistry: (TaskRegistry) -> Unit) {
     var observations by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf("") }
     var isExpanded by remember { mutableStateOf(true) }
+    var saveButtonPressed by remember { mutableStateOf(false) }
+    
+    val saveScale by animateFloatAsState(
+        targetValue = if (saveButtonPressed) 0.95f else 1f,
+        animationSpec = spring(dampingRatio = 0.8f)
+    )
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -297,6 +323,7 @@ fun TaskRegistryForm(onInsertTaskRegistry: (TaskRegistry) -> Unit) {
 
                 Button(
                     onClick = {
+                        saveButtonPressed = true
                         errorMessage = when {
                             type.isBlank() -> "Tipo de atividade é obrigatório"
                             area.isBlank() -> "Talhão/Área é obrigatório"
@@ -306,6 +333,7 @@ fun TaskRegistryForm(onInsertTaskRegistry: (TaskRegistry) -> Unit) {
                             !isValidHourFormat(endTime) -> "Hora de término inválida (use hh:mm)"
                             !isValidHourRange(startTime) -> "Hora de início deve estar entre 00:00 e 23:59"
                             !isValidHourRange(endTime) -> "Hora de término deve estar entre 00:00 e 23:59"
+                            !isValidTimeRange(startTime, endTime) -> "Hora de término deve ser após a hora de início"
                             else -> {
                                 val newTaskRegistry = TaskRegistry(
                                     type = type.trim(),
@@ -320,11 +348,14 @@ fun TaskRegistryForm(onInsertTaskRegistry: (TaskRegistry) -> Unit) {
                                 startTime = ""
                                 endTime = ""
                                 observations = ""
+                                saveButtonPressed = false
                                 ""
                             }
                         }
                     },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .graphicsLayer(scaleX = saveScale, scaleY = saveScale),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFF1B5E20),
                         contentColor = Color.White
@@ -422,7 +453,7 @@ fun TaskRegistryItem(taskRegistry: TaskRegistry) {
                             modifier = Modifier.padding(bottom = 6.dp)
                         ) {
                             Icon(
-                                imageVector = Icons.Filled.Notes,
+                                imageVector = Icons.AutoMirrored.Filled.Notes,
                                 contentDescription = "Observações",
                                 tint = Color(0xFF666666),
                                 modifier = Modifier.size(16.dp)
@@ -507,4 +538,22 @@ private fun isValidHourRange(time: String): Boolean {
     return parts.size == 2 && 
            parts[0].toIntOrNull()?.let { it in 0..23 } ?: false &&
            parts[1].toIntOrNull()?.let { it in 0..59 } ?: false
+}
+
+private fun isValidTimeRange(startTime: String, endTime: String): Boolean {
+    // Valida se endTime é maior que startTime (não permite voltar no tempo!)
+    if (!isValidHourFormat(startTime) || !isValidHourFormat(endTime)) return false
+    
+    val startParts = startTime.split(":")
+    val endParts = endTime.split(":")
+    
+    val startHour = startParts[0].toIntOrNull() ?: return false
+    val startMinute = startParts[1].toIntOrNull() ?: return false
+    val endHour = endParts[0].toIntOrNull() ?: return false
+    val endMinute = endParts[1].toIntOrNull() ?: return false
+    
+    val startTotalMinutes = startHour * 60 + startMinute
+    val endTotalMinutes = endHour * 60 + endMinute
+    
+    return endTotalMinutes > startTotalMinutes
 }

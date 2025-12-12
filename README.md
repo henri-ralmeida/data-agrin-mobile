@@ -42,16 +42,16 @@ App Android nativo em Kotlin com Jetpack Compose para monitoramento de tarefas a
 ```
 app/src/main/java/com/example/dataagrin/app/
 ├── domain/
-│   ├── model/          # Task, Activity, Weather
-│   ├── repository/     # Interfaces (TaskRepository, ActivityRepository, WeatherRepository)
-│   └── usecase/        # UseCases (GetTasks, UpdateTask, InsertActivity, GetWeather, etc)
+│   ├── model/          # Task, TaskRegistry, Weather
+│   ├── repository/     # Interfaces (TaskRepository, TaskRegistryRepository, WeatherRepository)
+│   └── usecase/        # UseCases (GetTasks, UpdateTask, GetTaskRegistries, GetWeather, etc)
 ├── data/
 │   ├── local/          # Room entities, DAOs, AppDatabase
 │   ├── remote/         # WeatherApi, DTOs (WeatherDto)
-│   └── repository/     # Implementações (TaskRepositoryImpl, ActivityRepositoryImpl, WeatherRepositoryImpl)
+│   └── repository/     # Implementações (TaskRepositoryImpl, TaskRegistryRepositoryImpl, WeatherRepositoryImpl)
 ├── presentation/
-│   ├── ui/             # Composables (TaskScreen, ActivityScreen, WeatherScreen, Navigation)
-│   └── viewmodel/      # ViewModels (TaskViewModel, ActivityViewModel, WeatherViewModel)
+│   ├── ui/             # Composables (TaskScreen, TaskRegistryScreen, WeatherScreen, Navigation)
+│   └── viewmodel/      # ViewModels (TaskViewModel, TaskRegistryViewModel, WeatherViewModel)
 ├── di/                 # Koin modules (AppModule)
 ├── DataAgrinApp.kt     # Application class (Koin initialization)
 └── MainActivity.kt     # Activity raiz
@@ -182,13 +182,13 @@ Presentation (UI, ViewModels)
 val appModule = module {
     // Repositories
     single<TaskRepository> { TaskRepositoryImpl(get()) }
-    single<ActivityRepository> { ActivityRepositoryImpl(get()) }
+    single<TaskRegistryRepository> { TaskRegistryRepositoryImpl(get<AppDatabase>().taskRegistryDao()) }
     single<WeatherRepository> { WeatherRepositoryImpl(get(), get()) }
     
     // ViewModels
-    viewModel { TaskViewModel(get(), get()) }
-    viewModel { ActivityViewModel(get(), get()) }
-    viewModel { WeatherViewModel(get()) }
+    viewModel { TaskViewModel(get(), get(), get()) }
+    viewModel { TaskRegistryViewModel(get(), get(), get()) }
+    viewModel { WeatherViewModel(get(), get()) }
 }
 ```
 
