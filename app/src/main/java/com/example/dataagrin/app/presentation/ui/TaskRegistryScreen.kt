@@ -51,6 +51,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.dataagrin.app.domain.model.TaskRegistry
+import com.example.dataagrin.app.presentation.ui.components.TimeInputField
+import com.example.dataagrin.app.presentation.ui.components.formatTimeValue
 import com.example.dataagrin.app.presentation.viewmodel.TaskRegistryViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -265,30 +267,18 @@ fun TaskRegistryForm(onInsertTaskRegistry: (TaskRegistry) -> Unit) {
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    OutlinedTextField(
+                    TimeInputField(
                         value = startTime,
                         onValueChange = { startTime = it },
-                        label = { Text("Início") },
-                        modifier = Modifier.weight(1f),
-                        placeholder = { Text("hh:mm") },
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Color(0xFF1B5E20),
-                            focusedLabelColor = Color(0xFF1B5E20)
-                        ),
-                        singleLine = true
+                        label = "Início",
+                        modifier = Modifier.weight(1f)
                     )
 
-                    OutlinedTextField(
+                    TimeInputField(
                         value = endTime,
                         onValueChange = { endTime = it },
-                        label = { Text("Término") },
-                        modifier = Modifier.weight(1f),
-                        placeholder = { Text("hh:mm") },
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Color(0xFF1B5E20),
-                            focusedLabelColor = Color(0xFF1B5E20)
-                        ),
-                        singleLine = true
+                        label = "Término",
+                        modifier = Modifier.weight(1f)
                     )
                 }
                 Spacer(modifier = Modifier.height(8.dp))
@@ -319,22 +309,26 @@ fun TaskRegistryForm(onInsertTaskRegistry: (TaskRegistry) -> Unit) {
 
                 Button(
                     onClick = {
+                        // Converte para formato HH:mm para validação
+                        val formattedStartTime = formatTimeValue(startTime)
+                        val formattedEndTime = formatTimeValue(endTime)
+                        
                         errorMessage = when {
                             type.isBlank() -> "Tipo de atividade é obrigatório"
                             area.isBlank() -> "Talhão/Área é obrigatório"
-                            startTime.isBlank() -> "Hora de início é obrigatória"
-                            endTime.isBlank() -> "Hora de término é obrigatória"
-                            !isValidHourFormat(startTime) -> "Hora de início inválida (use hh:mm)"
-                            !isValidHourFormat(endTime) -> "Hora de término inválida (use hh:mm)"
-                            !isValidHourRange(startTime) -> "Hora de início deve estar entre 00:00 e 23:59"
-                            !isValidHourRange(endTime) -> "Hora de término deve estar entre 00:00 e 23:59"
-                            !isValidTimeRange(startTime, endTime) -> "Hora de término deve ser após a hora de início"
+                            startTime.length < 4 -> "Hora de início é obrigatória (4 dígitos)"
+                            endTime.length < 4 -> "Hora de término é obrigatória (4 dígitos)"
+                            !isValidHourFormat(formattedStartTime) -> "Hora de início inválida"
+                            !isValidHourFormat(formattedEndTime) -> "Hora de término inválida"
+                            !isValidHourRange(formattedStartTime) -> "Hora de início deve estar entre 00:00 e 23:59"
+                            !isValidHourRange(formattedEndTime) -> "Hora de término deve estar entre 00:00 e 23:59"
+                            !isValidTimeRange(formattedStartTime, formattedEndTime) -> "Hora de término deve ser após a hora de início"
                             else -> {
                                 val newTaskRegistry = TaskRegistry(
                                     type = type.trim(),
                                     area = area.trim(),
-                                    startTime = startTime,
-                                    endTime = endTime,
+                                    startTime = formattedStartTime,
+                                    endTime = formattedEndTime,
                                     observations = observations.trim()
                                 )
                                 onInsertTaskRegistry(newTaskRegistry)

@@ -61,6 +61,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.dataagrin.app.domain.model.Task
 import com.example.dataagrin.app.domain.model.TaskStatus
+import com.example.dataagrin.app.presentation.ui.components.TimeInputField
+import com.example.dataagrin.app.presentation.ui.components.formatTimeValue
+import com.example.dataagrin.app.presentation.ui.components.parseTimeToRaw
 import com.example.dataagrin.app.presentation.viewmodel.TaskViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -97,7 +100,7 @@ fun TaskScreen(viewModel: TaskViewModel = koinViewModel()) {
                     .padding(horizontal = 16.dp, vertical = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                items(tasks) { task ->
+                items(tasks, key = { it.id }) { task ->
                     AnimatedVisibility(
                         visible = true,
                         enter = slideInVertically(initialOffsetY = { 100 }) + fadeIn(),
@@ -111,8 +114,8 @@ fun TaskScreen(viewModel: TaskViewModel = koinViewModel()) {
                             onEdit = {
                                 selectedTask = task
                                 editName = task.name
-                                editScheduledTime = task.scheduledTime
-                                editEndTime = task.endTime
+                                editScheduledTime = parseTimeToRaw(task.scheduledTime)
+                                editEndTime = parseTimeToRaw(task.endTime)
                                 editArea = task.area
                                 editObservations = task.observations
                                 showEditDialog = true
@@ -144,15 +147,26 @@ fun TaskScreen(viewModel: TaskViewModel = koinViewModel()) {
                 onAreaChange = { editArea = it },
                 onConfirm = {
                     timeError = ""
-                    if (!isValidTimeFormat(editScheduledTime)) {
-                        timeError = "Horário de início inválido. Use o formato hh:mm"
+                    val formattedScheduledTime = formatTimeValue(editScheduledTime)
+                    val formattedEndTime = formatTimeValue(editEndTime)
+                    
+                    if (editScheduledTime.length < 4) {
+                        timeError = "Horário de início obrigatório (4 dígitos)"
                         return@EditTaskDialog
                     }
-                    if (editEndTime.isNotEmpty() && !isValidTimeFormat(editEndTime)) {
-                        timeError = "Horário de término inválido. Use o formato hh:mm"
+                    if (!isValidTimeFormat(formattedScheduledTime)) {
+                        timeError = "Horário de início inválido"
                         return@EditTaskDialog
                     }
-                    if (editEndTime.isNotEmpty() && !isValidTimeRange(editScheduledTime, editEndTime)) {
+                    if (editEndTime.isNotEmpty() && editEndTime.length < 4) {
+                        timeError = "Horário de término inválido (4 dígitos)"
+                        return@EditTaskDialog
+                    }
+                    if (editEndTime.length == 4 && !isValidTimeFormat(formattedEndTime)) {
+                        timeError = "Horário de término inválido"
+                        return@EditTaskDialog
+                    }
+                    if (editEndTime.length == 4 && !isValidTimeRange(formattedScheduledTime, formattedEndTime)) {
                         timeError = "Hora de término deve ser após a hora de início"
                         return@EditTaskDialog
                     }
@@ -160,8 +174,8 @@ fun TaskScreen(viewModel: TaskViewModel = koinViewModel()) {
                         viewModel.updateTask(
                             task.copy(
                                 name = editName,
-                                scheduledTime = editScheduledTime,
-                                endTime = editEndTime,
+                                scheduledTime = formattedScheduledTime,
+                                endTime = if (editEndTime.length == 4) formattedEndTime else "",
                                 area = editArea,
                                 observations = editObservations
                             )
@@ -625,22 +639,15 @@ private fun EditTaskDialog(
                 )
 
                 // Scheduled Time Field
-                OutlinedTextField(
+                TimeInputField(
                     value = scheduledTime,
                     onValueChange = {
                         onScheduledTimeChange(it)
                         onTimeErrorChange("")
                     },
-                    label = { Text("Horário de Início") },
-                    placeholder = { Text("hh:mm") },
+                    label = "Horário de Início",
                     modifier = Modifier.fillMaxWidth(),
-                    isError = timeError.isNotEmpty(),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = if (timeError.isNotEmpty()) Color.Red else Color(0xFF1B5E20),
-                        focusedLabelColor = Color(0xFF1B5E20),
-                        errorBorderColor = Color.Red,
-                        errorLabelColor = Color.Red
-                    )
+                    isError = timeError.isNotEmpty()
                 )
                 if (timeError.isNotEmpty()) {
                     Text(
@@ -652,19 +659,14 @@ private fun EditTaskDialog(
                 }
 
                 // End Time Field
-                OutlinedTextField(
+                TimeInputField(
                     value = endTime,
                     onValueChange = {
                         onEndTimeChange(it)
                         onTimeErrorChange("")
                     },
-                    label = { Text("Horário de Término") },
-                    placeholder = { Text("hh:mm (opcional)") },
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Color(0xFF1B5E20),
-                        focusedLabelColor = Color(0xFF1B5E20)
-                    )
+                    label = "Horário de Término",
+                    modifier = Modifier.fillMaxWidth()
                 )
 
                 // Area Field
