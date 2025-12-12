@@ -2,10 +2,9 @@ package com.example.dataagrin.app.presentation.ui
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddCircle
-import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.CloudQueue
+import androidx.compose.material.icons.filled.EventNote
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -23,9 +22,9 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 
 sealed class Screen(val route: String, val label: String, val icon: ImageVector) {
-    object Tasks : Screen("tasks", "Tarefas", Icons.Default.Home)
-    object Activities : Screen("activities", "Registros", Icons.Default.AddCircle)
-    object Weather : Screen("weather", "Clima", Icons.Default.LocationOn)
+    object Tasks : Screen("tasks", "Tarefas", Icons.Default.CheckCircle)
+    object Activities : Screen("activities", "Registros", Icons.Default.EventNote)
+    object Weather : Screen("weather", "Clima", Icons.Default.CloudQueue)
 }
 
 val items = listOf(
