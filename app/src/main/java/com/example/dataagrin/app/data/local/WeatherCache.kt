@@ -31,7 +31,8 @@ data class WeatherCache(
         parentColumns = ["id"],
         childColumns = ["weatherId"],
         onDelete = ForeignKey.CASCADE
-    )]
+    )],
+    indices = [androidx.room.Index(value = ["weatherId"])]
 )
 data class HourlyWeatherCache(
     @PrimaryKey(autoGenerate = true)
