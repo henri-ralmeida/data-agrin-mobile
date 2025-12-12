@@ -56,7 +56,9 @@ fun TaskScreen(viewModel: TaskViewModel = koinViewModel()) {
     var selectedTask by remember { mutableStateOf<Task?>(null) }
     var editName by remember { mutableStateOf("") }
     var editScheduledTime by remember { mutableStateOf("") }
+    var editEndTime by remember { mutableStateOf("") }
     var editArea by remember { mutableStateOf("") }
+    var editObservations by remember { mutableStateOf("") }
     var timeError by remember { mutableStateOf("") }
 
     Column(
@@ -87,7 +89,9 @@ fun TaskScreen(viewModel: TaskViewModel = koinViewModel()) {
                             selectedTask = task
                             editName = task.name
                             editScheduledTime = task.scheduledTime
+                            editEndTime = task.endTime
                             editArea = task.area
+                            editObservations = task.observations
                             showEditDialog = true
                         },
                         onDelete = {
@@ -107,6 +111,10 @@ fun TaskScreen(viewModel: TaskViewModel = koinViewModel()) {
                 onTaskNameChange = { editName = it },
                 scheduledTime = editScheduledTime,
                 onScheduledTimeChange = { editScheduledTime = it },
+                endTime = editEndTime,
+                onEndTimeChange = { editEndTime = it },
+                observations = editObservations,
+                onObservationsChange = { editObservations = it },
                 timeError = timeError,
                 onTimeErrorChange = { timeError = it },
                 area = editArea,
@@ -114,7 +122,11 @@ fun TaskScreen(viewModel: TaskViewModel = koinViewModel()) {
                 onConfirm = {
                     timeError = ""
                     if (!isValidTimeFormat(editScheduledTime)) {
-                        timeError = "Horário inválido. Use o formato hh:mm"
+                        timeError = "Horário de início inválido. Use o formato hh:mm"
+                        return@EditTaskDialog
+                    }
+                    if (editEndTime.isNotEmpty() && !isValidTimeFormat(editEndTime)) {
+                        timeError = "Horário de término inválido. Use o formato hh:mm"
                         return@EditTaskDialog
                     }
                     selectedTask?.let { task ->
@@ -122,7 +134,9 @@ fun TaskScreen(viewModel: TaskViewModel = koinViewModel()) {
                             task.copy(
                                 name = editName,
                                 scheduledTime = editScheduledTime,
-                                area = editArea
+                                endTime = editEndTime,
+                                area = editArea,
+                                observations = editObservations
                             )
                         )
                     }
@@ -297,7 +311,37 @@ fun TaskCard(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 DetailItem(label = "Talhão", value = task.area)
-                DetailItem(label = "Horário", value = task.scheduledTime)
+                DetailItem(
+                    label = "Horário",
+                    value = if (task.endTime.isNotEmpty()) "${task.scheduledTime} - ${task.endTime}" else task.scheduledTime
+                )
+            }
+
+            // Linha 2.5: Observações (se houver)
+            if (task.observations.isNotEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Color(0xFFF5F5F5), shape = RoundedCornerShape(8.dp))
+                        .padding(12.dp)
+                        .padding(bottom = 12.dp)
+                ) {
+                    Column {
+                        Text(
+                            "Observações",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Color(0xFF666666)
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            task.observations,
+                            fontSize = 13.sp,
+                            color = Color(0xFF333333),
+                            lineHeight = 18.sp
+                        )
+                    }
+                }
             }
 
             // Linha 3: Status + Botão atualizar
@@ -438,6 +482,10 @@ private fun EditTaskDialog(
     onTaskNameChange: (String) -> Unit,
     scheduledTime: String,
     onScheduledTimeChange: (String) -> Unit,
+    endTime: String,
+    onEndTimeChange: (String) -> Unit,
+    observations: String,
+    onObservationsChange: (String) -> Unit,
     timeError: String = "",
     onTimeErrorChange: (String) -> Unit = {},
     area: String,
@@ -479,8 +527,8 @@ private fun EditTaskDialog(
                             onScheduledTimeChange(it)
                             onTimeErrorChange("")
                         },
-                        label = { Text("Horário Agendado") },
-                        placeholder = { Text("HH:mm") },
+                        label = { Text("Horário de Início") },
+                        placeholder = { Text("hh:mm") },
                         modifier = Modifier.fillMaxWidth(),
                         isError = timeError.isNotEmpty(),
                         colors = OutlinedTextFieldDefaults.colors(
@@ -500,12 +548,42 @@ private fun EditTaskDialog(
                     }
                 }
 
+                // End Time Field
+                OutlinedTextField(
+                    value = endTime,
+                    onValueChange = {
+                        onEndTimeChange(it)
+                        onTimeErrorChange("")
+                    },
+                    label = { Text("Horário de Término") },
+                    placeholder = { Text("hh:mm (opcional)") },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = Color(0xFF1B5E20),
+                        focusedLabelColor = Color(0xFF1B5E20)
+                    )
+                )
+
                 // Area Field
                 OutlinedTextField(
                     value = area,
                     onValueChange = onAreaChange,
                     label = { Text("Talhão") },
                     modifier = Modifier.fillMaxWidth(),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = Color(0xFF1B5E20),
+                        focusedLabelColor = Color(0xFF1B5E20)
+                    )
+                )
+
+                // Observations Field
+                OutlinedTextField(
+                    value = observations,
+                    onValueChange = onObservationsChange,
+                    label = { Text("Observações") },
+                    placeholder = { Text("Adicione observações... (opcional)") },
+                    modifier = Modifier.fillMaxWidth(),
+                    minLines = 3,
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = Color(0xFF1B5E20),
                         focusedLabelColor = Color(0xFF1B5E20)

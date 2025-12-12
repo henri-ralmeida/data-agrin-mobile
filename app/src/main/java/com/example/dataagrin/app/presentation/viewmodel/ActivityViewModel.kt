@@ -46,6 +46,7 @@ class TaskRegistryViewModel(
                 area = taskRegistry.area,
                 scheduledTime = taskRegistry.startTime,
                 endTime = taskRegistry.endTime,
+                observations = taskRegistry.observations,
                 status = TaskStatus.PENDING
             )
             insertTaskUseCase(task)

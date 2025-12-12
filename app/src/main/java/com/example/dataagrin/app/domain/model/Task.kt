@@ -9,7 +9,9 @@ data class Task(
     val id: Int = 0,
     val name: String,
     val area: String,
-    val scheduledTime: String,
+    val scheduledTime: String,  // Horário de início (HH:mm)
+    val endTime: String = "",   // Horário de término (HH:mm)
+    val observations: String = "", // Observações
     val status: TaskStatus,
     // BaaS Sync Fields (para Firebase/Supabase)
     val remoteId: String? = null,
