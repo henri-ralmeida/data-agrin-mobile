@@ -42,7 +42,7 @@ val appModule = module {
     factory { GetTaskRegistriesUseCase(get()) }
     factory { InsertTaskRegistryUseCase(get()) }
 
-    viewModel { TaskViewModel(get(), get(), get()) }
+    viewModel { TaskViewModel(get(), get(), get(), get()) }
     viewModel { WeatherViewModel(get(), androidContext()) }
     viewModel { TaskRegistryViewModel(get(), get(), get()) }
 

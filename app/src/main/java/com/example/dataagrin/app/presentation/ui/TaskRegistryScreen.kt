@@ -406,17 +406,30 @@ fun TaskRegistryItem(taskRegistry: TaskRegistry) {
                     else -> Color(0xFF4CAF50)
                 }
                 
+                val (badgeText, badgeBackgroundColor, badgeTextColor) = when {
+                    taskRegistry.isModified -> Triple(
+                        "Alterado",
+                        Color(0xFF1976D2).copy(alpha = 0.2f),
+                        Color(0xFF0D47A1)
+                    )
+                    else -> Triple(
+                        "Registrado",
+                        statusColor.copy(alpha = 0.2f),
+                        statusColor
+                    )
+                }
+                
                 Box(
                     modifier = Modifier
-                        .background(statusColor.copy(alpha = 0.2f), shape = RoundedCornerShape(6.dp))
+                        .background(badgeBackgroundColor, shape = RoundedCornerShape(6.dp))
                         .padding(horizontal = 8.dp, vertical = 4.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        "Registrado",
+                        badgeText,
                         fontSize = 10.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = statusColor
+                        color = badgeTextColor
                     )
                 }
             }

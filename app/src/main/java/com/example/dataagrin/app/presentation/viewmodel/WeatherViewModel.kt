@@ -27,10 +27,6 @@ class WeatherViewModel(
     
     private val connectivityChecker = ConnectivityChecker(context)
 
-    init {
-        // Vazio - inicialização em LaunchedEffect
-    }
-
     fun loadWeather() {
         viewModelScope.launch {
             _isLoading.value = true
