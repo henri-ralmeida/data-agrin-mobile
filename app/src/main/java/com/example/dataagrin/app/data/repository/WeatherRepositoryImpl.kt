@@ -14,7 +14,7 @@ class WeatherRepositoryImpl(
     private val weatherApi: WeatherApi,
     private val weatherDao: WeatherDao
 ) : WeatherRepository {
-    override fun getWeather(): Flow<Weather?> = flow {
+    override fun getWeather(hasLoadedSuccessfully: Boolean): Flow<Weather?> = flow {
         try {
             Log.d("WeatherRepo", "Iniciando requisição à API...")
             val remoteWeather = weatherApi.getWeather()
@@ -33,13 +33,28 @@ class WeatherRepositoryImpl(
         } catch (e: Exception) {
             Log.e("WeatherRepo", "Erro ao buscar clima da API: ${e.message}", e)
             try {
-                val cachedWeather = weatherDao.getWeatherCache()
-                if (cachedWeather != null) {
-                    Log.d("WeatherRepo", "Usando cache local")
-                    emit(cachedWeather.toDomain())
+                // Só retorna cache se JÁ havia carregado com sucesso antes
+                if (!hasLoadedSuccessfully) {
+                    Log.d("WeatherRepo", "Primeira vez offline - retornando weather vazio marcado como offline")
+                    // Retorna um weather vazio mas marcado como offline para mostrar status correto
+                    emit(Weather(
+                        temperature = 0.0,
+                        humidity = 0,
+                        weatherDescription = "Sem conexão",
+                        isFromCache = true,
+                        hourlyForecast = emptyList(),
+                        lastUpdated = "",
+                        weatherCode = 0
+                    ))
                 } else {
-                    Log.e("WeatherRepo", "Sem cache disponivel e API falhou")
-                    emit(null)
+                    val cachedWeather = weatherDao.getWeatherCache()
+                    if (cachedWeather != null) {
+                        Log.d("WeatherRepo", "Usando cache local")
+                        emit(cachedWeather.toDomain())
+                    } else {
+                        Log.e("WeatherRepo", "Sem cache disponivel e API falhou")
+                        emit(null)
+                    }
                 }
             } catch (cacheError: Exception) {
                 Log.e("WeatherRepo", "Erro ao acessar cache: ${cacheError.message}", cacheError)

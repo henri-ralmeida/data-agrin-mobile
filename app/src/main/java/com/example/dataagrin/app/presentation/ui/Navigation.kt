@@ -63,7 +63,7 @@ fun AppNavigation() {
     ) { innerPadding ->
         NavHost(
             navController = navController, 
-            startDestination = Screen.Tasks.route, 
+            startDestination = Screen.Weather.route, 
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(Screen.Tasks.route) { TaskScreen() }

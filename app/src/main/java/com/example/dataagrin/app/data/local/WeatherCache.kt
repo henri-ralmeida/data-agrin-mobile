@@ -89,21 +89,33 @@ fun FullWeatherCache.toDomain(): Weather {
         humidity = this.weather.humidity,
         weatherDescription = mapWeatherCodeToDescription(this.weather.weatherCode),
         isFromCache = true,
-        hourlyForecast = this.hourly.map { HourlyWeather(it.time.substringAfter('T'), it.temperature, it.weatherCode) },
-        lastUpdated = sdf.format(Date(this.weather.lastUpdated))
+        hourlyForecast = this.hourly.map { HourlyWeather(
+            it.time.substringAfter('T').substringBefore(':'),  // Extrai apenas a hora (ex: "14")
+            it.temperature, 
+            it.weatherCode,
+            humidity = 0,
+            description = ""
+        ) },
+        lastUpdated = sdf.format(Date(this.weather.lastUpdated)),
+        weatherCode = this.weather.weatherCode
     )
 }
 
 fun WeatherDto.toDomain(): Weather {
     try {
         val next24Hours = try {
-            this.hourly.time.zip(this.hourly.temperatures).zip(this.hourly.weatherCodes)
-                .take(24)
-                .map { (timeTempPair, weatherCode) -> 
-                    val timeString = timeTempPair.first // formato: "2024-12-12T14:00"
-                    val hour = timeString.substringAfter('T').substringBefore(':')
-                    HourlyWeather(hour, timeTempPair.second, weatherCode) 
-                }
+            val indices = (0 until minOf(this.hourly.time.size, this.hourly.temperatures.size, this.hourly.weatherCodes.size, this.hourly.humidities.size)).take(24)
+            indices.map { i ->
+                val timeString = this.hourly.time[i] // formato: "2024-12-12T14:00"
+                val hour = timeString.substringAfter('T').substringBefore(':')
+                HourlyWeather(
+                    hour, 
+                    this.hourly.temperatures[i], 
+                    this.hourly.weatherCodes[i],
+                    humidity = this.hourly.humidities[i],
+                    description = mapWeatherCodeToDescription(this.hourly.weatherCodes[i])
+                )
+            }
         } catch (e: Exception) {
             android.util.Log.e("WeatherCache", "Erro ao processar hourly: ${e.message}", e)
             emptyList()
@@ -115,7 +127,8 @@ fun WeatherDto.toDomain(): Weather {
             weatherDescription = mapWeatherCodeToDescription(this.current.weatherCode),
             isFromCache = false,
             hourlyForecast = next24Hours,
-            lastUpdated = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
+            lastUpdated = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date()),
+            weatherCode = this.current.weatherCode
         )
     } catch (e: Exception) {
         android.util.Log.e("WeatherCache", "Erro ao converter DTO para Domain: ${e.message}", e)
@@ -131,6 +144,8 @@ private fun mapWeatherCodeToDescription(code: Int): String {
         51, 53, 55 -> "Chuvisco"
         61, 63, 65 -> "Chuva"
         80, 81, 82 -> "Pancadas de chuva"
+        85, 86 -> "Chuva forte"
+        95, 96, 99 -> "Tempestade"
         else -> "Desconhecido"
     }
 }

@@ -1,6 +1,7 @@
 package com.example.dataagrin.app.presentation.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,8 +12,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Cloud
@@ -29,6 +28,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -37,11 +38,13 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import android.content.Context
+import androidx.compose.runtime.remember
 import com.example.dataagrin.app.domain.model.HourlyWeather
 import com.example.dataagrin.app.domain.model.Weather
 import com.example.dataagrin.app.presentation.viewmodel.WeatherViewModel
 import org.koin.androidx.compose.koinViewModel
-import java.util.Calendar
+import androidx.compose.ui.platform.LocalContext
 
 @Composable
 fun WeatherScreen(viewModel: WeatherViewModel = koinViewModel()) {
@@ -92,6 +95,11 @@ fun WeatherScreen(viewModel: WeatherViewModel = koinViewModel()) {
 
 @Composable
 fun WeatherContent(weather: Weather, onRefresh: () -> Unit) {
+    val context = LocalContext.current
+    val prefs = remember { context.getSharedPreferences("weather_prefs", Context.MODE_PRIVATE) }
+    val hasLoadedSuccessfully = remember { mutableStateOf(prefs.getBoolean("has_loaded_successfully", false)) }
+    val lastApiUpdateTime = remember { mutableStateOf(prefs.getString("last_api_update", "") ?: "") }
+    
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Card(
             elevation = CardDefaults.cardElevation(4.dp)
@@ -114,7 +122,7 @@ fun WeatherContent(weather: Weather, onRefresh: () -> Unit) {
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = if (weather.isFromCache) "Offline" else "Online",
+                            text = if (weather.isFromCache) "Sem Conexão" else "Conectado",
                             fontSize = 12.sp,
                             color = if (weather.isFromCache) Color.Red else Color.Green,
                             fontWeight = FontWeight.SemiBold
@@ -122,16 +130,31 @@ fun WeatherContent(weather: Weather, onRefresh: () -> Unit) {
                     }
                 }
                 Spacer(modifier = Modifier.height(16.dp))
-                Icon(imageVector = getWeatherIcon(weather.weatherDescription), contentDescription = null, modifier = Modifier.size(96.dp))
+                Text(
+                    text = getWeatherEmojiByCode(weather.weatherCode, java.time.LocalDateTime.now().hour),
+                    fontSize = 80.sp
+                )
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(text = "São Paulo, SP", fontSize = 18.sp, fontWeight = FontWeight.Bold)
                 Text(text = "${weather.temperature}°C", fontSize = 48.sp)
                 Text(text = weather.weatherDescription, fontSize = 20.sp)
-                Text(text = "Umidade: ${weather.humidity}%", fontSize = 16.sp)
-                if (weather.isFromCache) {
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(text = "Última atualização: ${weather.lastUpdated}", fontSize = 12.sp, color = Color.Gray)
+                Text(text = "Umidade: 💧 ${weather.humidity}%", fontSize = 16.sp)
+                
+                // Se conseguiu carregar com sucesso, marca flag e salva timestamp
+                if (!weather.isFromCache && weather.weatherDescription != "Sem conexão") {
+                    hasLoadedSuccessfully.value = true
+                    val now = java.text.SimpleDateFormat("HH:mm", java.util.Locale.getDefault()).format(java.util.Date())
+                    lastApiUpdateTime.value = now
+                    prefs.edit().putBoolean("has_loaded_successfully", true).apply()
+                    prefs.edit().putString("last_api_update", now).apply()
                 }
+                
+                // Sempre mostra o horário da última atualização bem-sucedida
+                if (lastApiUpdateTime.value.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(text = "Última atualização: ${lastApiUpdateTime.value}", fontSize = 12.sp, color = Color.Gray)
+                }
+                
                 Spacer(modifier = Modifier.height(32.dp))
                 Button(onClick = onRefresh) {
                     Text("Atualizar")
@@ -139,42 +162,117 @@ fun WeatherContent(weather: Weather, onRefresh: () -> Unit) {
             }
         }
 
-        if (!weather.isFromCache) {
+        Spacer(modifier = Modifier.height(16.dp))
+        
+        val currentHour = java.time.LocalDateTime.now().hour
+        
+        // Filtrar apenas próximas horas (validar que a hora é um número inteiro válido)
+        val upcomingHours = weather.hourlyForecast.filter { hourly ->
+            val hourInt = hourly.time.toIntOrNull() ?: return@filter false
+            hourInt >= currentHour + 1 && hourInt < 24
+        }
+        
+        // Se conseguiu carregar com sucesso, marca flag
+        if (!weather.isFromCache && upcomingHours.isNotEmpty()) {
+            hasLoadedSuccessfully.value = true
+            prefs.edit().putBoolean("has_loaded_successfully", true).apply()
+        }
+        
+        // Mostra aviso se está offline mas tem dados de previsão
+        if (weather.isFromCache && upcomingHours.isNotEmpty()) {
             Spacer(modifier = Modifier.height(16.dp))
-            Text("Próximas Horas", fontSize = 20.sp)
-            
-            // Sempre mostrar a partir da próxima hora (pula 1h)
-            val nextHourIndex = 1
-            
-            LazyRow(modifier = Modifier.padding(top = 8.dp)) {
-                items(
-                    weather.hourlyForecast.drop(nextHourIndex),
-                    key = { it.time }
-                ) { hourly ->
-                    HourlyForecastItem(hourly, nextHourIndex)
+            Text("⚠️ Sem conexão - exibindo últimos dados salvos", fontSize = 12.sp, color = Color(0xFFF57F17), fontWeight = FontWeight.SemiBold)
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+        
+        // Só mostra previsão SE JÁ CARREGOU COM SUCESSO
+        if (hasLoadedSuccessfully.value) {
+            Text("Previsão nas Próximas Horas", fontSize = 20.sp)
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+        
+        // Só mostra os cards se já carregou com sucesso pelo menos uma vez
+        if (hasLoadedSuccessfully.value && upcomingHours.isNotEmpty()) {
+            // Mostra horas futuras
+            Row(
+                modifier = Modifier
+                    .padding(top = 8.dp)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                upcomingHours.take(3).forEach { hourly ->
+                    HourlyForecastItem(hourly)
                 }
             }
+        } else if (hasLoadedSuccessfully.value && upcomingHours.isEmpty() && weather.hourlyForecast.isNotEmpty()) {
+            // Se está em cache mas sem horas futuras, mostra tudo do cache
+            Row(
+                modifier = Modifier
+                    .padding(top = 8.dp)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                weather.hourlyForecast.take(3).forEach { hourly ->
+                    HourlyForecastItem(hourly)
+                }
+            }
+        }
+        
+        // Mostrar mensagem APENAS se offline e nunca carregou dados antes (primeira vez)
+        if (!hasLoadedSuccessfully.value && weather.isFromCache && weather.hourlyForecast.isEmpty()) {
+            Text("⚠️ Sem conexão com a internet, por favor, conecte-se!", fontSize = 14.sp, color = Color(0xFFF57F17), fontWeight = FontWeight.SemiBold)
         }
     }
 }
 
 @Composable
-fun HourlyForecastItem(hourly: HourlyWeather, offsetIndex: Int = 0) {
+fun HourlyForecastItem(hourly: HourlyWeather) {
     val formattedHour = "${hourly.time}:00"
+    val currentHour = java.time.LocalDateTime.now().hour
+    val isNextHour = hourly.time.toIntOrNull() == currentHour + 1
+    
+    // Destacar a próxima hora
+    val backgroundColor = if (isNextHour) Color(0xFFFFE082) else Color.Transparent
 
     Card(
-        modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
+        modifier = Modifier
+            .padding(horizontal = 8.dp, vertical = 8.dp)
+            .width(120.dp)
+            .height(160.dp)
+            .background(backgroundColor, shape = CardDefaults.shape),
         elevation = CardDefaults.cardElevation(2.dp)
     ) {
-        Column(modifier = Modifier.padding(12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(text = formattedHour, fontSize = 14.sp)
-            Icon(
-                imageVector = getWeatherIconByCode(hourly.weatherCode),
-                contentDescription = null,
-                modifier = Modifier.size(32.dp),
-                tint = Color.Gray
+        Column(
+            modifier = Modifier
+                .padding(12.dp)
+                .fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween
+        ) {
+            Box(modifier = Modifier.height(14.dp)) {
+                if (isNextHour) {
+                    Text(text = "▼ PRÓXIMA", fontSize = 9.sp, color = Color(0xFFF57F17), fontWeight = FontWeight.Bold)
+                }
+            }
+            
+            Text(text = formattedHour, fontSize = 12.sp, fontWeight = if (isNextHour) FontWeight.Bold else FontWeight.Normal)
+            
+            Text(
+                text = getWeatherEmojiByCode(hourly.weatherCode, hourly.time.toIntOrNull() ?: 0),
+                fontSize = 28.sp
             )
-            Text(text = "${hourly.temperature}°C", fontSize = 18.sp)
+            
+            Text(text = "${hourly.temperature}°C", fontSize = 14.sp, fontWeight = if (isNextHour) FontWeight.Bold else FontWeight.Normal)
+            
+            if (hourly.humidity > 0) {
+                Text(text = "${hourly.humidity}% 💧", fontSize = 10.sp, color = Color.Gray)
+            }
+            
+            if (hourly.description.isNotEmpty()) {
+                Text(text = hourly.description, fontSize = 8.sp, color = Color.Gray, maxLines = 1)
+            }
         }
     }
 }
@@ -190,6 +288,22 @@ private fun getWeatherIcon(weatherDescription: String): ImageVector {
     }
 }
 
+private fun getWeatherEmojiByCode(code: Int, forecastHour: Int = 0): String {
+    val isNight = forecastHour < 6 || forecastHour >= 18 // Noite: 18h - 6h
+    
+    return when (code) {
+        0 -> if (isNight) "🌙" else "☀️" // Céu limpo
+        1, 2, 3 -> if (isNight) "🌙☁️" else "⛅" // Parcialmente nublado (lua/sol com nuvem)
+        45, 48 -> "🌫️" // Nevoeiro
+        51, 53, 55 -> "🌧️" // Chuvisco
+        61, 63, 65 -> "🌧️" // Chuva
+        80, 81, 82 -> "⛈️" // Pancadas de chuva
+        85, 86 -> "⛈️" // Chuva forte
+        95, 96, 99 -> "⚡" // Tempestade
+        else -> "☁️" // Desconhecido
+    }
+}
+
 private fun getWeatherIconByCode(code: Int): ImageVector {
     return when (code) {
         0 -> Icons.Filled.WbSunny // Céu limpo
@@ -198,6 +312,8 @@ private fun getWeatherIconByCode(code: Int): ImageVector {
         51, 53, 55 -> Icons.Filled.Grain // Chuvisco
         61, 63, 65 -> Icons.Filled.CloudQueue // Chuva
         80, 81, 82 -> Icons.Filled.CloudQueue // Pancadas de chuva
+        85, 86 -> Icons.Filled.CloudQueue // Chuva forte
+        95, 96, 99 -> Icons.Filled.Cloud // Tempestade
         else -> Icons.Filled.Cloud // Desconhecido
     }
 }

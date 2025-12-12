@@ -5,7 +5,7 @@ import com.example.dataagrin.app.domain.repository.WeatherRepository
 import kotlinx.coroutines.flow.Flow
 
 class GetWeatherUseCase(private val weatherRepository: WeatherRepository) {
-    operator fun invoke(): Flow<Weather?> {
-        return weatherRepository.getWeather()
+    operator fun invoke(hasLoadedSuccessfully: Boolean = false): Flow<Weather?> {
+        return weatherRepository.getWeather(hasLoadedSuccessfully)
     }
 }

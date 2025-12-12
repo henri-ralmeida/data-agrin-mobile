@@ -29,5 +29,8 @@ data class HourlyWeatherDto(
     val temperatures: List<Double>,
 
     @SerializedName("weather_code")
-    val weatherCodes: List<Int> = emptyList()
+    val weatherCodes: List<Int> = emptyList(),
+
+    @SerializedName("relative_humidity_2m")
+    val humidities: List<Int> = emptyList()
 )
