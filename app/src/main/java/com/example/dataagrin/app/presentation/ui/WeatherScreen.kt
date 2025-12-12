@@ -2,9 +2,7 @@ package com.example.dataagrin.app.presentation.ui
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.RepeatMode
@@ -21,15 +19,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Cloud
-import androidx.compose.material.icons.filled.CloudQueue
-import androidx.compose.material.icons.filled.Grain
-import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -49,7 +43,6 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -60,6 +53,7 @@ import com.example.dataagrin.app.domain.model.Weather
 import com.example.dataagrin.app.presentation.viewmodel.WeatherViewModel
 import org.koin.androidx.compose.koinViewModel
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.edit
 
 @Composable
 fun WeatherScreen(viewModel: WeatherViewModel = koinViewModel()) {
@@ -174,12 +168,12 @@ fun WeatherContentWrapper(weather: Weather, onRefresh: () -> Unit) {
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        WeatherContent(weather, onRefresh, weather)
+        WeatherContent(weather, onRefresh)
     }
 }
 
 @Composable
-fun WeatherContent(weather: Weather, onRefresh: () -> Unit, weatherData: Weather = weather) {
+fun WeatherContent(weather: Weather, onRefresh: () -> Unit) {
     val context = LocalContext.current
     val prefs = remember { context.getSharedPreferences("weather_prefs", Context.MODE_PRIVATE) }
     val hasLoadedSuccessfully = remember { mutableStateOf(prefs.getBoolean("has_loaded_successfully", false)) }
@@ -241,8 +235,8 @@ fun WeatherContent(weather: Weather, onRefresh: () -> Unit, weatherData: Weather
             hasLoadedSuccessfully.value = true
             val now = java.text.SimpleDateFormat("HH:mm", java.util.Locale.getDefault()).format(java.util.Date())
             lastApiUpdateTime.value = now
-            prefs.edit().putBoolean("has_loaded_successfully", true).apply()
-            prefs.edit().putString("last_api_update", now).apply()
+            prefs.edit { putBoolean(/* p0 = */ "has_loaded_successfully", /* p1 = */ true) }
+            prefs.edit {putString("last_api_update", now)}
         }
         
         // Sempre mostra o horário da última atualização bem-sucedida
@@ -270,7 +264,7 @@ fun WeatherContent(weather: Weather, onRefresh: () -> Unit, weatherData: Weather
         // Se conseguiu carregar com sucesso, marca flag
         if (!weather.isFromCache && upcomingHours.isNotEmpty()) {
             hasLoadedSuccessfully.value = true
-            prefs.edit().putBoolean("has_loaded_successfully", true).apply()
+            prefs.edit { putBoolean("has_loaded_successfully", true) }
         }
         
         // Mostra aviso se está offline mas tem dados de previsão
@@ -292,10 +286,10 @@ fun WeatherContent(weather: Weather, onRefresh: () -> Unit, weatherData: Weather
             // Mostra apenas as próximas 3 horas em layout horizontal centralizado
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = androidx.compose.foundation.layout.Arrangement.Center,
+                horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                upcomingHours.take(3).forEachIndexed { index, hourly ->
+                upcomingHours.take(3).forEachIndexed { _, hourly ->
                     AnimatedVisibility(
                         visible = true,
                         enter = slideInVertically(initialOffsetY = { 100 }) + fadeIn()
@@ -308,10 +302,10 @@ fun WeatherContent(weather: Weather, onRefresh: () -> Unit, weatherData: Weather
             // Se está em cache mas sem horas futuras, mostra apenas 3 horas do cache
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = androidx.compose.foundation.layout.Arrangement.Center,
+                horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                weather.hourlyForecast.take(3).forEachIndexed { index, hourly ->
+                weather.hourlyForecast.take(3).forEachIndexed { _, hourly ->
                     AnimatedVisibility(
                         visible = true,
                         enter = slideInVertically(initialOffsetY = { 100 }) + fadeIn()
@@ -353,7 +347,7 @@ fun HourlyForecastItem(hourly: HourlyWeather) {
                 .padding(14.dp)
                 .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center
+            verticalArrangement = Arrangement.Center
         ) {
             Box(modifier = Modifier.height(18.dp)) {
                 if (isNextHour) {
@@ -381,19 +375,8 @@ fun HourlyForecastItem(hourly: HourlyWeather) {
     }
 }
 
-@Composable
-private fun getWeatherIcon(weatherDescription: String): ImageVector {
-    return when {
-        weatherDescription.contains("sol", ignoreCase = true) || weatherDescription.contains("limpo", ignoreCase = true) -> Icons.Filled.WbSunny
-        weatherDescription.contains("nuvem", ignoreCase = true) -> Icons.Filled.Cloud
-        weatherDescription.contains("chuva", ignoreCase = true) -> Icons.Filled.CloudQueue
-        weatherDescription.contains("drizzle", ignoreCase = true) || weatherDescription.contains("chuvisco", ignoreCase = true) -> Icons.Filled.Grain
-        else -> Icons.Filled.Cloud
-    }
-}
-
 private fun getWeatherEmojiByCode(code: Int, forecastHour: Int = 0): String {
-    val isNight = forecastHour < 6 || forecastHour >= 18 // Noite: 18h - 6h
+    val isNight = forecastHour !in 6..<18 // Noite: 18h - 6h
     
     return when (code) {
         0 -> if (isNight) "🌙" else "☀️" // Céu limpo
@@ -405,19 +388,5 @@ private fun getWeatherEmojiByCode(code: Int, forecastHour: Int = 0): String {
         85, 86 -> "⛈️" // Chuva forte
         95, 96, 99 -> "⚡" // Tempestade
         else -> "☁️" // Desconhecido
-    }
-}
-
-private fun getWeatherIconByCode(code: Int): ImageVector {
-    return when (code) {
-        0 -> Icons.Filled.WbSunny // Céu limpo
-        1, 2, 3 -> Icons.Filled.Cloud // Parcialmente nublado / nublado
-        45, 48 -> Icons.Filled.Cloud // Nevoeiro
-        51, 53, 55 -> Icons.Filled.Grain // Chuvisco
-        61, 63, 65 -> Icons.Filled.CloudQueue // Chuva
-        80, 81, 82 -> Icons.Filled.CloudQueue // Pancadas de chuva
-        85, 86 -> Icons.Filled.CloudQueue // Chuva forte
-        95, 96, 99 -> Icons.Filled.Cloud // Tempestade
-        else -> Icons.Filled.Cloud // Desconhecido
     }
 }

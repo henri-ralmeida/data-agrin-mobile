@@ -5,7 +5,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
@@ -54,9 +53,6 @@ import androidx.compose.ui.unit.sp
 import com.example.dataagrin.app.domain.model.TaskRegistry
 import com.example.dataagrin.app.presentation.viewmodel.TaskRegistryViewModel
 import org.koin.androidx.compose.koinViewModel
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 @Composable
 fun TaskRegistryScreen(viewModel: TaskRegistryViewModel = koinViewModel()) {
@@ -323,7 +319,6 @@ fun TaskRegistryForm(onInsertTaskRegistry: (TaskRegistry) -> Unit) {
 
                 Button(
                     onClick = {
-                        saveButtonPressed = true
                         errorMessage = when {
                             type.isBlank() -> "Tipo de atividade é obrigatório"
                             area.isBlank() -> "Talhão/Área é obrigatório"
@@ -348,7 +343,6 @@ fun TaskRegistryForm(onInsertTaskRegistry: (TaskRegistry) -> Unit) {
                                 startTime = ""
                                 endTime = ""
                                 observations = ""
-                                saveButtonPressed = false
                                 ""
                             }
                         }
@@ -475,24 +469,6 @@ fun TaskRegistryItem(taskRegistry: TaskRegistry) {
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun DetailItem(label: String, value: String) {
-    Column {
-        Text(
-            label,
-            fontSize = 11.sp,
-            fontWeight = FontWeight.SemiBold,
-            color = Color(0xFF9E9E9E)
-        )
-        Text(
-            value,
-            fontSize = 13.sp,
-            fontWeight = FontWeight.SemiBold,
-            color = Color.Black
-        )
     }
 }
 

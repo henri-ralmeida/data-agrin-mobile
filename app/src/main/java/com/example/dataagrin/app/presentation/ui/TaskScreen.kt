@@ -128,7 +128,6 @@ fun TaskScreen(viewModel: TaskViewModel = koinViewModel()) {
         // Edit Dialog
         if (showEditDialog && selectedTask != null) {
             EditTaskDialog(
-                task = selectedTask!!,
                 taskName = editName,
                 onTaskNameChange = { editName = it },
                 scheduledTime = editScheduledTime,
@@ -455,7 +454,6 @@ fun TaskCard(
                 // Edit button
                 IconButton(
                     onClick = {
-                        editPressed = true
                         onEdit()
                     },
                     modifier = Modifier
@@ -472,7 +470,6 @@ fun TaskCard(
                 // Delete button
                 IconButton(
                     onClick = {
-                        deletePressed = true
                         onDelete()
                     },
                     modifier = Modifier
@@ -487,24 +484,6 @@ fun TaskCard(
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun DetailItem(label: String, value: String) {
-    Column {
-        Text(
-            label,
-            fontSize = 11.sp,
-            fontWeight = FontWeight.SemiBold,
-            color = Color(0xFF9E9E9E)
-        )
-        Text(
-            value,
-            fontSize = 13.sp,
-            fontWeight = FontWeight.SemiBold,
-            color = Color.Black
-        )
     }
 }
 
@@ -599,15 +578,8 @@ private fun StatusBadge(status: TaskStatus) {
     }
 }
 
-fun TaskStatus.displayName(): String = when (this) {
-    TaskStatus.PENDING -> "Pendente"
-    TaskStatus.IN_PROGRESS -> "Em andamento"
-    TaskStatus.COMPLETED -> "Finalizada"
-}
-
 @Composable
 private fun EditTaskDialog(
-    task: Task,
     taskName: String,
     onTaskNameChange: (String) -> Unit,
     scheduledTime: String,
