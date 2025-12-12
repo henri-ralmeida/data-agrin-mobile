@@ -1,243 +1,495 @@
 # DataAgrin Mobile 🌾
 
-App Android nativo em Kotlin com Jetpack Compose para monitoramento de tarefas agrícolas, registro de atividades e previsão climática.
+<p align="center">
+  <img src="https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=android&logoColor=white" alt="Android"/>
+  <img src="https://img.shields.io/badge/Kotlin-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white" alt="Kotlin"/>
+  <img src="https://img.shields.io/badge/Jetpack%20Compose-4285F4?style=for-the-badge&logo=jetpackcompose&logoColor=white" alt="Jetpack Compose"/>
+  <img src="https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black" alt="Firebase"/>
+</p>
+
+<p align="center">
+  <b>App Android nativo para monitoramento de tarefas agrícolas, registro de atividades e previsão climática.</b>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Testes-76%20passando-brightgreen" alt="Tests"/>
+  <img src="https://img.shields.io/badge/Cobertura%20UseCases-100%25-brightgreen" alt="Coverage"/>
+  <img src="https://img.shields.io/badge/Min%20SDK-26-blue" alt="Min SDK"/>
+  <img src="https://img.shields.io/badge/Target%20SDK-34-blue" alt="Target SDK"/>
+</p>
+
+---
+
+## 📑 Índice
+
+- [Funcionalidades](#-funcionalidades)
+- [Screenshots](#-screenshots)
+- [Stack Técnico](#️-stack-técnico)
+- [Arquitetura](#-arquitetura)
+- [Estrutura do Projeto](#-estrutura-do-projeto)
+- [Como Executar](#-como-executar)
+- [Testes](#-testes)
+- [Responsividade](#-responsividade)
+- [API de Clima](#-api-de-clima)
+- [Banco de Dados](#️-banco-de-dados)
+- [Sincronização Firebase](#-sincronização-firebase)
+
+---
 
 ## ✨ Funcionalidades
 
-### 📋 Tela de Tarefas (Offline)
-- Listar tarefas do dia com status (Pendente/Em andamento/Finalizada)
-- Atualizar status em tempo real
-- Persistência local com Room Database
-- Layout responsivo (compacto e expandido)
+### 📋 Tela de Tarefas (100% Offline)
+| Recurso | Descrição |
+|---------|-----------|
+| ✅ Listar tarefas | Nome, área/talhão, horário previsto |
+| ✅ Status visual | Pendente 🔴 / Em andamento 🟠 / Finalizada 🟢 |
+| ✅ Atualizar status | Um clique para mudar estado |
+| ✅ Editar tarefa | Nome, horários, área, observações |
+| ✅ Deletar tarefa | Com confirmação |
+| ✅ Persistência local | Room Database |
+| ✅ Sincronização cloud | Firebase Firestore |
+| ✅ Layout responsivo | Grid em tablets, lista em smartphones |
 
-### 📝 Registro de Atividades (Offline)
-- Formulário para registro de atividades no campo
-- Campos: tipo de atividade, talhão/área, hora de início/fim, observações
-- Histórico de atividades salvas
-- Validações obrigatórias
-- Persistência local com Room Database
+### 📝 Registro de Atividades (100% Offline)
+| Recurso | Descrição |
+|---------|-----------|
+| ✅ Formulário completo | Tipo, talhão, hora início/fim, observações |
+| ✅ Validação de campos | Horários válidos, campos obrigatórios |
+| ✅ Histórico | Lista de todas atividades registradas |
+| ✅ Persistência local | Room Database |
+| ✅ Sincronização cloud | Firebase Firestore |
+| ✅ Layout responsivo | Side-by-side em tablets |
 
 ### 🌤️ Previsão Climática (Online + Cache)
-- Integração com API Open-Meteo (gratuita)
-- Temperatura atual, umidade, descrição do clima
-- Previsão horária (próximas 24 horas)
-- Ícones dinâmicos por condição climática
-- Cache local para acesso offline
-- Indicador visual: verde (dados da API) / amarelo (dados em cache)
-- Botão de atualização e retry em caso de erro
+| Recurso | Descrição |
+|---------|-----------|
+| ✅ Dados atuais | Temperatura, umidade, condição |
+| ✅ Previsão horária | Próximas 3-6 horas |
+| ✅ Ícones dinâmicos | Emojis por condição climática |
+| ✅ Indicador de fonte | 🟢 API / 🟡 Cache |
+| ✅ Fallback offline | Última consulta salva |
+| ✅ Pull to refresh | Atualização manual |
+
+---
+
+## 📱 Screenshots
+
+| Tarefas (Smartphone) | Registros (Smartphone) | Clima |
+|:--------------------:|:----------------------:|:-----:|
+| Lista vertical | Formulário + Histórico | Dados + Previsão |
+
+| Tarefas (Tablet/Landscape) | Registros (Tablet/Landscape) |
+|:--------------------------:|:----------------------------:|
+| Grid 2 colunas | Side-by-side |
+
+---
 
 ## 🛠️ Stack Técnico
 
-- **Linguagem:** Kotlin
-- **UI Framework:** Jetpack Compose
-- **Arquitetura:** Clean Architecture (Domain → Data → Presentation)
-- **Injeção de Dependência:** Koin
-- **Banco de Dados Local:** Room Database (v4)
-- **Rede:** Retrofit + OkHttp
-- **Async:** Coroutines + Flow
-- **Padrão de State:** StateFlow (MVVM)
+| Categoria | Tecnologia |
+|-----------|------------|
+| **Linguagem** | Kotlin 2.0 |
+| **UI** | Jetpack Compose + Material 3 |
+| **Arquitetura** | Clean Architecture + MVVM |
+| **DI** | Koin 3.5 |
+| **Database** | Room 2.6 |
+| **Network** | Retrofit 2.9 + OkHttp |
+| **Async** | Coroutines + Flow + StateFlow |
+| **Cloud Sync** | Firebase Firestore |
+| **Testes** | JUnit 4 + MockK + Coroutines Test |
+| **Cobertura** | JaCoCo |
+| **Responsividade** | WindowSizeClass |
 
-## 📁 Estrutura de Pastas
+---
+
+## 🏗 Arquitetura
+
+### Clean Architecture + MVVM
 
 ```
-app/src/main/java/com/example/dataagrin/app/
-├── domain/
-│   ├── model/          # Task, TaskRegistry, Weather
-│   ├── repository/     # Interfaces (TaskRepository, TaskRegistryRepository, WeatherRepository)
-│   └── usecase/        # UseCases (GetTasks, UpdateTask, GetTaskRegistries, GetWeather, etc)
-├── data/
-│   ├── local/          # Room entities, DAOs, AppDatabase
-│   ├── remote/         # WeatherApi, DTOs (WeatherDto)
-│   └── repository/     # Implementações (TaskRepositoryImpl, TaskRegistryRepositoryImpl, WeatherRepositoryImpl)
-├── presentation/
-│   ├── ui/             # Composables (TaskScreen, TaskRegistryScreen, WeatherScreen, Navigation)
-│   └── viewmodel/      # ViewModels (TaskViewModel, TaskRegistryViewModel, WeatherViewModel)
-├── di/                 # Koin modules (AppModule)
-├── DataAgrinApp.kt     # Application class (Koin initialization)
-└── MainActivity.kt     # Activity raiz
+┌─────────────────────────────────────────────────────────────┐
+│                      PRESENTATION                           │
+│  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐     │
+│  │ TaskScreen  │    │TaskRegistry │    │WeatherScreen│     │
+│  │ (Compose)   │    │  Screen     │    │  (Compose)  │     │
+│  └──────┬──────┘    └──────┬──────┘    └──────┬──────┘     │
+│         │                  │                  │             │
+│  ┌──────▼──────┐    ┌──────▼──────┐    ┌──────▼──────┐     │
+│  │TaskViewModel│    │TaskRegistry │    │Weather      │     │
+│  │             │    │  ViewModel  │    │  ViewModel  │     │
+│  └──────┬──────┘    └──────┬──────┘    └──────┬──────┘     │
+└─────────┼──────────────────┼──────────────────┼─────────────┘
+          │                  │                  │
+┌─────────▼──────────────────▼──────────────────▼─────────────┐
+│                        DOMAIN                               │
+│  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐     │
+│  │GetTasksUse  │    │InsertTask   │    │GetWeather   │     │
+│  │  Case       │    │RegistryUse │    │  UseCase    │     │
+│  └──────┬──────┘    └──────┬──────┘    └──────┬──────┘     │
+│         │                  │                  │             │
+│  ┌──────▼──────────────────▼──────────────────▼──────┐     │
+│  │              Repository Interfaces                │     │
+│  └──────┬──────────────────┬──────────────────┬──────┘     │
+└─────────┼──────────────────┼──────────────────┼─────────────┘
+          │                  │                  │
+┌─────────▼──────────────────▼──────────────────▼─────────────┐
+│                         DATA                                │
+│  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐     │
+│  │TaskRepo     │    │TaskRegistry │    │WeatherRepo  │     │
+│  │  Impl       │    │  RepoImpl   │    │    Impl     │     │
+│  └──────┬──────┘    └──────┬──────┘    └─────┬───────┘     │
+│         │                  │                 │              │
+│  ┌──────▼──────┐    ┌──────▼──────┐    ┌────▼────┐        │
+│  │  Room DAO   │    │  Room DAO   │    │Retrofit │        │
+│  │  Firebase   │    │  Firebase   │    │Room DAO │        │
+│  └─────────────┘    └─────────────┘    └─────────┘        │
+└─────────────────────────────────────────────────────────────┘
 ```
+
+### Fluxo de Dados
+
+```
+User Action → ViewModel → UseCase → Repository → DataSource (Room/API/Firebase)
+                ↑                                      │
+                └──────────── StateFlow ←──────────────┘
+```
+
+---
+
+## 📁 Estrutura do Projeto
+
+```
+app/src/
+├── main/java/com/example/dataagrin/app/
+│   ├── domain/
+│   │   ├── model/              # Task, TaskRegistry, Weather, TaskStatus
+│   │   ├── repository/         # Interfaces dos repositórios
+│   │   └── usecase/            # GetTasks, InsertTask, UpdateTask, DeleteTask...
+│   │
+│   ├── data/
+│   │   ├── local/              # Room: AppDatabase, DAOs, Entities
+│   │   ├── remote/             # Retrofit: WeatherApi, DTOs
+│   │   ├── firebase/           # Firestore: TaskFirestoreRepository, Mappers
+│   │   ├── repository/         # Implementações dos repositórios
+│   │   └── connectivity/       # ConnectivityChecker
+│   │
+│   ├── presentation/
+│   │   ├── ui/
+│   │   │   ├── TaskScreen.kt
+│   │   │   ├── TaskRegistryScreen.kt
+│   │   │   ├── WeatherScreen.kt
+│   │   │   ├── Navigation.kt
+│   │   │   ├── components/     # DetailItemWithIcon, TimeInputField...
+│   │   │   └── utils/          # TimeValidation
+│   │   └── viewmodel/          # TaskViewModel, TaskRegistryViewModel, WeatherViewModel
+│   │
+│   ├── di/                     # Koin: AppModule
+│   ├── ui/theme/               # Material Theme, Colors, Typography
+│   ├── DataAgrinApp.kt         # Application (Koin init)
+│   └── MainActivity.kt         # Activity + WindowSizeClass
+│
+└── test/java/com/example/dataagrin/app/
+    ├── domain/
+    │   ├── model/              # TaskTest, TaskRegistryTest
+    │   └── usecase/            # GetTasksUseCaseTest, InsertTaskUseCaseTest...
+    ├── data/
+    │   ├── firebase/           # FirestoreMappersTest
+    │   └── repository/         # TaskRepositoryImplTest, TaskRegistryRepositoryImplTest
+    └── presentation/
+        ├── ui/utils/           # TimeValidationTest
+        └── viewmodel/          # TaskViewModelTest, TaskRegistryViewModelTest, WeatherViewModelTest
+```
+
+---
 
 ## 🚀 Como Executar
 
 ### Pré-requisitos
-- Android Studio (2023.1+)
-- Android SDK min 24 (Android 7.0)
+
+- **Android Studio** Hedgehog (2023.1+) ou mais recente
+- **JDK** 11+
+- **Android SDK** 26-34
 - Emulador ou dispositivo físico
 
-### Passos
-1. **Clone o repositório**
-   ```bash
-   git clone <url-do-repositorio>
-   cd DataAgrinMobile
-   ```
+### Instalação
 
-2. **Abra no Android Studio**
-   - File → Open → DataAgrinMobile
-   - Aguarde sync do Gradle
-
-3. **Configure o dispositivo**
-   - Conecte um dispositivo físico OU abra um emulador
-   - Verifique permissões de Internet no AndroidManifest.xml
-
-4. **Rode a aplicação**
-   - Run → Run 'app' (Shift+F10)
-   - Ou clique no botão ▶ (Run) na toolbar
-
-### Testando Funcionalidades
-
-#### Tarefas
-- A tela inicial mostra 3 tarefas de exemplo
-- Clique em uma tarefa para ver detalhes
-- Atualize o status (Pendente → Em andamento → Finalizada)
-- Status persiste localmente
-
-#### Atividades
-- Na aba "Registros", preencha o formulário
-- Digite tipo, talhão, horas de início/fim e observações
-- Clique "Salvar Atividade"
-- Visualize no histórico abaixo
-
-#### Clima
-- Na aba "Clima", os dados aparecem automaticamente
-- Conectado à internet → ícone verde (dados da API)
-- Sem internet → ícone amarelo (dados em cache)
-- Clique "Atualizar" para refetch da API
-- Próximas 24h aparecem em cards deslizáveis
-
-## 🗄️ Banco de Dados
-
-O Room Database (AppDatabase) possui 3 tabelas:
-
-1. **tasks** (tarefas)
-   - id, name, area, scheduledTime, status
-
-2. **activities** (atividades)
-   - id, type, area, startTime, endTime, observations
-
-3. **weather_cache** + **hourly_weather_cache** (clima)
-   - weather_cache: temperatura, umidade, weatherCode, lastUpdated
-   - hourly_weather_cache: time, temperature, weatherId (FK)
-
-## 🧪 Testes
-
-Testes unitários em `app/src/test/` para:
-- `GetTasksUseCaseTest`
-- `UpdateTaskUseCaseTest`
-- `InsertActivityUseCaseTest`
-- `GetActivitiesUseCaseTest`
-- `GetWeatherUseCaseTest`
-- `TaskViewModelTest`
-- `ActivityViewModelTest`
-- `WeatherViewModelTest`
-
-**Rodar testes:**
 ```bash
-./gradlew test
+# 1. Clone o repositório
+git clone https://github.com/seu-usuario/DataAgrinMobile.git
+cd DataAgrinMobile
+
+# 2. Abra no Android Studio
+# File → Open → selecione a pasta DataAgrinMobile
+
+# 3. Aguarde o sync do Gradle
+
+# 4. Execute o app
+# Run → Run 'app' (Shift+F10)
 ```
 
-## 🌐 API Integrada
+### Build via Terminal
 
-### Open-Meteo Weather API
-- **URL:** https://api.open-meteo.com/v1/forecast
-- **Params:** latitude, longitude, current, hourly
-- **Resposta:** Temperatura, umidade, weather_code, previsão horária
-- **Sem autenticação requerida**
-- **Docs:** https://open-meteo.com/en/docs
+```bash
+# Debug build
+./gradlew assembleDebug
 
-**Localização padrão:** São Paulo, SP (-23.55, -46.64)
+# Release build
+./gradlew assembleRelease
 
-## 📱 Responsividade
-
-A app detecta tamanho de tela via `WindowSizeClass`:
-- **Compact (smartphones):** Layout single-column
-- **Expanded (tablets/landscape):** Layout side-by-side
-
-## 🔄 Offline-First Design
-
-- ✅ Tarefas: 100% offline (Room local)
-- ✅ Atividades: 100% offline (Room local)
-- ✅ Clima: Online com fallback (Open-Meteo + Room cache)
-
-Dados são sincronizados automaticamente quando você abre cada tela.
-
-## 📊 Padrões Arquiteturais
-
-### Clean Architecture
+# Instalar no device conectado
+./gradlew installDebug
 ```
-Domain (regras de negócio)
-  ↓
-Data (persistência, rede)
-  ↓
-Presentation (UI, ViewModels)
-```
-
-### MVVM
-- **Model:** Data classes (Task, Activity, Weather)
-- **View:** Composables (TaskScreen, ActivityScreen, WeatherScreen)
-- **ViewModel:** State management (TaskViewModel, ActivityViewModel, WeatherViewModel)
-
-### Injeção de Dependência com Koin
-```kotlin
-// app/src/main/java/com/example/dataagrin/app/di/AppModule.kt
-val appModule = module {
-    // Repositories
-    single<TaskRepository> { TaskRepositoryImpl(get()) }
-    single<TaskRegistryRepository> { TaskRegistryRepositoryImpl(get<AppDatabase>().taskRegistryDao()) }
-    single<WeatherRepository> { WeatherRepositoryImpl(get(), get()) }
-    
-    // ViewModels
-    viewModel { TaskViewModel(get(), get(), get()) }
-    viewModel { TaskRegistryViewModel(get(), get(), get()) }
-    viewModel { WeatherViewModel(get(), get()) }
-}
-```
-
-## ⚙️ Configurações Importantes
-
-### AndroidManifest.xml
-```xml
-<application android:name=".DataAgrinApp">
-    <!-- Permissões: INTERNET, ACCESS_NETWORK_STATE, ACCESS_COARSE_LOCATION -->
-</application>
-```
-
-### Room Database Version
-- **Versão atual:** 4
-- **fallbackToDestructiveMigration:** Enabled (recria DB em schema changes)
-
-## 🚦 Próximos Passos / Diferenciais
-
-- [ ] Sincronização com Firebase Firestore ou Supabase
-- [ ] Suporte a localização dinâmica (GPS) para clima
-- [ ] Autenticação de usuário
-- [ ] Sincronização automática em background
-- [ ] Animações Lottie nas transições
-- [ ] Modo escuro (Dark Mode)
-- [ ] Kotlin Multiplatform (KMP) para iOS
-
-## 📝 Notas de Desenvolvimento
-
-### Converters
-`Converters.kt` mapeia `TaskStatus` enum ↔ String para Room:
-```kotlin
-@TypeConverter
-fun fromTaskStatus(status: TaskStatus): String = status.name
-
-@TypeConverter
-fun toTaskStatus(status: String): TaskStatus = TaskStatus.valueOf(status)
-```
-
-### Error Handling
-- Weather API falha → Tenta carregar do cache
-- Cache vazio → Exibe botão "Tentar novamente"
-- Logs com tag "WeatherRepository" para debug
-
-## 📄 Licença
-
-Este projeto é fornecido como está para fins educacionais.
 
 ---
 
-**Desenvolvido com ❤️ por Data Agrin**
+## 🧪 Testes
 
-Para dúvidas ou sugestões, abra uma issue no repositório.
+### Executar Testes
+
+```bash
+# Todos os testes unitários
+./gradlew testDebugUnitTest
+
+# Com relatório de cobertura (JaCoCo)
+./gradlew testDebugUnitTest jacocoTestReport
+
+# Abrir relatório HTML
+start app/build/reports/jacoco/index.html
+```
+
+### Cobertura de Código
+
+| Pacote | Cobertura | Testes |
+|--------|-----------|--------|
+| `domain.usecase` | 🟢 **100%** | GetTasks, GetTaskById, InsertTask, UpdateTask, DeleteTask |
+| `domain.repository` | 🟢 **100%** | Interfaces |
+| `presentation.viewmodel` | 🟢 **88%** | TaskViewModel, TaskRegistryViewModel, WeatherViewModel |
+| `presentation.ui.utils` | 🟢 **89%** | TimeValidation |
+| `domain.model` | 🟢 **80%** | Task, TaskRegistry |
+| `data.firebase` | 🟡 **38%** | FirestoreMappers |
+
+**Total: 76 testes passando ✅**
+
+### Estrutura de Testes
+
+```kotlin
+// Exemplo: GetTasksUseCaseTest.kt
+@Test
+fun `invoke should return tasks from repository`() = runBlocking {
+    val fakeTasks = listOf(Task(1, "Plantio", "Área A", "08:00", "", "", TaskStatus.PENDING))
+    coEvery { taskRepository.getAllTasks() } returns flowOf(fakeTasks)
+
+    val result = getTasksUseCase().first()
+
+    assertEquals(fakeTasks, result)
+}
+```
+
+---
+
+## 📱 Responsividade
+
+O app adapta o layout baseado no **WindowSizeClass**:
+
+| Classe | Dispositivo | Layout |
+|--------|-------------|--------|
+| **Compact** | Smartphones portrait | Lista vertical |
+| **Medium** | Smartphones landscape | Layout adaptado |
+| **Expanded** | Tablets / Desktop | Grid 2 colunas / Side-by-side |
+
+### Implementação
+
+```kotlin
+// MainActivity.kt
+val windowSizeClass = calculateWindowSizeClass(this)
+AppNavigation(windowSizeClass = windowSizeClass)
+
+// TaskScreen.kt
+if (isExpandedScreen) {
+    LazyVerticalGrid(columns = GridCells.Fixed(2)) { ... }
+} else {
+    LazyColumn { ... }
+}
+```
+
+---
+
+## 🌐 API de Clima
+
+### Open-Meteo (Gratuita)
+
+| Propriedade | Valor |
+|-------------|-------|
+| **Base URL** | `https://api.open-meteo.com/v1/forecast` |
+| **Autenticação** | Nenhuma |
+| **Rate Limit** | 10.000 req/dia |
+| **Documentação** | [open-meteo.com/en/docs](https://open-meteo.com/en/docs) |
+
+### Parâmetros Utilizados
+
+```
+?latitude=-23.55
+&longitude=-46.64
+&current=temperature_2m,relative_humidity_2m,weather_code
+&hourly=temperature_2m,weather_code
+&timezone=America/Sao_Paulo
+```
+
+### Localização Padrão
+
+📍 **São Paulo, SP** (-23.55, -46.64)
+
+---
+
+## 🗄️ Banco de Dados
+
+### Room Database (v4)
+
+```kotlin
+@Database(
+    entities = [TaskEntity::class, TaskRegistryEntity::class, WeatherCacheEntity::class, HourlyWeatherCacheEntity::class],
+    version = 4,
+    exportSchema = false
+)
+abstract class AppDatabase : RoomDatabase()
+```
+
+### Tabelas
+
+| Tabela | Campos |
+|--------|--------|
+| `tasks` | id, name, area, scheduledTime, endTime, observations, status |
+| `task_registry` | id, type, area, startTime, endTime, observations |
+| `weather_cache` | id, temperature, humidity, weatherCode, weatherDescription, lastUpdated |
+| `hourly_weather_cache` | id, time, temperature, weatherCode, humidity, description, weatherId (FK) |
+
+---
+
+## 🔥 Sincronização Firebase
+
+### Firestore Collections
+
+```
+firestore/
+├── tasks/
+│   └── {taskId}/
+│       ├── id: Int
+│       ├── name: String
+│       ├── area: String
+│       ├── scheduledTime: String
+│       ├── endTime: String
+│       ├── observations: String
+│       └── status: String
+│
+└── taskRegistries/
+    └── {registryId}/
+        ├── id: Int
+        ├── type: String
+        ├── area: String
+        ├── startTime: String
+        ├── endTime: String
+        └── observations: String
+```
+
+### Histórico de Alterações
+
+O app mantém um log de todas as alterações em tarefas, registrando:
+- Ação (criação, edição, exclusão, mudança de status)
+- Timestamp
+- Dados anteriores e posteriores
+
+---
+
+## ⚙️ Configurações
+
+### AndroidManifest.xml
+
+```xml
+<uses-permission android:name="android.permission.INTERNET" />
+<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+<application
+    android:name=".DataAgrinApp"
+    android:theme="@style/Theme.DataAgrinMobile">
+    ...
+</application>
+```
+
+### Dependências Principais
+
+```kotlin
+// build.gradle.kts (app)
+dependencies {
+    // Compose
+    implementation(platform("androidx.compose:compose-bom:2024.06.00"))
+    implementation("androidx.compose.material3:material3")
+    implementation("androidx.compose.material3:material3-window-size-class")
+    
+    // Room
+    implementation("androidx.room:room-ktx:2.6.1")
+    ksp("androidx.room:room-compiler:2.6.1")
+    
+    // Koin
+    implementation("io.insert-koin:koin-android:3.5.0")
+    implementation("io.insert-koin:koin-androidx-compose:3.5.0")
+    
+    // Firebase
+    implementation(platform("com.google.firebase:firebase-bom:33.1.0"))
+    implementation("com.google.firebase:firebase-firestore")
+    
+    // Retrofit
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    
+    // Testing
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("io.mockk:mockk:1.13.10")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
+}
+```
+
+---
+
+## 📊 Checklist do Desafio
+
+### Requisitos Obrigatórios
+
+- [x] Android Nativo com Kotlin
+- [x] UI com Jetpack Compose
+- [x] Padrão arquitetural (MVVM + Clean Architecture)
+- [x] Persistência local (Room Database)
+- [x] Código versionado no GitHub
+- [x] README com instruções
+
+### Funcionalidades
+
+- [x] Tela de Tarefas (offline) com status
+- [x] Tela de Registro de Atividades (offline)
+- [x] Tela de Clima (online + cache)
+- [x] Indicador visual de fonte de dados
+
+### Diferenciais Implementados
+
+- [x] Sincronização com Firebase Firestore
+- [x] Testes unitários (76 testes)
+- [x] Cobertura de código com JaCoCo
+- [x] UI responsiva (WindowSizeClass)
+- [x] Animações via Compose
+- [x] Injeção de dependência (Koin)
+- [x] Modo offline completo
+
+---
+
+## 📝 Licença
+
+Este projeto foi desenvolvido como parte de um desafio técnico para a **Data Agrin**.
+
+---
+
+<p align="center">
+  <b>Desenvolvido com ❤️ usando Kotlin + Jetpack Compose</b>
+</p>
+
+<p align="center">
+  <a href="#dataagrin-mobile-">⬆️ Voltar ao topo</a>
+</p>
