@@ -12,7 +12,7 @@ import com.example.dataagrin.app.domain.model.Task
 
 @Database(
     entities = [Task::class, TaskRegistry::class, WeatherCache::class, HourlyWeatherCache::class], 
-    version = 5, 
+    version = 6, 
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -33,13 +33,20 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        // Migração de v5 para v6: Adiciona coluna isDeleted na tabela activities
+        private val MIGRATION_5_6 = object : Migration(5, 6) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("ALTER TABLE activities ADD COLUMN isDeleted INTEGER NOT NULL DEFAULT 0")
+            }
+        }
+
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java,
                     "data_agrin_database"
-                ).addMigrations(MIGRATION_4_5)
+                ).addMigrations(MIGRATION_4_5, MIGRATION_5_6)
                     .build()
                 INSTANCE = instance
                 instance

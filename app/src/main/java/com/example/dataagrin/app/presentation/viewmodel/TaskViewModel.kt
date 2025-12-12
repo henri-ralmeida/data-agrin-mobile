@@ -62,9 +62,20 @@ class TaskViewModel(
         }
     }
 
-    fun deleteTask(taskId: Int) {
+    fun deleteTask(task: Task) {
         viewModelScope.launch {
-            deleteTaskUseCase(taskId)
+            deleteTaskUseCase(task.id)
+
+            // Cria um registro no histórico de tarefas como exclusão
+            val taskRegistry = TaskRegistry(
+                type = task.name,
+                area = task.area,
+                startTime = task.scheduledTime,
+                endTime = task.endTime,
+                observations = task.observations,
+                isDeleted = true
+            )
+            insertTaskRegistryUseCase(taskRegistry)
         }
     }
 

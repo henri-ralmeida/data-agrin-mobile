@@ -156,7 +156,7 @@ private fun WeatherScreenHeader() {
             fontSize = 64.sp,
             modifier = Modifier
                 .align(Alignment.CenterEnd)
-                .alpha(0.3f)
+                .alpha(0.6f)
         )
     }
 }

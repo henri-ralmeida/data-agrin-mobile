@@ -68,7 +68,7 @@ fun TaskScreen(viewModel: TaskViewModel = koinViewModel()) {
     val tasks by viewModel.tasks.collectAsState()
     var showEditDialog by remember { mutableStateOf(false) }
     var showDeleteConfirm by remember { mutableStateOf(false) }
-    var taskToDelete by remember { mutableStateOf<Int?>(null) }
+    var taskToDelete by remember { mutableStateOf<Task?>(null) }
     var selectedTask by remember { mutableStateOf<Task?>(null) }
     var editName by remember { mutableStateOf("") }
     var editScheduledTime by remember { mutableStateOf("") }
@@ -116,7 +116,7 @@ fun TaskScreen(viewModel: TaskViewModel = koinViewModel()) {
                                 showEditDialog = true
                             },
                             onDelete = {
-                                taskToDelete = task.id
+                                taskToDelete = task
                                 showDeleteConfirm = true
                             }
                         )
@@ -270,7 +270,7 @@ private fun TaskScreenHeader() {
             fontSize = 64.sp,
             modifier = Modifier
                 .align(Alignment.CenterEnd)
-                .alpha(0.3f)
+                .alpha(0.6f)
         )
     }
 }

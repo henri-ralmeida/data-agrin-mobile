@@ -407,6 +407,11 @@ fun TaskRegistryItem(taskRegistry: TaskRegistry) {
                 }
                 
                 val (badgeText, badgeBackgroundColor, badgeTextColor) = when {
+                    taskRegistry.isDeleted -> Triple(
+                        "Excluído",
+                        Color(0xFFD32F2F).copy(alpha = 0.2f),
+                        Color(0xFF9C0000)
+                    )
                     taskRegistry.isModified -> Triple(
                         "Alterado",
                         Color(0xFF1976D2).copy(alpha = 0.2f),
