@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -17,14 +18,24 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -39,6 +50,14 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun TaskScreen(viewModel: TaskViewModel = koinViewModel()) {
     val tasks by viewModel.tasks.collectAsState()
+    var showEditDialog by remember { mutableStateOf(false) }
+    var showDeleteConfirm by remember { mutableStateOf(false) }
+    var taskToDelete by remember { mutableStateOf<Int?>(null) }
+    var selectedTask by remember { mutableStateOf<Task?>(null) }
+    var editName by remember { mutableStateOf("") }
+    var editScheduledTime by remember { mutableStateOf("") }
+    var editArea by remember { mutableStateOf("") }
+    var timeError by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
@@ -63,10 +82,121 @@ fun TaskScreen(viewModel: TaskViewModel = koinViewModel()) {
                         task = task,
                         onStatusChange = { newStatus ->
                             viewModel.updateTask(task.copy(status = newStatus))
+                        },
+                        onEdit = {
+                            selectedTask = task
+                            editName = task.name
+                            editScheduledTime = task.scheduledTime
+                            editArea = task.area
+                            showEditDialog = true
+                        },
+                        onDelete = {
+                            taskToDelete = task.id
+                            showDeleteConfirm = true
                         }
                     )
                 }
             }
+        }
+
+        // Edit Dialog
+        if (showEditDialog && selectedTask != null) {
+            EditTaskDialog(
+                task = selectedTask!!,
+                taskName = editName,
+                onTaskNameChange = { editName = it },
+                scheduledTime = editScheduledTime,
+                onScheduledTimeChange = { editScheduledTime = it },
+                timeError = timeError,
+                onTimeErrorChange = { timeError = it },
+                area = editArea,
+                onAreaChange = { editArea = it },
+                onConfirm = {
+                    timeError = ""
+                    if (!isValidTimeFormat(editScheduledTime)) {
+                        timeError = "Horário inválido. Use o formato hh:mm"
+                        return@EditTaskDialog
+                    }
+                    selectedTask?.let { task ->
+                        viewModel.updateTask(
+                            task.copy(
+                                name = editName,
+                                scheduledTime = editScheduledTime,
+                                area = editArea
+                            )
+                        )
+                    }
+                    showEditDialog = false
+                    selectedTask = null
+                },
+                onDismiss = {
+                    showEditDialog = false
+                    selectedTask = null
+                    timeError = ""
+                }
+            )
+        }
+
+        // Delete Confirmation Dialog
+        if (showDeleteConfirm && taskToDelete != null) {
+            AlertDialog(
+                onDismissRequest = {
+                    showDeleteConfirm = false
+                    taskToDelete = null
+                },
+                title = {
+                    Text(
+                        "Confirmar exclusão",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp
+                    )
+                },
+                text = {
+                    Text(
+                        "Tem certeza que deseja deletar esta tarefa? Esta ação não pode ser desfeita.",
+                        fontSize = 14.sp
+                    )
+                },
+                confirmButton = {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Button(
+                            onClick = {
+                                showDeleteConfirm = false
+                                taskToDelete = null
+                            },
+                            modifier = Modifier
+                                .width(120.dp)
+                                .height(44.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.LightGray
+                            )
+                        ) {
+                            Text("Cancelar", color = Color.Black, fontSize = 14.sp)
+                        }
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Button(
+                            onClick = {
+                                taskToDelete?.let { viewModel.deleteTask(it) }
+                                showDeleteConfirm = false
+                                taskToDelete = null
+                            },
+                            modifier = Modifier
+                                .width(120.dp)
+                                .height(44.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.Red
+                            )
+                        ) {
+                            Text("Deletar", fontSize = 14.sp)
+                        }
+                    }
+                },
+                dismissButton = {}
+            )
         }
     }
 }
@@ -135,7 +265,9 @@ private fun EmptyTasksState() {
 @Composable
 fun TaskCard(
     task: Task,
-    onStatusChange: (TaskStatus) -> Unit
+    onStatusChange: (TaskStatus) -> Unit,
+    onEdit: () -> Unit = {},
+    onDelete: () -> Unit = {}
 ) {
     Card(
         modifier = Modifier
@@ -157,7 +289,7 @@ fun TaskCard(
                 modifier = Modifier.padding(bottom = 12.dp)
             )
 
-            // Linha 2: Talhão + Hora
+            // Linha 2: Talhão + Horário
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -165,7 +297,7 @@ fun TaskCard(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 DetailItem(label = "Talhão", value = task.area)
-                DetailItem(label = "Hora", value = task.scheduledTime)
+                DetailItem(label = "Horário", value = task.scheduledTime)
             }
 
             // Linha 3: Status + Botão atualizar
@@ -200,6 +332,39 @@ fun TaskCard(
                         fontSize = 12.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = Color.White
+                    )
+                }
+            }
+
+            // Linha 4: Edit e Delete buttons
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 12.dp),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Edit button
+                IconButton(
+                    onClick = onEdit,
+                    modifier = Modifier.size(36.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = "Editar tarefa",
+                        tint = Color(0xFF1B5E20)
+                    )
+                }
+
+                // Delete button
+                IconButton(
+                    onClick = onDelete,
+                    modifier = Modifier.size(36.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = "Deletar tarefa",
+                        tint = Color.Red
                     )
                 }
             }
@@ -264,4 +429,129 @@ fun TaskStatus.displayName(): String = when (this) {
     TaskStatus.PENDING -> "Pendente"
     TaskStatus.IN_PROGRESS -> "Em andamento"
     TaskStatus.COMPLETED -> "Finalizada"
+}
+
+@Composable
+private fun EditTaskDialog(
+    task: Task,
+    taskName: String,
+    onTaskNameChange: (String) -> Unit,
+    scheduledTime: String,
+    onScheduledTimeChange: (String) -> Unit,
+    timeError: String = "",
+    onTimeErrorChange: (String) -> Unit = {},
+    area: String,
+    onAreaChange: (String) -> Unit,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(
+                "Editar Tarefa",
+                fontWeight = FontWeight.Bold,
+                fontSize = 20.sp
+            )
+        },
+        text = {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                // Task Name Field
+                OutlinedTextField(
+                    value = taskName,
+                    onValueChange = onTaskNameChange,
+                    label = { Text("Nome da Tarefa") },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = Color(0xFF1B5E20),
+                        focusedLabelColor = Color(0xFF1B5E20)
+                    )
+                )
+
+                // Scheduled Time Field
+                Column {
+                    OutlinedTextField(
+                        value = scheduledTime,
+                        onValueChange = {
+                            onScheduledTimeChange(it)
+                            onTimeErrorChange("")
+                        },
+                        label = { Text("Horário Agendado") },
+                        placeholder = { Text("HH:mm") },
+                        modifier = Modifier.fillMaxWidth(),
+                        isError = timeError.isNotEmpty(),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = if (timeError.isNotEmpty()) Color.Red else Color(0xFF1B5E20),
+                            focusedLabelColor = Color(0xFF1B5E20),
+                            errorBorderColor = Color.Red,
+                            errorLabelColor = Color.Red
+                        )
+                    )
+                    if (timeError.isNotEmpty()) {
+                        Text(
+                            timeError,
+                            color = Color.Red,
+                            fontSize = 12.sp,
+                            modifier = Modifier.padding(top = 4.dp, start = 16.dp)
+                        )
+                    }
+                }
+
+                // Area Field
+                OutlinedTextField(
+                    value = area,
+                    onValueChange = onAreaChange,
+                    label = { Text("Talhão") },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = Color(0xFF1B5E20),
+                        focusedLabelColor = Color(0xFF1B5E20)
+                    )
+                )
+            }
+        },
+        confirmButton = {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Button(
+                    onClick = onDismiss,
+                    modifier = Modifier
+                        .width(120.dp)
+                        .height(44.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.LightGray
+                    )
+                ) {
+                    Text("Cancelar", color = Color.Black, fontSize = 13.sp)
+                }
+                Spacer(modifier = Modifier.width(12.dp))
+                Button(
+                    onClick = onConfirm,
+                    modifier = Modifier
+                        .width(120.dp)
+                        .height(44.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF1B5E20)
+                    )
+                ) {
+                    Text("Salvar", fontSize = 13.sp)
+                }
+            }
+        },
+        dismissButton = {}
+    )
+}
+
+private fun isValidTimeFormat(time: String): Boolean {
+    if (time.isEmpty()) return false
+    val regex = Regex("^([0-1][0-9]|2[0-3]):[0-5][0-9]$")
+    return regex.matches(time)
 }

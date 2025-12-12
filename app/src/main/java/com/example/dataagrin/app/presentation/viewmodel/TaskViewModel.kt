@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.dataagrin.app.domain.model.SyncStatus
 import com.example.dataagrin.app.domain.model.Task
+import com.example.dataagrin.app.domain.usecase.DeleteTaskUseCase
 import com.example.dataagrin.app.domain.usecase.GetTasksUseCase
 import com.example.dataagrin.app.domain.usecase.UpdateTaskUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,7 +16,8 @@ import kotlinx.coroutines.launch
 
 class TaskViewModel(
     private val getTasksUseCase: GetTasksUseCase,
-    private val updateTaskUseCase: UpdateTaskUseCase
+    private val updateTaskUseCase: UpdateTaskUseCase,
+    private val deleteTaskUseCase: DeleteTaskUseCase
     // TODO: Injetar SyncRepository quando implementar BaaS
 ) : ViewModel() {
 
@@ -46,6 +48,12 @@ class TaskViewModel(
 
             // TODO: Quando implementar BaaS, fazer sync aqui
             // trySync(updatedTask)
+        }
+    }
+
+    fun deleteTask(taskId: Int) {
+        viewModelScope.launch {
+            deleteTaskUseCase(taskId)
         }
     }
 

@@ -8,6 +8,7 @@ import com.example.dataagrin.app.data.repository.WeatherRepositoryImpl
 import com.example.dataagrin.app.domain.repository.TaskRegistryRepository
 import com.example.dataagrin.app.domain.repository.TaskRepository
 import com.example.dataagrin.app.domain.repository.WeatherRepository
+import com.example.dataagrin.app.domain.usecase.DeleteTaskUseCase
 import com.example.dataagrin.app.domain.usecase.GetTaskRegistriesUseCase
 import com.example.dataagrin.app.domain.usecase.GetTasksUseCase
 import com.example.dataagrin.app.domain.usecase.GetWeatherUseCase
@@ -36,11 +37,12 @@ val appModule = module {
     factory { GetTasksUseCase(get()) }
     factory { InsertTaskUseCase(get()) }
     factory { UpdateTaskUseCase(get()) }
+    factory { DeleteTaskUseCase(get()) }
     factory { GetWeatherUseCase(get()) }
     factory { GetTaskRegistriesUseCase(get()) }
     factory { InsertTaskRegistryUseCase(get()) }
 
-    viewModel { TaskViewModel(get(), get()) }
+    viewModel { TaskViewModel(get(), get(), get()) }
     viewModel { WeatherViewModel(get(), androidContext()) }
     viewModel { TaskRegistryViewModel(get(), get(), get()) }
 
