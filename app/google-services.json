@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "808864656434",
+    "project_id": "dataagrin-4b068",
+    "storage_bucket": "dataagrin-4b068.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:808864656434:android:4d11c56d7c6cf5a1e1a02b",
+        "android_client_info": {
+          "package_name": "com.example.dataagrin.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCt-IgOx3fNyTjGIVGyfRGqFJ_YHYFIc60"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
