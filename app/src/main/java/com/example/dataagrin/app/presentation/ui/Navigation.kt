@@ -10,6 +10,8 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -34,8 +36,10 @@ val items = listOf(
 )
 
 @Composable
-fun AppNavigation() {
+fun AppNavigation(windowSizeClass: WindowSizeClass) {
     val navController = rememberNavController()
+    val isExpandedScreen = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded
+    
     Scaffold(
         bottomBar = {
             NavigationBar {
@@ -65,9 +69,9 @@ fun AppNavigation() {
             startDestination = Screen.Tasks.route,
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable(Screen.Tasks.route) { TaskScreen() }
-            composable(Screen.TaskRegistry.route) { TaskRegistryScreen() }
-            composable(Screen.Weather.route) { WeatherScreen() }
+            composable(Screen.Tasks.route) { TaskScreen(isExpandedScreen = isExpandedScreen) }
+            composable(Screen.TaskRegistry.route) { TaskRegistryScreen(isExpandedScreen = isExpandedScreen) }
+            composable(Screen.Weather.route) { WeatherScreen(isExpandedScreen = isExpandedScreen) }
         }
     }
 }

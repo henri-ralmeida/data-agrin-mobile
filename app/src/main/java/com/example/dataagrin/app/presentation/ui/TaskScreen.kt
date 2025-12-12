@@ -22,6 +22,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -71,7 +74,10 @@ import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TaskScreen(viewModel: TaskViewModel = koinViewModel()) {
+fun TaskScreen(
+    viewModel: TaskViewModel = koinViewModel(),
+    isExpandedScreen: Boolean = false
+) {
     val tasks by viewModel.tasks.collectAsState()
     var showEditDialog by remember { mutableStateOf(false) }
     var showDeleteConfirm by remember { mutableStateOf(false) }
@@ -96,18 +102,17 @@ fun TaskScreen(viewModel: TaskViewModel = koinViewModel()) {
         if (tasks.isEmpty()) {
             EmptyTasksState()
         } else {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                items(tasks, key = { it.id }) { task ->
-                    AnimatedVisibility(
-                        visible = true,
-                        enter = slideInVertically(initialOffsetY = { 100 }) + fadeIn(),
-                        exit = slideOutVertically() + fadeOut()
-                    ) {
+            if (isExpandedScreen) {
+                // Layout em grid para tablets/landscape
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(2),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(tasks, key = { it.id }) { task ->
                         TaskCard(
                             task = task,
                             onStatusChange = { newStatus ->
@@ -127,6 +132,42 @@ fun TaskScreen(viewModel: TaskViewModel = koinViewModel()) {
                                 showDeleteConfirm = true
                             }
                         )
+                    }
+                }
+            } else {
+                // Layout em lista para smartphones
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(tasks, key = { it.id }) { task ->
+                        AnimatedVisibility(
+                            visible = true,
+                            enter = slideInVertically(initialOffsetY = { 100 }) + fadeIn(),
+                            exit = slideOutVertically() + fadeOut()
+                        ) {
+                            TaskCard(
+                                task = task,
+                                onStatusChange = { newStatus ->
+                                    viewModel.updateTask(task.copy(status = newStatus))
+                                },
+                                onEdit = {
+                                    selectedTask = task
+                                    editName = task.name
+                                    editScheduledTime = parseTimeToRaw(task.scheduledTime)
+                                    editEndTime = parseTimeToRaw(task.endTime)
+                                    editArea = task.area
+                                    editObservations = task.observations
+                                    showEditDialog = true
+                                },
+                                onDelete = {
+                                    taskToDelete = task
+                                    showDeleteConfirm = true
+                                }
+                            )
+                        }
                     }
                 }
             }

@@ -56,7 +56,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.edit
 
 @Composable
-fun WeatherScreen(viewModel: WeatherViewModel = koinViewModel()) {
+fun WeatherScreen(
+    viewModel: WeatherViewModel = koinViewModel(),
+    isExpandedScreen: Boolean = false
+) {
     val weather by viewModel.weather.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     
@@ -98,7 +101,11 @@ fun WeatherScreen(viewModel: WeatherViewModel = koinViewModel()) {
                     }
                 }
                 weather != null -> {
-                    WeatherContentWrapper(weather!!, onRefresh = viewModel::loadWeather)
+                    WeatherContentWrapper(
+                        weather = weather!!, 
+                        onRefresh = viewModel::loadWeather,
+                        isExpandedScreen = isExpandedScreen
+                    )
                 }
                 else -> {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -162,18 +169,26 @@ private fun WeatherScreenHeader() {
 }
 
 @Composable
-fun WeatherContentWrapper(weather: Weather, onRefresh: () -> Unit) {
+fun WeatherContentWrapper(
+    weather: Weather, 
+    onRefresh: () -> Unit,
+    isExpandedScreen: Boolean = false
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        WeatherContent(weather, onRefresh)
+        WeatherContent(weather, onRefresh, isExpandedScreen)
     }
 }
 
 @Composable
-fun WeatherContent(weather: Weather, onRefresh: () -> Unit) {
+fun WeatherContent(
+    weather: Weather, 
+    onRefresh: () -> Unit,
+    isExpandedScreen: Boolean = false
+) {
     val context = LocalContext.current
     val prefs = remember { context.getSharedPreferences("weather_prefs", Context.MODE_PRIVATE) }
     val hasLoadedSuccessfully = remember { mutableStateOf(prefs.getBoolean("has_loaded_successfully", false)) }
@@ -283,13 +298,14 @@ fun WeatherContent(weather: Weather, onRefresh: () -> Unit) {
         
         // Só mostra os cards se já carregou com sucesso pelo menos uma vez
         if (hasLoadedSuccessfully.value && upcomingHours.isNotEmpty()) {
-            // Mostra apenas as próximas 3 horas em layout horizontal centralizado
+            // Mostra mais horas em telas expandidas
+            val hoursToShow = if (isExpandedScreen) 6 else 3
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                upcomingHours.take(3).forEachIndexed { _, hourly ->
+                upcomingHours.take(hoursToShow).forEachIndexed { _, hourly ->
                     AnimatedVisibility(
                         visible = true,
                         enter = slideInVertically(initialOffsetY = { 100 }) + fadeIn()
@@ -300,6 +316,7 @@ fun WeatherContent(weather: Weather, onRefresh: () -> Unit) {
             }
         } else if (hasLoadedSuccessfully.value && upcomingHours.isEmpty() && weather.hourlyForecast.isNotEmpty()) {
             // Se está em cache mas sem horas futuras, mostra apenas 3 horas do cache
+            val hoursToShow = if (isExpandedScreen) 6 else 3
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center,

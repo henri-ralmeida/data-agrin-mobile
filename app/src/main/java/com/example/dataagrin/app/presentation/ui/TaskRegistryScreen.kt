@@ -59,7 +59,10 @@ import com.example.dataagrin.app.presentation.viewmodel.TaskRegistryViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun TaskRegistryScreen(viewModel: TaskRegistryViewModel = koinViewModel()) {
+fun TaskRegistryScreen(
+    viewModel: TaskRegistryViewModel = koinViewModel(),
+    isExpandedScreen: Boolean = false
+) {
     val taskRegistries by viewModel.taskRegistries.collectAsState()
     
     Column(
@@ -70,33 +73,65 @@ fun TaskRegistryScreen(viewModel: TaskRegistryViewModel = koinViewModel()) {
         // Header
         ActivityScreenHeader()
 
-        // Content
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            item {
-                AnimatedVisibility(
-                    visible = true,
-                    enter = fadeIn() + slideInVertically(initialOffsetY = { -100 })
+        if (isExpandedScreen) {
+            // Layout lado a lado para tablets/landscape
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                // Formulário à esquerda
+                Column(
+                    modifier = Modifier.weight(1f)
                 ) {
                     TaskRegistryForm(onInsertTaskRegistry = viewModel::insertTaskRegistry)
                 }
-            }
-
-            item {
-                TaskRegistryHistoryHeader(count = taskRegistries.size)
-            }
-
-            items(taskRegistries, key = { it.id }) { taskRegistry ->
-                AnimatedVisibility(
-                    visible = true,
-                    enter = slideInVertically(initialOffsetY = { 100 }) + fadeIn(),
-                    exit = slideOutVertically() + fadeOut()
+                
+                // Histórico à direita
+                Column(
+                    modifier = Modifier.weight(1f)
                 ) {
-                    TaskRegistryItem(taskRegistry = taskRegistry)
+                    TaskRegistryHistoryHeader(count = taskRegistries.size)
+                    Spacer(modifier = Modifier.height(12.dp))
+                    LazyColumn(
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(taskRegistries, key = { it.id }) { taskRegistry ->
+                            TaskRegistryItem(taskRegistry = taskRegistry)
+                        }
+                    }
+                }
+            }
+        } else {
+            // Layout em lista para smartphones
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                item {
+                    AnimatedVisibility(
+                        visible = true,
+                        enter = fadeIn() + slideInVertically(initialOffsetY = { -100 })
+                    ) {
+                        TaskRegistryForm(onInsertTaskRegistry = viewModel::insertTaskRegistry)
+                    }
+                }
+
+                item {
+                    TaskRegistryHistoryHeader(count = taskRegistries.size)
+                }
+
+                items(taskRegistries, key = { it.id }) { taskRegistry ->
+                    AnimatedVisibility(
+                        visible = true,
+                        enter = slideInVertically(initialOffsetY = { 100 }) + fadeIn(),
+                        exit = slideOutVertically() + fadeOut()
+                    ) {
+                        TaskRegistryItem(taskRegistry = taskRegistry)
+                    }
                 }
             }
         }
