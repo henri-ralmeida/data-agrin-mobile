@@ -1,0 +1,20 @@
+# <tipo>: <descrição curta em PT-BR>
+# |<----  Máximo 50 caracteres  ---->|
+
+# Explique o QUE e POR QUE (não o como)
+# |<----   Tente limitar a 72 caracteres   ---->|
+
+# --- TIPOS DE COMMIT ---
+# feat:     Nova funcionalidade
+# fix:      Correção de bug
+# docs:     Alterações na documentação
+# style:    Formatação (sem mudança de lógica)
+# refactor: Refatoração de código
+# test:     Adição/correção de testes
+# chore:    Tarefas de build, configs, etc
+# ---
+# Lembre-se:
+# - Use PT-BR (Português Brasileiro)
+# - Primeira linha: imperativo ("adiciona" não "adicionado")
+# - Corpo: explique motivação e contexto
+# - Rodapé: referências (Issues, PRs, etc)
