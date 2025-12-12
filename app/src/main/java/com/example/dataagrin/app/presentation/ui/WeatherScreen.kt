@@ -138,7 +138,7 @@ fun WeatherContent(weather: Weather, onRefresh: () -> Unit) {
                 Text(text = "São Paulo, SP", fontSize = 18.sp, fontWeight = FontWeight.Bold)
                 Text(text = "${weather.temperature}°C", fontSize = 48.sp)
                 Text(text = weather.weatherDescription, fontSize = 20.sp)
-                Text(text = "Umidade: 💧 ${weather.humidity}%", fontSize = 16.sp)
+                Text(text = "Umidade: ${weather.humidity}% 💧", fontSize = 16.sp)
                 
                 // Se conseguiu carregar com sucesso, marca flag e salva timestamp
                 if (!weather.isFromCache && weather.weatherDescription != "Sem conexão") {
