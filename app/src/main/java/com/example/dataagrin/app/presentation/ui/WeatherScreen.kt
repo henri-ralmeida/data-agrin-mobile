@@ -300,29 +300,69 @@ fun WeatherContent(
         if (hasLoadedSuccessfully.value && upcomingHours.isNotEmpty()) {
             // Mostra mais horas em telas expandidas
             val hoursToShow = if (isExpandedScreen) 6 else 3
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                upcomingHours.take(hoursToShow).forEachIndexed { _, hourly ->
-                    AnimatedVisibility(
-                        visible = true,
-                        enter = slideInVertically(initialOffsetY = { 100 }) + fadeIn()
+            val hoursToDisplay = upcomingHours.take(hoursToShow)
+            
+            if (isExpandedScreen && hoursToDisplay.size > 3) {
+                // Layout em grid para telas expandidas (2 linhas de 3)
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        HourlyForecastItem(hourly)
+                        hoursToDisplay.take(3).forEach { hourly ->
+                            AnimatedVisibility(
+                                visible = true,
+                                enter = slideInVertically(initialOffsetY = { 100 }) + fadeIn()
+                            ) {
+                                HourlyForecastItem(hourly)
+                            }
+                        }
+                    }
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        hoursToDisplay.drop(3).forEach { hourly ->
+                            AnimatedVisibility(
+                                visible = true,
+                                enter = slideInVertically(initialOffsetY = { 100 }) + fadeIn()
+                            ) {
+                                HourlyForecastItem(hourly)
+                            }
+                        }
+                    }
+                }
+            } else {
+                // Layout em linha única para smartphones
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    hoursToDisplay.forEach { hourly ->
+                        AnimatedVisibility(
+                            visible = true,
+                            enter = slideInVertically(initialOffsetY = { 100 }) + fadeIn()
+                        ) {
+                            HourlyForecastItem(hourly)
+                        }
                     }
                 }
             }
         } else if (hasLoadedSuccessfully.value && upcomingHours.isEmpty() && weather.hourlyForecast.isNotEmpty()) {
             // Se está em cache mas sem horas futuras, mostra apenas 3 horas do cache
-            val hoursToShow = if (isExpandedScreen) 6 else 3
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                weather.hourlyForecast.take(3).forEachIndexed { _, hourly ->
+                weather.hourlyForecast.take(3).forEach { hourly ->
                     AnimatedVisibility(
                         visible = true,
                         enter = slideInVertically(initialOffsetY = { 100 }) + fadeIn()
@@ -354,15 +394,15 @@ fun HourlyForecastItem(hourly: HourlyWeather) {
 
     Card(
         modifier = Modifier
-            .width(115.dp)
-            .height(180.dp) // Altura fixa para manter todos alinhados
-            .padding(horizontal = 5.dp)
+            .width(120.dp)
+            .height(195.dp) // Altura maior para caber texto
+            .padding(horizontal = 4.dp)
             .background(backgroundColor, shape = CardDefaults.shape),
         elevation = CardDefaults.cardElevation(2.dp)
     ) {
         Column(
             modifier = Modifier
-                .padding(14.dp)
+                .padding(10.dp)
                 .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween
@@ -388,7 +428,7 @@ fun HourlyForecastItem(hourly: HourlyWeather) {
             // Parte inferior com altura fixa
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.height(45.dp) // Altura fixa para descrição + umidade
+                modifier = Modifier.height(55.dp) // Altura aumentada para descrição + umidade
             ) {
                 if (hourly.humidity > 0) {
                     Text(text = "${hourly.humidity}% 💧", fontSize = 12.sp, color = Color.Gray)
@@ -397,11 +437,12 @@ fun HourlyForecastItem(hourly: HourlyWeather) {
                 if (hourly.description.isNotEmpty()) {
                     Text(
                         text = hourly.description, 
-                        fontSize = 11.sp, 
+                        fontSize = 10.sp, 
                         color = Color.Gray, 
                         maxLines = 2, 
                         textAlign = TextAlign.Center,
-                        minLines = 2 // Força sempre 2 linhas
+                        lineHeight = 12.sp,
+                        modifier = Modifier.padding(horizontal = 2.dp)
                     )
                 }
             }

@@ -20,6 +20,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -81,9 +83,11 @@ fun TaskRegistryScreen(
                     .padding(16.dp),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                // Formulário à esquerda
+                // Formulário à esquerda com scroll
                 Column(
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier
+                        .weight(1f)
+                        .verticalScroll(rememberScrollState())
                 ) {
                     TaskRegistryForm(onInsertTaskRegistry = viewModel::insertTaskRegistry)
                 }
@@ -95,6 +99,7 @@ fun TaskRegistryScreen(
                     TaskRegistryHistoryHeader(count = taskRegistries.size)
                     Spacer(modifier = Modifier.height(12.dp))
                     LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         items(taskRegistries, key = { it.id }) { taskRegistry ->
