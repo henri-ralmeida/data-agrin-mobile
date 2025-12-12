@@ -12,7 +12,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Cloud
 import androidx.compose.material.icons.filled.CloudQueue
@@ -22,6 +25,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,6 +40,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import android.content.Context
@@ -55,37 +60,51 @@ fun WeatherScreen(viewModel: WeatherViewModel = koinViewModel()) {
         viewModel.loadWeather()
     }
 
-    Box(
+    Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
-        contentAlignment = Alignment.Center
+            .background(Color(0xFFF5F5F5))
     ) {
-        when {
-            isLoading -> {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    CircularProgressIndicator()
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text("Carregando dados de clima...", fontSize = 14.sp, color = Color.Gray)
+        // Header
+        WeatherScreenHeader()
+
+        // Content
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            when {
+                isLoading -> {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        CircularProgressIndicator()
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text("Carregando dados de clima...", fontSize = 14.sp, color = Color.Gray)
+                    }
                 }
-            }
-            weather != null -> {
-                WeatherContent(weather!!, onRefresh = viewModel::loadWeather)
-            }
-            else -> {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(
-                        imageVector = Icons.Filled.Cloud,
-                        contentDescription = null,
-                        modifier = Modifier.size(64.dp),
-                        tint = Color.Gray
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text("Sem dados de clima disponíveis", fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                    Text("Verifique sua conexão", fontSize = 12.sp, color = Color.Gray)
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Button(onClick = viewModel::loadWeather) {
-                        Text("Tentar novamente")
+                weather != null -> {
+                    WeatherContentWrapper(weather!!, onRefresh = viewModel::loadWeather)
+                }
+                else -> {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(
+                            imageVector = Icons.Filled.Cloud,
+                            contentDescription = null,
+                            modifier = Modifier.size(64.dp),
+                            tint = Color.Gray
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text("Sem dados de clima disponíveis", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                        Text("Verifique sua conexão", fontSize = 12.sp, color = Color.Gray)
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Button(
+                            onClick = viewModel::loadWeather,
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1B5E20)),
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Text("Tentar novamente")
+                        }
                     }
                 }
             }
@@ -94,85 +113,126 @@ fun WeatherScreen(viewModel: WeatherViewModel = koinViewModel()) {
 }
 
 @Composable
-fun WeatherContent(weather: Weather, onRefresh: () -> Unit) {
+private fun WeatherScreenHeader() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color(0xFF1B5E20))
+            .padding(16.dp)
+    ) {
+        Column {
+            Text(
+                "Clima",
+                fontSize = 28.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            Text(
+                "Acompanhe as condições climáticas",
+                fontSize = 14.sp,
+                color = Color(0xFFE8F5E9),
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+        }
+    }
+}
+
+@Composable
+fun WeatherContentWrapper(weather: Weather, onRefresh: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        WeatherContent(weather, onRefresh, weather)
+    }
+}
+
+@Composable
+fun WeatherContent(weather: Weather, onRefresh: () -> Unit, weatherData: Weather = weather) {
     val context = LocalContext.current
     val prefs = remember { context.getSharedPreferences("weather_prefs", Context.MODE_PRIVATE) }
     val hasLoadedSuccessfully = remember { mutableStateOf(prefs.getBoolean("has_loaded_successfully", false)) }
     val lastApiUpdateTime = remember { mutableStateOf(prefs.getString("last_api_update", "") ?: "") }
     
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Card(
-            elevation = CardDefaults.cardElevation(4.dp)
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .fillMaxWidth()
+            .verticalScroll(androidx.compose.foundation.rememberScrollState())
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Column(
-                modifier = Modifier.padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+            Spacer(modifier = Modifier.width(60.dp))
+            Text(
+                text = getWeatherEmojiByCode(weather.weatherCode, java.time.LocalDateTime.now().hour),
+                fontSize = 60.sp
+            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.width(100.dp),
+                horizontalArrangement = Arrangement.End
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                    Text(text = "Clima Agora", fontSize = 24.sp)
-                    Spacer(modifier = Modifier.weight(1f))
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Box(
-                            modifier = Modifier
-                                .size(12.dp)
-                                .clip(CircleShape)
-                                .background(
-                                    if (weather.isFromCache) Color.Red else Color.Green
-                                )
+                Box(
+                    modifier = Modifier
+                        .size(8.dp)
+                        .clip(CircleShape)
+                        .background(
+                            if (weather.isFromCache) Color.Red else Color.Green
                         )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = if (weather.isFromCache) "Sem Conexão" else "Conectado",
-                            fontSize = 12.sp,
-                            color = if (weather.isFromCache) Color.Red else Color.Green,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = getWeatherEmojiByCode(weather.weatherCode, java.time.LocalDateTime.now().hour),
-                    fontSize = 80.sp
                 )
-
-                Spacer(modifier = Modifier.height(18.dp))
-                Text(text = "São Paulo, SP", fontSize = 18.sp, fontWeight = FontWeight.Bold)
-
-                Spacer(modifier = Modifier.height(18.dp))
-                Text(text = "${weather.temperature}°C", fontSize = 48.sp)
-
-                Spacer(modifier = Modifier.height(18.dp))
-                Text(text = weather.weatherDescription, fontSize = 20.sp)
-                Text(text = "Umidade: ${weather.humidity}% 💧", fontSize = 16.sp)
-                
-                // Se conseguiu carregar com sucesso, marca flag e salva timestamp
-                if (!weather.isFromCache && weather.weatherDescription != "Sem conexão") {
-                    hasLoadedSuccessfully.value = true
-                    val now = java.text.SimpleDateFormat("HH:mm", java.util.Locale.getDefault()).format(java.util.Date())
-                    lastApiUpdateTime.value = now
-                    prefs.edit().putBoolean("has_loaded_successfully", true).apply()
-                    prefs.edit().putString("last_api_update", now).apply()
-                }
-                
-                // Sempre mostra o horário da última atualização bem-sucedida
-                if (lastApiUpdateTime.value.isNotEmpty()) {
-                    Spacer(modifier = Modifier.height(10.dp))
-                    Text(text = "Última atualização: ${lastApiUpdateTime.value}", fontSize = 12.sp, color = Color.Gray)
-                }
-                
-                Spacer(modifier = Modifier.height(24.dp))
-                Button(onClick = onRefresh) {
-                    Text("Atualizar")
-                }
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = if (weather.isFromCache) "Sem Conexão" else "Conectado",
+                    fontSize = 11.sp,
+                    color = if (weather.isFromCache) Color.Red else Color.Green,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1
+                )
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Text(text = "São Paulo, SP", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(text = "${weather.temperature}°C", fontSize = 38.sp, fontWeight = FontWeight.Bold)
+
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(text = weather.weatherDescription, fontSize = 16.sp)
+        Text(text = "Umidade: ${weather.humidity}% 💧", fontSize = 14.sp, color = Color.Gray)
+        
+        // Se conseguiu carregar com sucesso, marca flag e salva timestamp
+        if (!weather.isFromCache && weather.weatherDescription != "Sem conexão") {
+            hasLoadedSuccessfully.value = true
+            val now = java.text.SimpleDateFormat("HH:mm", java.util.Locale.getDefault()).format(java.util.Date())
+            lastApiUpdateTime.value = now
+            prefs.edit().putBoolean("has_loaded_successfully", true).apply()
+            prefs.edit().putString("last_api_update", now).apply()
+        }
+        
+        // Sempre mostra o horário da última atualização bem-sucedida
+        if (lastApiUpdateTime.value.isNotEmpty()) {
+            Spacer(modifier = Modifier.height(6.dp))
+            Text(text = "Última atualização: ${lastApiUpdateTime.value}", fontSize = 11.sp, color = Color.Gray)
+        }
+        
+        Spacer(modifier = Modifier.height(12.dp))
+        Button(
+            onClick = onRefresh,
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1B5E20)),
+            shape = RoundedCornerShape(8.dp),
+            modifier = Modifier.height(36.dp)
+        ) {
+            Text("Atualizar", fontSize = 14.sp)
+        }
         
         val currentHour = java.time.LocalDateTime.now().hour
-        
-        // Filtrar apenas próximas horas (validar que a hora é um número inteiro válido)
         val upcomingHours = weather.hourlyForecast.filter { hourly ->
             val hourInt = hourly.time.toIntOrNull() ?: return@filter false
             hourInt >= currentHour + 1 && hourInt < 24
@@ -186,25 +246,24 @@ fun WeatherContent(weather: Weather, onRefresh: () -> Unit) {
         
         // Mostra aviso se está offline mas tem dados de previsão
         if (weather.isFromCache && upcomingHours.isNotEmpty()) {
-            Spacer(modifier = Modifier.height(16.dp))
-            Text("⚠️ Sem conexão - exibindo últimos dados salvos", fontSize = 12.sp, color = Color(0xFFF57F17), fontWeight = FontWeight.SemiBold)
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(12.dp))
+            Text("⚠️ Sem Conexão", fontSize = 14.sp, color = Color(0xFFF57F17), fontWeight = FontWeight.Bold)
+            Text("Exibindo últimos dados salvos", fontSize = 12.sp, color = Color(0xFFF57F17))
         }
         
         // Só mostra previsão SE JÁ CARREGOU COM SUCESSO
         if (hasLoadedSuccessfully.value) {
-            Text("Previsão nas Próximas Horas", fontSize = 20.sp)
+            Spacer(modifier = Modifier.height(12.dp))
+            Text("Previsão nas Próximas Horas", fontSize = 16.sp, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(8.dp))
         }
         
         // Só mostra os cards se já carregou com sucesso pelo menos uma vez
         if (hasLoadedSuccessfully.value && upcomingHours.isNotEmpty()) {
-            // Mostra horas futuras
+            // Mostra apenas as próximas 3 horas em layout horizontal centralizado
             Row(
-                modifier = Modifier
-                    .padding(top = 8.dp)
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = androidx.compose.foundation.layout.Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 upcomingHours.take(3).forEach { hourly ->
@@ -212,12 +271,10 @@ fun WeatherContent(weather: Weather, onRefresh: () -> Unit) {
                 }
             }
         } else if (hasLoadedSuccessfully.value && upcomingHours.isEmpty() && weather.hourlyForecast.isNotEmpty()) {
-            // Se está em cache mas sem horas futuras, mostra tudo do cache
+            // Se está em cache mas sem horas futuras, mostra apenas 3 horas do cache
             Row(
-                modifier = Modifier
-                    .padding(top = 8.dp)
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = androidx.compose.foundation.layout.Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 weather.hourlyForecast.take(3).forEach { hourly ->
@@ -228,8 +285,11 @@ fun WeatherContent(weather: Weather, onRefresh: () -> Unit) {
         
         // Mostrar mensagem APENAS se offline e nunca carregou dados antes (primeira vez)
         if (!hasLoadedSuccessfully.value && weather.isFromCache && weather.hourlyForecast.isEmpty()) {
-            Text("⚠️ Sem conexão com a internet, por favor, conecte-se!", fontSize = 14.sp, color = Color(0xFFF57F17), fontWeight = FontWeight.SemiBold)
+            Spacer(modifier = Modifier.height(12.dp))
+            Text("⚠️ Sem conexão com a internet, por favor, conecte-se!", fontSize = 13.sp, color = Color(0xFFF57F17), fontWeight = FontWeight.SemiBold)
         }
+        
+        Spacer(modifier = Modifier.height(16.dp))
     }
 }
 
@@ -240,44 +300,43 @@ fun HourlyForecastItem(hourly: HourlyWeather) {
     val isNextHour = hourly.time.toIntOrNull() == currentHour + 1
     
     // Destacar a próxima hora
-    val backgroundColor = if (isNextHour) Color(0xFFFFE082) else Color.Transparent
+    val backgroundColor = if (isNextHour) Color(0xFFFFE082) else Color(0xFFF5F5F5)
 
     Card(
         modifier = Modifier
-            .padding(horizontal = 8.dp, vertical = 8.dp)
-            .width(100.dp)
-            .height(220.dp)
+            .width(115.dp)
+            .padding(horizontal = 5.dp)
             .background(backgroundColor, shape = CardDefaults.shape),
         elevation = CardDefaults.cardElevation(2.dp)
     ) {
         Column(
             modifier = Modifier
-                .padding(12.dp)
+                .padding(14.dp)
                 .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween
+            verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center
         ) {
-            Box(modifier = Modifier.height(16.dp)) {
+            Box(modifier = Modifier.height(18.dp)) {
                 if (isNextHour) {
-                    Text(text = "▼ PRÓXIMA", fontSize = 9.sp, color = Color(0xFFF57F17), fontWeight = FontWeight.Bold)
+                    Text(text = "▼ PRÓXIMA", fontSize = 10.sp, color = Color(0xFFF57F17), fontWeight = FontWeight.Bold)
                 }
             }
             
-            Text(text = formattedHour, fontSize = 12.sp, fontWeight = if (isNextHour) FontWeight.Bold else FontWeight.Normal)
+            Text(text = formattedHour, fontSize = 13.sp, fontWeight = if (isNextHour) FontWeight.Bold else FontWeight.Normal)
             
             Text(
                 text = getWeatherEmojiByCode(hourly.weatherCode, hourly.time.toIntOrNull() ?: 0),
-                fontSize = 28.sp
+                fontSize = 32.sp
             )
             
-            Text(text = "${hourly.temperature}°C", fontSize = 14.sp, fontWeight = if (isNextHour) FontWeight.Bold else FontWeight.Normal)
+            Text(text = "${hourly.temperature}°C", fontSize = 15.sp, fontWeight = if (isNextHour) FontWeight.Bold else FontWeight.Normal)
             
             if (hourly.humidity > 0) {
                 Text(text = "${hourly.humidity}% 💧", fontSize = 12.sp, color = Color.Gray)
             }
             
             if (hourly.description.isNotEmpty()) {
-                Text(text = hourly.description, fontSize = 12.sp, color = Color.Gray, maxLines = 3)
+                Text(text = hourly.description, fontSize = 11.sp, color = Color.Gray, maxLines = 2, textAlign = TextAlign.Center)
             }
         }
     }
