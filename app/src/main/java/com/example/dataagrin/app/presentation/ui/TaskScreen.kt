@@ -20,6 +20,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.filled.PlayCircle
+import androidx.compose.material.icons.filled.CheckCircleOutline
+import androidx.compose.material.icons.filled.AccessTime
+import androidx.compose.material.icons.filled.Terrain
+import androidx.compose.material.icons.filled.Notes
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -310,10 +316,15 @@ fun TaskCard(
                     .padding(bottom = 12.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                DetailItem(label = "Talhão", value = task.area)
-                DetailItem(
+                DetailItemWithIcon(
+                    label = "Talhão",
+                    value = task.area,
+                    icon = Icons.Filled.Terrain
+                )
+                DetailItemWithIcon(
                     label = "Horário",
-                    value = if (task.endTime.isNotEmpty()) "${task.scheduledTime} - ${task.endTime}" else task.scheduledTime
+                    value = if (task.endTime.isNotEmpty()) "${task.scheduledTime} - ${task.endTime}" else task.scheduledTime,
+                    icon = Icons.Filled.AccessTime
                 )
             }
 
@@ -327,13 +338,24 @@ fun TaskCard(
                         .padding(bottom = 12.dp)
                 ) {
                     Column {
-                        Text(
-                            "Observações",
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            color = Color(0xFF666666)
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            modifier = Modifier.padding(bottom = 6.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Notes,
+                                contentDescription = "Observações",
+                                tint = Color(0xFF666666),
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Text(
+                                "Observações",
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = Color(0xFF666666)
+                            )
+                        }
                         Text(
                             task.observations,
                             fontSize = 13.sp,
@@ -435,37 +457,87 @@ private fun DetailItem(label: String, value: String) {
 }
 
 @Composable
+private fun DetailItemWithIcon(label: String, value: String, icon: androidx.compose.ui.graphics.vector.ImageVector) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = label,
+            tint = Color(0xFF1B5E20),
+            modifier = Modifier.size(18.dp)
+        )
+        Column {
+            Text(
+                label,
+                fontSize = 11.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = Color(0xFF9E9E9E)
+            )
+            Text(
+                value,
+                fontSize = 13.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = Color.Black
+            )
+        }
+    }
+}
+
+@Composable
 private fun StatusBadge(status: TaskStatus) {
-    val (backgroundColor, textColor, label) = when (status) {
-        TaskStatus.PENDING -> Triple(
+    data class StatusInfo(
+        val backgroundColor: Color,
+        val textColor: Color,
+        val label: String,
+        val icon: androidx.compose.ui.graphics.vector.ImageVector
+    )
+
+    val statusInfo = when (status) {
+        TaskStatus.PENDING -> StatusInfo(
             Color(0xFFFFC107),
             Color.Black,
-            "Pendente"
+            "Pendente",
+            Icons.Filled.Schedule
         )
-        TaskStatus.IN_PROGRESS -> Triple(
+        TaskStatus.IN_PROGRESS -> StatusInfo(
             Color(0xFF2196F3),
             Color.White,
-            "Em andamento"
+            "Em andamento",
+            Icons.Filled.PlayCircle
         )
-        TaskStatus.COMPLETED -> Triple(
+        TaskStatus.COMPLETED -> StatusInfo(
             Color(0xFF4CAF50),
             Color.White,
-            "Finalizada"
+            "Finalizada",
+            Icons.Filled.CheckCircleOutline
         )
     }
 
     Box(
         modifier = Modifier
-            .background(backgroundColor, shape = RoundedCornerShape(8.dp))
+            .background(statusInfo.backgroundColor, shape = RoundedCornerShape(8.dp))
             .padding(horizontal = 12.dp, vertical = 6.dp),
         contentAlignment = Alignment.Center
     ) {
-        Text(
-            label,
-            fontSize = 12.sp,
-            fontWeight = FontWeight.SemiBold,
-            color = textColor
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            Icon(
+                imageVector = statusInfo.icon,
+                contentDescription = statusInfo.label,
+                tint = statusInfo.textColor,
+                modifier = Modifier.size(16.dp)
+            )
+            Text(
+                statusInfo.label,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = statusInfo.textColor
+            )
+        }
     }
 }
 
