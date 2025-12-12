@@ -4,10 +4,11 @@
 
 Este projeto utiliza **Português Brasileiro (PT-BR)** como idioma padrão para:
 - Mensagens de commit
-- Documentação
+- Documentação (README, guias, wikis)
 - Comentários no código
 - Issues e Pull Requests
-- README e demais arquivos de documentação
+
+**Importante:** Nomes de variáveis, funções, classes e outros elementos de código devem seguir as convenções padrão da linguagem utilizada (geralmente em inglês para melhor compatibilidade e legibilidade internacional).
 
 ## Padrão de Mensagens de Commit
 
@@ -59,7 +60,10 @@ e configuração do ambiente de desenvolvimento.
 ## Como Contribuir
 
 1. Faça fork do projeto
-2. Crie uma branch para sua feature (`git checkout -b feat/nova-funcionalidade`)
+2. Crie uma branch para sua feature usando o tipo de commit como prefixo:
+   - `feat/nova-funcionalidade` para novas features
+   - `fix/correcao-bug` para correções
+   - `docs/atualiza-readme` para documentação
 3. Commit suas mudanças seguindo o padrão acima
 4. Push para a branch (`git push origin feat/nova-funcionalidade`)
 5. Abra um Pull Request

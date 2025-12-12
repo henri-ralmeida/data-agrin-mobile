@@ -12,7 +12,15 @@ Aplicativo Mobile de Operação Agrícola desenvolvido em Android + Kotlin.
 
 ## Idioma do Projeto
 
-Este projeto utiliza **Português Brasileiro (PT-BR)** como idioma padrão para toda documentação, commits e código. Veja o [Guia de Contribuição](CONTRIBUTING.md) para mais detalhes.
+Este projeto utiliza **Português Brasileiro (PT-BR)** como idioma padrão para:
+- Documentação (README, guias, wikis)
+- Mensagens de commit
+- Comentários no código
+- Issues e Pull Requests
+
+**Nota:** Nomes de variáveis, funções e classes devem seguir as convenções padrão da linguagem (geralmente em inglês).
+
+Veja o [Guia de Contribuição](CONTRIBUTING.md) para mais detalhes.
 
 ## Como Contribuir
 

@@ -2,18 +2,24 @@
 
 ## Configurar Template de Commit
 
-Para usar o template de mensagem de commit automaticamente, execute:
+### Configuração Local (Recomendado)
+
+Para usar o template de mensagem de commit apenas neste projeto, execute:
 
 ```bash
 git config commit.template .gitmessage
 ```
 
-Ou configure globalmente para todos os seus projetos:
+### Configuração Global (Opcional)
+
+Se desejar usar este template em todos os seus projetos Git:
 
 ```bash
 git config --global commit.template ~/.gitmessage
 cp .gitmessage ~/.gitmessage
 ```
+
+**Nota:** A configuração global afetará todos os seus repositórios. Use apenas se desejar aplicar o mesmo padrão em todos os projetos.
 
 ## Configuração do Git (Recomendado)
 
