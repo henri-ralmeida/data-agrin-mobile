@@ -10,7 +10,7 @@ import com.example.dataagrin.app.domain.model.Task
 
 @Database(
     entities = [Task::class, TaskRegistry::class, WeatherCache::class, HourlyWeatherCache::class], 
-    version = 2, 
+    version = 3, 
     exportSchema = false
 )
 @TypeConverters(Converters::class)
