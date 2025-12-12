@@ -129,14 +129,20 @@ fun WeatherContent(weather: Weather, onRefresh: () -> Unit) {
                         )
                     }
                 }
+
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
                     text = getWeatherEmojiByCode(weather.weatherCode, java.time.LocalDateTime.now().hour),
                     fontSize = 80.sp
                 )
-                Spacer(modifier = Modifier.height(16.dp))
+
+                Spacer(modifier = Modifier.height(18.dp))
                 Text(text = "São Paulo, SP", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+
+                Spacer(modifier = Modifier.height(18.dp))
                 Text(text = "${weather.temperature}°C", fontSize = 48.sp)
+
+                Spacer(modifier = Modifier.height(18.dp))
                 Text(text = weather.weatherDescription, fontSize = 20.sp)
                 Text(text = "Umidade: ${weather.humidity}% 💧", fontSize = 16.sp)
                 
@@ -151,11 +157,11 @@ fun WeatherContent(weather: Weather, onRefresh: () -> Unit) {
                 
                 // Sempre mostra o horário da última atualização bem-sucedida
                 if (lastApiUpdateTime.value.isNotEmpty()) {
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(10.dp))
                     Text(text = "Última atualização: ${lastApiUpdateTime.value}", fontSize = 12.sp, color = Color.Gray)
                 }
                 
-                Spacer(modifier = Modifier.height(32.dp))
+                Spacer(modifier = Modifier.height(24.dp))
                 Button(onClick = onRefresh) {
                     Text("Atualizar")
                 }
@@ -239,8 +245,8 @@ fun HourlyForecastItem(hourly: HourlyWeather) {
     Card(
         modifier = Modifier
             .padding(horizontal = 8.dp, vertical = 8.dp)
-            .width(120.dp)
-            .height(160.dp)
+            .width(100.dp)
+            .height(220.dp)
             .background(backgroundColor, shape = CardDefaults.shape),
         elevation = CardDefaults.cardElevation(2.dp)
     ) {
@@ -251,7 +257,7 @@ fun HourlyForecastItem(hourly: HourlyWeather) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween
         ) {
-            Box(modifier = Modifier.height(14.dp)) {
+            Box(modifier = Modifier.height(16.dp)) {
                 if (isNextHour) {
                     Text(text = "▼ PRÓXIMA", fontSize = 9.sp, color = Color(0xFFF57F17), fontWeight = FontWeight.Bold)
                 }
@@ -267,11 +273,11 @@ fun HourlyForecastItem(hourly: HourlyWeather) {
             Text(text = "${hourly.temperature}°C", fontSize = 14.sp, fontWeight = if (isNextHour) FontWeight.Bold else FontWeight.Normal)
             
             if (hourly.humidity > 0) {
-                Text(text = "${hourly.humidity}% 💧", fontSize = 10.sp, color = Color.Gray)
+                Text(text = "${hourly.humidity}% 💧", fontSize = 12.sp, color = Color.Gray)
             }
             
             if (hourly.description.isNotEmpty()) {
-                Text(text = hourly.description, fontSize = 8.sp, color = Color.Gray, maxLines = 1)
+                Text(text = hourly.description, fontSize = 12.sp, color = Color.Gray, maxLines = 3)
             }
         }
     }

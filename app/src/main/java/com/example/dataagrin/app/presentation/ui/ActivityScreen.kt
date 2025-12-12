@@ -235,7 +235,7 @@ fun ActivityForm(onInsertActivity: (Activity) -> Unit) {
                         onValueChange = { startTime = it },
                         label = { Text("Início") },
                         modifier = Modifier.weight(1f),
-                        placeholder = { Text("HH:mm") },
+                        placeholder = { Text("hh:mm") },
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = Color(0xFF1B5E20),
                             focusedLabelColor = Color(0xFF1B5E20)
@@ -248,7 +248,7 @@ fun ActivityForm(onInsertActivity: (Activity) -> Unit) {
                         onValueChange = { endTime = it },
                         label = { Text("Término") },
                         modifier = Modifier.weight(1f),
-                        placeholder = { Text("HH:mm") },
+                        placeholder = { Text("hh:mm") },
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = Color(0xFF1B5E20),
                             focusedLabelColor = Color(0xFF1B5E20)
