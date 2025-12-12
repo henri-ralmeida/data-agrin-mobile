@@ -12,6 +12,7 @@ import com.example.dataagrin.app.domain.usecase.GetActivitiesUseCase
 import com.example.dataagrin.app.domain.usecase.GetTasksUseCase
 import com.example.dataagrin.app.domain.usecase.GetWeatherUseCase
 import com.example.dataagrin.app.domain.usecase.InsertActivityUseCase
+import com.example.dataagrin.app.domain.usecase.InsertTaskUseCase
 import com.example.dataagrin.app.domain.usecase.UpdateTaskUseCase
 import com.example.dataagrin.app.presentation.viewmodel.ActivityViewModel
 import com.example.dataagrin.app.presentation.viewmodel.TaskViewModel
@@ -33,6 +34,7 @@ val appModule = module {
     single<WeatherRepository> { WeatherRepositoryImpl(get<WeatherApi>(), get<AppDatabase>().weatherDao()) }
 
     factory { GetTasksUseCase(get()) }
+    factory { InsertTaskUseCase(get()) }
     factory { UpdateTaskUseCase(get()) }
     factory { GetWeatherUseCase(get()) }
     factory { GetActivitiesUseCase(get()) }
@@ -40,7 +42,7 @@ val appModule = module {
 
     viewModel { TaskViewModel(get(), get()) }
     viewModel { WeatherViewModel(get(), androidContext()) }
-    viewModel { ActivityViewModel(get(), get()) }
+    viewModel { ActivityViewModel(get(), get(), get()) }
 
     single {
         Retrofit.Builder()

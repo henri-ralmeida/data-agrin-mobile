@@ -10,6 +10,10 @@ class TaskRepositoryImpl(private val taskDao: TaskDao) : TaskRepository {
         return taskDao.getAllTasks()
     }
 
+    override suspend fun insertTask(task: Task) {
+        taskDao.insertTask(task)
+    }
+
     override suspend fun updateTask(task: Task) {
         taskDao.updateTask(task)
     }

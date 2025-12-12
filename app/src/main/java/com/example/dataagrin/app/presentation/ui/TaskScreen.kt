@@ -210,7 +210,7 @@ fun TaskCard(
                         .padding(horizontal = 12.dp, vertical = 6.dp)
                 ) {
                     Text(
-                        "Avançar",
+                        "Atualizar",
                         fontSize = 12.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = Color.White

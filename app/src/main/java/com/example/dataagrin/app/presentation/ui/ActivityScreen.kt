@@ -89,7 +89,7 @@ private fun ActivityScreenHeader() {
     ) {
         Column {
             Text(
-                "Registros de Atividades",
+                "Registros de Tarefas",
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.White,
@@ -116,7 +116,7 @@ private fun ActivityHistoryHeader(count: Int) {
     ) {
         Column {
             Text(
-                "Histórico de Atividades",
+                "Histórico de Registro de Tarefas",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black
@@ -169,7 +169,7 @@ fun ActivityForm(onInsertActivity: (Activity) -> Unit) {
                     )
                     Spacer(modifier = Modifier.padding(8.dp))
                     Text(
-                        "Registrar Atividade",
+                        "Registrar Tarefa",
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF1B5E20)
@@ -321,7 +321,7 @@ fun ActivityForm(onInsertActivity: (Activity) -> Unit) {
                     )
                     Spacer(modifier = Modifier.padding(4.dp))
                     Text(
-                        "Salvar Atividade",
+                        "Salvar Tarefa",
                         fontWeight = FontWeight.SemiBold
                     )
                 }
