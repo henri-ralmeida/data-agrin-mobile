@@ -61,9 +61,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.dataagrin.app.domain.model.Task
 import com.example.dataagrin.app.domain.model.TaskStatus
+import com.example.dataagrin.app.presentation.ui.components.DetailItemWithIcon
 import com.example.dataagrin.app.presentation.ui.components.TimeInputField
 import com.example.dataagrin.app.presentation.ui.components.formatTimeValue
 import com.example.dataagrin.app.presentation.ui.components.parseTimeToRaw
+import com.example.dataagrin.app.presentation.ui.utils.TimeValidation
 import com.example.dataagrin.app.presentation.viewmodel.TaskViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -154,7 +156,7 @@ fun TaskScreen(viewModel: TaskViewModel = koinViewModel()) {
                         timeError = "Horário de início obrigatório (4 dígitos)"
                         return@EditTaskDialog
                     }
-                    if (!isValidTimeFormat(formattedScheduledTime)) {
+                    if (!TimeValidation.isValidTimeFormat(formattedScheduledTime)) {
                         timeError = "Horário de início inválido"
                         return@EditTaskDialog
                     }
@@ -162,11 +164,11 @@ fun TaskScreen(viewModel: TaskViewModel = koinViewModel()) {
                         timeError = "Horário de término inválido (4 dígitos)"
                         return@EditTaskDialog
                     }
-                    if (editEndTime.length == 4 && !isValidTimeFormat(formattedEndTime)) {
+                    if (editEndTime.length == 4 && !TimeValidation.isValidTimeFormat(formattedEndTime)) {
                         timeError = "Horário de término inválido"
                         return@EditTaskDialog
                     }
-                    if (editEndTime.length == 4 && !isValidTimeRange(formattedScheduledTime, formattedEndTime)) {
+                    if (editEndTime.length == 4 && !TimeValidation.isEndTimeAfterStartTime(formattedScheduledTime, formattedEndTime)) {
                         timeError = "Hora de término deve ser após a hora de início"
                         return@EditTaskDialog
                     }
@@ -504,35 +506,6 @@ fun TaskCard(
 }
 
 @Composable
-private fun DetailItemWithIcon(label: String, value: String, icon: androidx.compose.ui.graphics.vector.ImageVector) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = label,
-            tint = Color(0xFF1B5E20),
-            modifier = Modifier.size(18.dp)
-        )
-        Column {
-            Text(
-                label,
-                fontSize = 11.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = Color(0xFF9E9E9E)
-            )
-            Text(
-                value,
-                fontSize = 13.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = Color.Black
-            )
-        }
-    }
-}
-
-@Composable
 private fun StatusBadge(status: TaskStatus) {
     data class StatusInfo(
         val backgroundColor: Color,
@@ -731,28 +704,4 @@ private fun EditTaskDialog(
         },
         dismissButton = {}
     )
-}
-
-private fun isValidTimeFormat(time: String): Boolean {
-    if (time.isEmpty()) return false
-    val regex = Regex("^([0-1][0-9]|2[0-3]):[0-5][0-9]$")
-    return regex.matches(time)
-}
-
-private fun isValidTimeRange(startTime: String, endTime: String): Boolean {
-    // Valida se endTime é maior que startTime (não permite voltar no tempo!)
-    if (!isValidTimeFormat(startTime) || !isValidTimeFormat(endTime)) return false
-    
-    val startParts = startTime.split(":")
-    val endParts = endTime.split(":")
-    
-    val startHour = startParts[0].toIntOrNull() ?: return false
-    val startMinute = startParts[1].toIntOrNull() ?: return false
-    val endHour = endParts[0].toIntOrNull() ?: return false
-    val endMinute = endParts[1].toIntOrNull() ?: return false
-    
-    val startTotalMinutes = startHour * 60 + startMinute
-    val endTotalMinutes = endHour * 60 + endMinute
-    
-    return endTotalMinutes > startTotalMinutes
 }

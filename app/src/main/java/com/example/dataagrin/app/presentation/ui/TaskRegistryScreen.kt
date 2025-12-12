@@ -51,8 +51,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.dataagrin.app.domain.model.TaskRegistry
+import com.example.dataagrin.app.presentation.ui.components.DetailItemWithIcon
 import com.example.dataagrin.app.presentation.ui.components.TimeInputField
 import com.example.dataagrin.app.presentation.ui.components.formatTimeValue
+import com.example.dataagrin.app.presentation.ui.utils.TimeValidation
 import com.example.dataagrin.app.presentation.viewmodel.TaskRegistryViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -318,11 +320,11 @@ fun TaskRegistryForm(onInsertTaskRegistry: (TaskRegistry) -> Unit) {
                             area.isBlank() -> "Talhão/Área é obrigatório"
                             startTime.length < 4 -> "Hora de início é obrigatória (4 dígitos)"
                             endTime.length < 4 -> "Hora de término é obrigatória (4 dígitos)"
-                            !isValidHourFormat(formattedStartTime) -> "Hora de início inválida"
-                            !isValidHourFormat(formattedEndTime) -> "Hora de término inválida"
-                            !isValidHourRange(formattedStartTime) -> "Hora de início deve estar entre 00:00 e 23:59"
-                            !isValidHourRange(formattedEndTime) -> "Hora de término deve estar entre 00:00 e 23:59"
-                            !isValidTimeRange(formattedStartTime, formattedEndTime) -> "Hora de término deve ser após a hora de início"
+                            !TimeValidation.isValidTimeFormat(formattedStartTime) -> "Hora de início inválida"
+                            !TimeValidation.isValidTimeFormat(formattedEndTime) -> "Hora de término inválida"
+                            !TimeValidation.isValidTimeRange(formattedStartTime) -> "Hora de início deve estar entre 00:00 e 23:59"
+                            !TimeValidation.isValidTimeRange(formattedEndTime) -> "Hora de término deve estar entre 00:00 e 23:59"
+                            !TimeValidation.isEndTimeAfterStartTime(formattedStartTime, formattedEndTime) -> "Hora de término deve ser após a hora de início"
                             else -> {
                                 val newTaskRegistry = TaskRegistry(
                                     type = type.trim(),
@@ -482,66 +484,4 @@ fun TaskRegistryItem(taskRegistry: TaskRegistry) {
             }
         }
     }
-}
-
-@Composable
-private fun DetailItemWithIcon(label: String, value: String, icon: androidx.compose.ui.graphics.vector.ImageVector) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = label,
-            tint = Color(0xFF1B5E20),
-            modifier = Modifier.size(18.dp)
-        )
-        Column {
-            Text(
-                label,
-                fontSize = 11.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = Color(0xFF9E9E9E)
-            )
-            Text(
-                value,
-                fontSize = 13.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = Color.Black
-            )
-        }
-    }
-}
-// Validadores de horário
-private fun isValidHourFormat(time: String): Boolean {
-    // Valida formato HH:mm
-    val regex = Regex("^([0-1]?\\d|2[0-3]):[0-5]\\d$")
-    return regex.matches(time)
-}
-
-private fun isValidHourRange(time: String): Boolean {
-    // Extrai horas e minutos e valida range
-    if (!isValidHourFormat(time)) return false
-    val parts = time.split(":")
-    return parts.size == 2 && 
-           parts[0].toIntOrNull()?.let { it in 0..23 } ?: false &&
-           parts[1].toIntOrNull()?.let { it in 0..59 } ?: false
-}
-
-private fun isValidTimeRange(startTime: String, endTime: String): Boolean {
-    // Valida se endTime é maior que startTime (não permite voltar no tempo!)
-    if (!isValidHourFormat(startTime) || !isValidHourFormat(endTime)) return false
-    
-    val startParts = startTime.split(":")
-    val endParts = endTime.split(":")
-    
-    val startHour = startParts[0].toIntOrNull() ?: return false
-    val startMinute = startParts[1].toIntOrNull() ?: return false
-    val endHour = endParts[0].toIntOrNull() ?: return false
-    val endMinute = endParts[1].toIntOrNull() ?: return false
-    
-    val startTotalMinutes = startHour * 60 + startMinute
-    val endTotalMinutes = endHour * 60 + endMinute
-    
-    return endTotalMinutes > startTotalMinutes
 }

@@ -13,10 +13,8 @@ data class Task(
     val endTime: String = "",   // Horário de término (HH:mm)
     val observations: String = "", // Observações
     val status: TaskStatus,
-    // BaaS Sync Fields (para Firebase/Supabase)
-    val remoteId: String? = null,
+    // BaaS Sync Fields (para Firebase)
     val syncStatus: SyncStatus = SyncStatus.LOCAL,
-    val lastSyncedAt: Long? = null,
     val createdAt: Long = System.currentTimeMillis(),
     val updatedAt: Long = System.currentTimeMillis()
 )

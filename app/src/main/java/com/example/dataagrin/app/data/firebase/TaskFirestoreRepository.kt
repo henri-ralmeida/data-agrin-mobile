@@ -102,37 +102,6 @@ class TaskFirestoreRepository(private val firestore: FirebaseFirestore) {
         }
     }
 
-    suspend fun getAllTasks(): List<Task> {
-        return try {
-            val snapshot = firestore
-                .collection(FirebaseManager.TASKS_COLLECTION)
-                .get()
-                .await()
-
-            snapshot.documents.mapNotNull { doc ->
-                doc.data?.toTask()
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            emptyList()
-        }
-    }
-
-    suspend fun getTaskById(taskId: Int): Task? {
-        return try {
-            val snapshot = firestore
-                .collection(FirebaseManager.TASKS_COLLECTION)
-                .document(taskId.toString())
-                .get()
-                .await()
-
-            snapshot.data?.toTask()
-        } catch (e: Exception) {
-            e.printStackTrace()
-            null
-        }
-    }
-
     /**
      * Atualiza tarefa e registra ação "alterado" no histórico com todos os campos
      */

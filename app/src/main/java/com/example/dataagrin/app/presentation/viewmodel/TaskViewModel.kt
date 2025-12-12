@@ -184,21 +184,4 @@ class TaskViewModel(
             }
         }
     }
-
-    fun syncAllTasks() {
-        viewModelScope.launch {
-            try {
-                _syncStatus.value = SyncStatus.SYNCING
-                
-                for (task in _tasks.value) {
-                    taskFirestoreRepository.updateTask(task)
-                }
-                
-                _syncStatus.value = SyncStatus.SYNCED
-            } catch (e: Exception) {
-                _syncStatus.value = SyncStatus.SYNC_ERROR
-                e.printStackTrace()
-            }
-        }
-    }
 }

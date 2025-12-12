@@ -1,8 +1,6 @@
 package com.example.dataagrin.app.di
 
-import com.example.dataagrin.app.data.firebase.FirebaseManager
 import com.example.dataagrin.app.data.firebase.TaskFirestoreRepository
-import com.example.dataagrin.app.data.firebase.TaskRegistryFirestoreRepository
 import com.example.dataagrin.app.data.local.AppDatabase
 import com.example.dataagrin.app.data.remote.WeatherApi
 import com.example.dataagrin.app.data.repository.TaskRegistryRepositoryImpl
@@ -39,7 +37,6 @@ val appModule = module {
     // Firebase
     single { Firebase.firestore }
     single { TaskFirestoreRepository(get()) }
-    single { TaskRegistryFirestoreRepository(get()) }
 
     single<TaskRepository> { TaskRepositoryImpl(get<AppDatabase>().taskDao()) }
     single<TaskRegistryRepository> { TaskRegistryRepositoryImpl(get<AppDatabase>().taskRegistryDao()) }

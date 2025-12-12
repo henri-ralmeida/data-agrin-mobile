@@ -14,9 +14,7 @@ fun Task.toFirestoreMap(): Map<String, Any> {
         "endTime" to this.endTime,
         "observations" to this.observations,
         "status" to this.status.name,
-        "remoteId" to (this.remoteId ?: ""),
         "syncStatus" to this.syncStatus.name,
-        "lastSyncedAt" to (this.lastSyncedAt ?: 0L),
         "createdAt" to this.createdAt,
         "updatedAt" to this.updatedAt
     )
@@ -36,7 +34,6 @@ fun Map<String, Any>.toTask(): Task {
         } catch (e: Exception) {
             TaskStatus.PENDING
         },
-        remoteId = this["remoteId"] as? String,
         createdAt = (this["createdAt"] as? Number)?.toLong() ?: System.currentTimeMillis(),
         updatedAt = (this["updatedAt"] as? Number)?.toLong() ?: System.currentTimeMillis()
     )

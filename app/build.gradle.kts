@@ -4,6 +4,11 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
     id("com.google.gms.google-services")
+    id("jacoco")
+}
+
+jacoco {
+    toolVersion = "0.8.11"
 }
 
 android {
@@ -39,6 +44,55 @@ android {
     buildFeatures {
         compose = true
     }
+
+    testOptions {
+        unitTests {
+            isIncludeAndroidResources = true
+            all {
+                it.extensions.configure<JacocoTaskExtension> {
+                    isIncludeNoLocationClasses = true
+                    excludes = listOf("jdk.internal.*")
+                }
+            }
+        }
+    }
+}
+
+tasks.register<JacocoReport>("jacocoTestReport") {
+    dependsOn("testDebugUnitTest")
+    
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+        html.outputLocation.set(layout.buildDirectory.dir("reports/jacoco"))
+    }
+    
+    val fileFilter = listOf(
+        "**/R.class",
+        "**/R$*.class",
+        "**/BuildConfig.*",
+        "**/Manifest*.*",
+        "**/*Test*.*",
+        "**/android/**/*.*",
+        "**/*_Factory*",
+        "**/*_MembersInjector*",
+        "**/*Component*",
+        "**/*Module*",
+        "**/di/**",
+        "**/hilt_aggregated_deps/**"
+    )
+    
+    val debugTree = fileTree("${layout.buildDirectory.get()}/tmp/kotlin-classes/debug") {
+        exclude(fileFilter)
+    }
+    
+    val mainSrc = "${project.projectDir}/src/main/java"
+    
+    sourceDirectories.setFrom(files(mainSrc))
+    classDirectories.setFrom(files(debugTree))
+    executionData.setFrom(fileTree(layout.buildDirectory) {
+        include("jacoco/testDebugUnitTest.exec")
+    })
 }
 
 dependencies {
@@ -77,6 +131,7 @@ dependencies {
     //Testes
     testImplementation(libs.junit)
     testImplementation(libs.mockk)
+    testImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
