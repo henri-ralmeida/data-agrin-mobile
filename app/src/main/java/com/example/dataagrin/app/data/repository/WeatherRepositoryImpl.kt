@@ -16,18 +16,33 @@ class WeatherRepositoryImpl(
 ) : WeatherRepository {
     override fun getWeather(): Flow<Weather?> = flow {
         try {
+            Log.d("WeatherRepo", "Iniciando requisição à API...")
             val remoteWeather = weatherApi.getWeather()
+            Log.d("WeatherRepo", "Resposta recebida: temp=${remoteWeather.current.temperature}")
+            
             val (weatherCache, hourlyCache) = remoteWeather.toCache()
+            Log.d("WeatherRepo", "Cache criado: ${hourlyCache.size} horas")
+            
             weatherDao.saveWeatherCache(weatherCache)
             weatherDao.saveHourlyWeatherCache(hourlyCache)
-            emit(remoteWeather.toDomain())
+            Log.d("WeatherRepo", "Cache salvo no BD")
+            
+            val domainWeather = remoteWeather.toDomain()
+            Log.d("WeatherRepo", "Emitindo dados da API")
+            emit(domainWeather)
         } catch (e: Exception) {
-            Log.e("WeatherRepository", "Erro ao buscar clima da API, usando cache", e)
-            val cachedWeather = weatherDao.getWeatherCache()
-            if (cachedWeather != null) {
-                emit(cachedWeather.toDomain())
-            } else {
-                Log.e("WeatherRepository", "Sem cache disponivel e API falhou")
+            Log.e("WeatherRepo", "Erro ao buscar clima da API: ${e.message}", e)
+            try {
+                val cachedWeather = weatherDao.getWeatherCache()
+                if (cachedWeather != null) {
+                    Log.d("WeatherRepo", "Usando cache local")
+                    emit(cachedWeather.toDomain())
+                } else {
+                    Log.e("WeatherRepo", "Sem cache disponivel e API falhou")
+                    emit(null)
+                }
+            } catch (cacheError: Exception) {
+                Log.e("WeatherRepo", "Erro ao acessar cache: ${cacheError.message}", cacheError)
                 emit(null)
             }
         }

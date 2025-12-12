@@ -26,6 +26,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -46,6 +47,10 @@ import java.util.Calendar
 fun WeatherScreen(viewModel: WeatherViewModel = koinViewModel()) {
     val weather by viewModel.weather.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.loadWeather()
+    }
 
     Box(
         modifier = Modifier
@@ -155,11 +160,7 @@ fun WeatherContent(weather: Weather, onRefresh: () -> Unit) {
 
 @Composable
 fun HourlyForecastItem(hourly: HourlyWeather, offsetIndex: Int = 0) {
-    val hourIndex = hourly.time.toIntOrNull() ?: 0
-    val calendar = Calendar.getInstance().apply {
-        add(Calendar.HOUR_OF_DAY, hourIndex + offsetIndex)
-    }
-    val formattedHour = String.format("%02d:00", calendar.get(Calendar.HOUR_OF_DAY))
+    val formattedHour = "${hourly.time}:00"
 
     Card(
         modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),

@@ -53,21 +53,33 @@ data class FullWeatherCache(
 )
 
 fun WeatherDto.toCache(): Pair<WeatherCache, List<HourlyWeatherCache>> {
-    val weatherCache = WeatherCache(
-        temperature = this.current.temperature,
-        humidity = this.current.humidity,
-        weatherCode = this.current.weatherCode,
-        lastUpdated = System.currentTimeMillis()
-    )
-    val hourlyCache = this.hourly.time.zip(this.hourly.temperatures).zip(this.hourly.weatherCodes).map { (timeTempPair, weatherCode) ->
-        HourlyWeatherCache(
-            weatherId = 1, 
-            time = timeTempPair.first, 
-            temperature = timeTempPair.second,
-            weatherCode = weatherCode
+    try {
+        val weatherCache = WeatherCache(
+            temperature = this.current.temperature,
+            humidity = this.current.humidity,
+            weatherCode = this.current.weatherCode,
+            lastUpdated = System.currentTimeMillis()
         )
+        
+        val hourlyCache = mutableListOf<HourlyWeatherCache>()
+        if (this.hourly.time.isNotEmpty() && this.hourly.temperatures.isNotEmpty()) {
+            for (i in 0 until minOf(this.hourly.time.size, this.hourly.temperatures.size)) {
+                val weatherCode = if (i < this.hourly.weatherCodes.size) this.hourly.weatherCodes[i] else 0
+                hourlyCache.add(
+                    HourlyWeatherCache(
+                        weatherId = 1,
+                        time = this.hourly.time[i],
+                        temperature = this.hourly.temperatures[i],
+                        weatherCode = weatherCode
+                    )
+                )
+            }
+        }
+        return Pair(weatherCache, hourlyCache)
+    } catch (e: Exception) {
+        android.util.Log.e("WeatherCache", "Erro ao converter para cache: ${e.message}", e)
+        throw e
     }
-    return Pair(weatherCache, hourlyCache)
 }
 
 fun FullWeatherCache.toDomain(): Weather {
@@ -83,20 +95,32 @@ fun FullWeatherCache.toDomain(): Weather {
 }
 
 fun WeatherDto.toDomain(): Weather {
-    val next24Hours = this.hourly.time.zip(this.hourly.temperatures).zip(this.hourly.weatherCodes)
-        .take(24)
-        .mapIndexed { index, (timeTempPair, weatherCode) -> 
-            HourlyWeather(index.toString().padStart(2, '0'), timeTempPair.second, weatherCode) 
+    try {
+        val next24Hours = try {
+            this.hourly.time.zip(this.hourly.temperatures).zip(this.hourly.weatherCodes)
+                .take(24)
+                .map { (timeTempPair, weatherCode) -> 
+                    val timeString = timeTempPair.first // formato: "2024-12-12T14:00"
+                    val hour = timeString.substringAfter('T').substringBefore(':')
+                    HourlyWeather(hour, timeTempPair.second, weatherCode) 
+                }
+        } catch (e: Exception) {
+            android.util.Log.e("WeatherCache", "Erro ao processar hourly: ${e.message}", e)
+            emptyList()
         }
-    
-    return Weather(
-        temperature = this.current.temperature,
-        humidity = this.current.humidity,
-        weatherDescription = mapWeatherCodeToDescription(this.current.weatherCode),
-        isFromCache = false,
-        hourlyForecast = next24Hours,
-        lastUpdated = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
-    )
+        
+        return Weather(
+            temperature = this.current.temperature,
+            humidity = this.current.humidity,
+            weatherDescription = mapWeatherCodeToDescription(this.current.weatherCode),
+            isFromCache = false,
+            hourlyForecast = next24Hours,
+            lastUpdated = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
+        )
+    } catch (e: Exception) {
+        android.util.Log.e("WeatherCache", "Erro ao converter DTO para Domain: ${e.message}", e)
+        throw e
+    }
 }
 
 private fun mapWeatherCodeToDescription(code: Int): String {
