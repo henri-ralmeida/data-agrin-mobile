@@ -8,12 +8,17 @@ import androidx.room.TypeConverters
 import com.example.dataagrin.app.domain.model.Activity
 import com.example.dataagrin.app.domain.model.Task
 
-@Database(entities = [Task::class, Activity::class], version = 1, exportSchema = false)
+@Database(
+    entities = [Task::class, Activity::class, WeatherCache::class, HourlyWeatherCache::class], 
+    version = 2, 
+    exportSchema = false
+)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun taskDao(): TaskDao
     abstract fun activityDao(): ActivityDao
+    abstract fun weatherDao(): WeatherDao
 
     companion object {
         @Volatile
@@ -25,7 +30,8 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "data_agrin_database"
-                ).build()
+                ).fallbackToDestructiveMigration()
+                    .build()
                 INSTANCE = instance
                 instance
             }

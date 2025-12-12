@@ -18,7 +18,8 @@ class WeatherRepositoryImpl(
         try {
             val remoteWeather = weatherApi.getWeather()
             val (weatherCache, hourlyCache) = remoteWeather.toCache()
-            weatherDao.updateCache(weatherCache, hourlyCache)
+            weatherDao.saveWeatherCache(weatherCache)
+            weatherDao.saveHourlyWeatherCache(hourlyCache)
             emit(remoteWeather.toDomain())
         } catch (e: Exception) {
             Log.e("WeatherRepository", "Erro ao buscar clima da API, usando cache", e)

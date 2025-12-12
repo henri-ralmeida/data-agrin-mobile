@@ -1,19 +1,25 @@
 package com.example.dataagrin.app.presentation.ui.components
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.airbnb.lottie.compose.LottieAnimation
-import com.airbnb.lottie.compose.LottieCompositionSpec
-import com.airbnb.lottie.compose.LottieConstants
-import com.airbnb.lottie.compose.rememberLottieComposition
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 @Composable
 fun LottieTaskAnimation(modifier: Modifier = Modifier, animationName: String) {
-    val composition by rememberLottieComposition(LottieCompositionSpec.Asset(animationName))
-    LottieAnimation(
-        composition = composition,
-        iterations = LottieConstants.IterateForever,
+    Box(
         modifier = modifier
-    )
+            .size(100.dp)
+            .background(Color.LightGray, CircleShape),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(animationName, fontSize = 12.sp, color = Color.DarkGray)
+    }
 }

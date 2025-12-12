@@ -14,8 +14,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.windowsizeclass.WindowSizeClass
-import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -35,17 +33,9 @@ import java.util.Date
 import java.util.Locale
 
 @Composable
-fun ActivityScreen(windowSizeClass: WindowSizeClass, viewModel: ActivityViewModel = koinViewModel()) {
+fun ActivityScreen(viewModel: ActivityViewModel = koinViewModel()) {
     val activities by viewModel.activities.collectAsState()
-
-    when (windowSizeClass.widthSizeClass) {
-        WindowWidthSizeClass.Compact -> {
-            CompactActivityScreen(activities = activities, onInsertActivity = viewModel::insertActivity)
-        }
-        else -> {
-            ExpandedActivityScreen(activities = activities, onInsertActivity = viewModel::insertActivity)
-        }
-    }
+    CompactActivityScreen(activities = activities, onInsertActivity = viewModel::insertActivity)
 }
 
 @Composable

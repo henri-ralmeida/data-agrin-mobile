@@ -28,9 +28,9 @@ val appModule = module {
     single { get<AppDatabase>().activityDao() }
     single { get<AppDatabase>().weatherDao() }
 
-    single<TaskRepository> { TaskRepositoryImpl(get()) }
-    single<ActivityRepository> { ActivityRepositoryImpl(get()) }
-    single<WeatherRepository> { WeatherRepositoryImpl(get(), get()) }
+    single<TaskRepository> { TaskRepositoryImpl(get<AppDatabase>().taskDao()) }
+    single<ActivityRepository> { ActivityRepositoryImpl(get<AppDatabase>().activityDao()) }
+    single<WeatherRepository> { WeatherRepositoryImpl(get<WeatherApi>(), get<AppDatabase>().weatherDao()) }
 
     factory { GetTasksUseCase(get()) }
     factory { UpdateTaskUseCase(get()) }
