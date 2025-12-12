@@ -2,17 +2,19 @@ package com.example.dataagrin.app.data.firebase
 
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.PersistentCacheSettings
 import com.google.firebase.firestore.firestore
+import com.google.firebase.firestore.firestoreSettings
 
 object FirebaseManager {
     val firestore: FirebaseFirestore = Firebase.firestore
 
     fun initialize() {
-        // Habilitar offline persistence
+        // Habilitar offline persistence com a nova API
         try {
-            firestore.firestoreSettings = com.google.firebase.firestore.FirebaseFirestoreSettings.Builder()
-                .setPersistenceEnabled(true)
-                .build()
+            firestore.firestoreSettings = firestoreSettings {
+                setLocalCacheSettings(PersistentCacheSettings.newBuilder().build())
+            }
         } catch (_: Exception) {
             // Offline persistence já está habilitado
         }

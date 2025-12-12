@@ -4,7 +4,6 @@ import com.example.dataagrin.app.MainCoroutineRule
 import com.example.dataagrin.app.domain.model.TaskRegistry
 import com.example.dataagrin.app.domain.usecase.GetTaskRegistriesUseCase
 import com.example.dataagrin.app.domain.usecase.InsertTaskRegistryUseCase
-import com.example.dataagrin.app.domain.usecase.InsertTaskUseCase
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -26,7 +25,6 @@ class TaskRegistryViewModelTest {
 
     private val getTaskRegistriesUseCase: GetTaskRegistriesUseCase = mockk()
     private val insertTaskRegistryUseCase: InsertTaskRegistryUseCase = mockk(relaxed = true)
-    private val insertTaskUseCase: InsertTaskUseCase = mockk(relaxed = true)
     private val taskViewModel: TaskViewModel = mockk(relaxed = true)
     private lateinit var viewModel: TaskRegistryViewModel
 
@@ -34,8 +32,7 @@ class TaskRegistryViewModelTest {
     fun setUp() {
         val fakeTaskRegistries = listOf(TaskRegistry(1, "Planting", "Area 51", "08:00", "10:00", "Notes"))
         coEvery { getTaskRegistriesUseCase() } returns flowOf(fakeTaskRegistries)
-        coEvery { insertTaskUseCase(any()) } returns 1L
-        viewModel = TaskRegistryViewModel(getTaskRegistriesUseCase, insertTaskRegistryUseCase, insertTaskUseCase, taskViewModel)
+        viewModel = TaskRegistryViewModel(getTaskRegistriesUseCase, insertTaskRegistryUseCase, taskViewModel)
     }
 
     @Test

@@ -338,6 +338,7 @@ fun HourlyForecastItem(hourly: HourlyWeather) {
     Card(
         modifier = Modifier
             .width(115.dp)
+            .height(180.dp) // Altura fixa para manter todos alinhados
             .padding(horizontal = 5.dp)
             .background(backgroundColor, shape = CardDefaults.shape),
         elevation = CardDefaults.cardElevation(2.dp)
@@ -347,29 +348,45 @@ fun HourlyForecastItem(hourly: HourlyWeather) {
                 .padding(14.dp)
                 .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
-            Box(modifier = Modifier.height(18.dp)) {
-                if (isNextHour) {
-                    Text(text = "▼ PRÓXIMA", fontSize = 10.sp, color = Color(0xFFF57F17), fontWeight = FontWeight.Bold)
+            // Parte superior
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Box(modifier = Modifier.height(18.dp)) {
+                    if (isNextHour) {
+                        Text(text = "▼ PRÓXIMA", fontSize = 10.sp, color = Color(0xFFF57F17), fontWeight = FontWeight.Bold)
+                    }
                 }
+                
+                Text(text = formattedHour, fontSize = 13.sp, fontWeight = if (isNextHour) FontWeight.Bold else FontWeight.Normal)
+                
+                Text(
+                    text = getWeatherEmojiByCode(hourly.weatherCode, hourly.time.toIntOrNull() ?: 0),
+                    fontSize = 32.sp
+                )
+                
+                Text(text = "${hourly.temperature}°C", fontSize = 15.sp, fontWeight = if (isNextHour) FontWeight.Bold else FontWeight.Normal)
             }
             
-            Text(text = formattedHour, fontSize = 13.sp, fontWeight = if (isNextHour) FontWeight.Bold else FontWeight.Normal)
-            
-            Text(
-                text = getWeatherEmojiByCode(hourly.weatherCode, hourly.time.toIntOrNull() ?: 0),
-                fontSize = 32.sp
-            )
-            
-            Text(text = "${hourly.temperature}°C", fontSize = 15.sp, fontWeight = if (isNextHour) FontWeight.Bold else FontWeight.Normal)
-            
-            if (hourly.humidity > 0) {
-                Text(text = "${hourly.humidity}% 💧", fontSize = 12.sp, color = Color.Gray)
-            }
-            
-            if (hourly.description.isNotEmpty()) {
-                Text(text = hourly.description, fontSize = 11.sp, color = Color.Gray, maxLines = 2, textAlign = TextAlign.Center)
+            // Parte inferior com altura fixa
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.height(45.dp) // Altura fixa para descrição + umidade
+            ) {
+                if (hourly.humidity > 0) {
+                    Text(text = "${hourly.humidity}% 💧", fontSize = 12.sp, color = Color.Gray)
+                }
+                
+                if (hourly.description.isNotEmpty()) {
+                    Text(
+                        text = hourly.description, 
+                        fontSize = 11.sp, 
+                        color = Color.Gray, 
+                        maxLines = 2, 
+                        textAlign = TextAlign.Center,
+                        minLines = 2 // Força sempre 2 linhas
+                    )
+                }
             }
         }
     }

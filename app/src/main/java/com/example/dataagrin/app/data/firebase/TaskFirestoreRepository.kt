@@ -28,7 +28,10 @@ class TaskFirestoreRepository(private val firestore: FirebaseFirestore) {
                 "timestamp" to System.currentTimeMillis(),
                 "formattedTime" to currentHour,
                 "taskName" to task.name,
-                "area" to task.area
+                "area" to task.area,
+                "scheduledTime" to task.scheduledTime,
+                "endTime" to task.endTime,
+                "status" to task.status.name
             )
             
             // Obter próximo ID incremental para o histórico
@@ -53,14 +56,25 @@ class TaskFirestoreRepository(private val firestore: FirebaseFirestore) {
         }
     }
 
-    suspend fun deleteTask(taskId: Int) {
+    suspend fun deleteTask(task: Task) {
         try {
-            val taskIdStr = taskId.toString()
+            val taskIdStr = task.id.toString()
+            
+            // Obtém hora formatada atual
+            val currentHour = java.util.Calendar.getInstance().let { 
+                "${it.get(java.util.Calendar.HOUR_OF_DAY)}:${String.format("%02d", it.get(java.util.Calendar.MINUTE))}" 
+            }
             
             // Registra exclusão no histórico antes de deletar
             val historyEntry = mapOf(
                 "action" to "excluido",
-                "timestamp" to System.currentTimeMillis()
+                "timestamp" to System.currentTimeMillis(),
+                "formattedTime" to currentHour,
+                "taskName" to task.name,
+                "area" to task.area,
+                "scheduledTime" to task.scheduledTime,
+                "endTime" to task.endTime,
+                "status" to task.status.name
             )
             
             // Obter próximo ID incremental para o histórico
@@ -120,14 +134,60 @@ class TaskFirestoreRepository(private val firestore: FirebaseFirestore) {
     }
 
     /**
-     * Atualiza tarefa e registra ação "alterado" no histórico
+     * Atualiza tarefa e registra ação "alterado" no histórico com todos os campos
      */
     suspend fun updateTask(task: Task) {
-        uploadTask(task, "alterado")
+        try {
+            val taskId = task.id.toString()
+            
+            // Atualiza dados da tarefa em /tasks/{taskId}
+            firestore
+                .collection(FirebaseManager.TASKS_COLLECTION)
+                .document(taskId)
+                .set(task.toFirestoreMap())
+                .await()
+            
+            // Registra ação no histórico em /tasks/{taskId}/history/{historyId}
+            val currentHour = java.util.Calendar.getInstance().let { 
+                "${it.get(java.util.Calendar.HOUR_OF_DAY)}:${String.format("%02d", it.get(java.util.Calendar.MINUTE))}" 
+            }
+            val historyEntry = mapOf(
+                "action" to "alterado",
+                "timestamp" to System.currentTimeMillis(),
+                "formattedTime" to currentHour,
+                "taskName" to task.name,
+                "area" to task.area,
+                "scheduledTime" to task.scheduledTime,
+                "endTime" to task.endTime,
+                "status" to task.status.name
+            )
+            
+            // Obter próximo ID incremental para o histórico
+            val historySnapshot = firestore
+                .collection(FirebaseManager.TASKS_COLLECTION)
+                .document(taskId)
+                .collection("history")
+                .get()
+                .await()
+            val nextHistoryId = historySnapshot.documents.size.toString()
+            
+            firestore
+                .collection(FirebaseManager.TASKS_COLLECTION)
+                .document(taskId)
+                .collection("history")
+                .document(nextHistoryId)
+                .set(historyEntry)
+                .await()
+                
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     /**
-     * Busca o próximo ID sequencial para tasks (começando do 0)
+     * Busca o próximo ID sequencial para tasks
+     * Se Firebase estiver vazio, começa do 1
+     * Se tiver dados, retorna (maior ID existente + 1)
      */
     suspend fun getNextTaskId(): Int {
         return try {
@@ -136,11 +196,19 @@ class TaskFirestoreRepository(private val firestore: FirebaseFirestore) {
                 .get()
                 .await()
             
-            // Retorna o número de documentos (próximo ID será count)
-            snapshot.documents.size
+            if (snapshot.documents.isEmpty()) {
+                // Firebase vazio, começa do 1
+                1
+            } else {
+                // Busca o maior ID numérico existente e incrementa
+                val maxId = snapshot.documents
+                    .mapNotNull { doc -> doc.id.toIntOrNull() }
+                    .maxOrNull() ?: 0
+                maxId + 1
+            }
         } catch (e: Exception) {
             e.printStackTrace()
-            0
+            1 // Em caso de erro, começa do 1
         }
     }
 

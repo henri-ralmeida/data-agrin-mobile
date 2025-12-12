@@ -12,6 +12,7 @@ import com.example.dataagrin.app.domain.repository.TaskRegistryRepository
 import com.example.dataagrin.app.domain.repository.TaskRepository
 import com.example.dataagrin.app.domain.repository.WeatherRepository
 import com.example.dataagrin.app.domain.usecase.DeleteTaskUseCase
+import com.example.dataagrin.app.domain.usecase.GetTaskByIdUseCase
 import com.example.dataagrin.app.domain.usecase.GetTaskRegistriesUseCase
 import com.example.dataagrin.app.domain.usecase.GetTasksUseCase
 import com.example.dataagrin.app.domain.usecase.GetWeatherUseCase
@@ -45,6 +46,7 @@ val appModule = module {
     single<WeatherRepository> { WeatherRepositoryImpl(get<WeatherApi>(), get<AppDatabase>().weatherDao()) }
 
     factory { GetTasksUseCase(get()) }
+    factory { GetTaskByIdUseCase(get()) }
     factory { InsertTaskUseCase(get()) }
     factory { UpdateTaskUseCase(get()) }
     factory { DeleteTaskUseCase(get()) }
@@ -52,9 +54,9 @@ val appModule = module {
     factory { GetTaskRegistriesUseCase(get()) }
     factory { InsertTaskRegistryUseCase(get()) }
 
-    viewModel { TaskViewModel(get(), get(), get(), get()) }
+    viewModel { TaskViewModel(get(), get(), get(), get(), get(), get(), get()) }
     viewModel { WeatherViewModel(get(), androidContext()) }
-    viewModel { TaskRegistryViewModel(get(), get(), get(), get()) }
+    viewModel { TaskRegistryViewModel(get(), get(), get()) }
 
     single {
         Retrofit.Builder()

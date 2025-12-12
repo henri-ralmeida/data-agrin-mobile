@@ -5,8 +5,11 @@ import androidx.lifecycle.viewModelScope
 import com.example.dataagrin.app.data.firebase.TaskFirestoreRepository
 import com.example.dataagrin.app.domain.model.SyncStatus
 import com.example.dataagrin.app.domain.model.Task
+import com.example.dataagrin.app.domain.model.TaskRegistry
 import com.example.dataagrin.app.domain.usecase.DeleteTaskUseCase
+import com.example.dataagrin.app.domain.usecase.GetTaskByIdUseCase
 import com.example.dataagrin.app.domain.usecase.GetTasksUseCase
+import com.example.dataagrin.app.domain.usecase.InsertTaskRegistryUseCase
 import com.example.dataagrin.app.domain.usecase.InsertTaskUseCase
 import com.example.dataagrin.app.domain.usecase.UpdateTaskUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,10 +21,12 @@ import kotlinx.coroutines.launch
 
 class TaskViewModel(
     private val getTasksUseCase: GetTasksUseCase,
+    private val getTaskByIdUseCase: GetTaskByIdUseCase,
     private val insertTaskUseCase: InsertTaskUseCase,
     private val updateTaskUseCase: UpdateTaskUseCase,
     private val deleteTaskUseCase: DeleteTaskUseCase,
-    private val taskFirestoreRepository: TaskFirestoreRepository
+    private val taskFirestoreRepository: TaskFirestoreRepository,
+    private val insertTaskRegistryUseCase: InsertTaskRegistryUseCase
 ) : ViewModel() {
 
     private val _tasks = MutableStateFlow<List<Task>>(emptyList())
@@ -42,12 +47,46 @@ class TaskViewModel(
 
     fun updateTask(task: Task) {
         viewModelScope.launch {
+            // Busca a task original para comparar
+            val originalTask = getTaskByIdUseCase(task.id)
+            
+            // Detecta o que foi alterado
+            val changes = mutableListOf<String>()
+            originalTask?.let { original ->
+                if (original.name != task.name) changes.add("Nome da Tarefa")
+                if (original.area != task.area) changes.add("Talhão")
+                if (original.scheduledTime != task.scheduledTime || original.endTime != task.endTime) changes.add("Horário")
+                if (original.observations != task.observations) changes.add("Observação")
+                if (original.status != task.status) changes.add("Status")
+            }
+            
+            val observationText = if (changes.isNotEmpty()) {
+                "Alteração: ${changes.joinToString(", ")}"
+            } else {
+                "Tarefa alterada"
+            }
+            
             // Marca como SYNCING
             val updatedTask = task.copy(
                 syncStatus = SyncStatus.SYNCING,
                 updatedAt = System.currentTimeMillis()
             )
             updateTaskUseCase(updatedTask)
+
+            // Cria registro no histórico de tarefas (com flag isModified)
+            val currentTime = java.util.Calendar.getInstance().let { 
+                "${it.get(java.util.Calendar.HOUR_OF_DAY)}:${String.format("%02d", it.get(java.util.Calendar.MINUTE))}" 
+            }
+            val taskRegistry = TaskRegistry(
+                type = task.name,
+                area = task.area,
+                startTime = currentTime,
+                endTime = currentTime,
+                observations = observationText,
+                isModified = true,
+                isDeleted = false
+            )
+            insertTaskRegistryUseCase(taskRegistry)
 
             // Sincroniza com Firebase (com ação alterado)
             // Histórico é automaticamente criado em /tasks/{id}/history/
@@ -57,11 +96,26 @@ class TaskViewModel(
 
     fun deleteTask(task: Task) {
         viewModelScope.launch {
+            // Cria registro no histórico de tarefas (com flag isDeleted)
+            val currentTime = java.util.Calendar.getInstance().let { 
+                "${it.get(java.util.Calendar.HOUR_OF_DAY)}:${String.format("%02d", it.get(java.util.Calendar.MINUTE))}" 
+            }
+            val taskRegistry = TaskRegistry(
+                type = task.name,
+                area = task.area,
+                startTime = currentTime,
+                endTime = currentTime,
+                observations = "Tarefa excluída",
+                isModified = false,
+                isDeleted = true
+            )
+            insertTaskRegistryUseCase(taskRegistry)
+
             deleteTaskUseCase(task.id)
 
             // Sincroniza com Firebase (com ação DELETADO)
             // Histórico é automaticamente criado em /tasks/{id}/history/
-            trySyncDelete(task.id)
+            trySyncDelete(task)
         }
     }
 
@@ -118,11 +172,11 @@ class TaskViewModel(
         }
     }
 
-    private fun trySyncDelete(taskId: Int) {
+    private fun trySyncDelete(task: Task) {
         viewModelScope.launch {
             try {
                 _syncStatus.value = SyncStatus.SYNCING
-                taskFirestoreRepository.deleteTask(taskId)
+                taskFirestoreRepository.deleteTask(task)
                 _syncStatus.value = SyncStatus.SYNCED
             } catch (e: Exception) {
                 _syncStatus.value = SyncStatus.SYNC_ERROR
