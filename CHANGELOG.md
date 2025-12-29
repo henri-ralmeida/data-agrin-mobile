@@ -1,5 +1,38 @@
 # CHANGELOG
 
+## [1.1.0] - 2025-12-28
+
+### 🐛 Correções Críticas
+
+#### 🌍 Localização GPS
+- ✅ **Correção de crash**: Implementado flag `isResumed` para prevenir "Already resumed" exception em suspendCancellableCoroutine
+- ✅ **Timeout seguro**: Adicionado withTimeoutOrNull(10s) para evitar travamentos na obtenção de localização
+- ✅ **Geocoding robusto**: Timeout de 5s no getCityNameFromCoordinates para evitar travamentos sem internet
+- ✅ **Alertas dinâmicos**: Badge em laranja "Sem Geolocalização" quando GPS desativado (atualiza em tempo real)
+- ✅ **Mensagem informativa**: "⚠️ Sem Geolocalização - Exibindo última localização salva" embaixo dos dados
+
+#### 🌐 Conectividade
+- ✅ **Alertas visuais**: Badge vermelho "Sem Conexão" quando offline (atualiza dinamicamente)
+- ✅ **Mensagem offline**: "⚠️ Sem Conexão - Exibindo últimos dados salvos" embaixo da previsão
+- ✅ **Botão inteligente**: "Tentar novamente" abre configurações de rede em vez de tentar carregar sem internet
+- ✅ **Verificação de conectividade**: loadWeather não tenta carregar se não há internet
+
+#### 🎨 UX/UI Melhorias
+- ✅ **Telas de erro persistentes**: Permissões/GPS/Internet sempre aparecem ao reiniciar app (não só na primeira vez)
+- ✅ **Estado dinâmico**: GPS e conectividade atualizam em tempo real (a cada 1s)
+- ✅ **Feedback visual**: Badges e mensagens informativas para todos os estados offline
+- ✅ **Responsividade**: Alertas funcionam em smartphones e tablets
+
+#### 🗄️ Banco de Dados
+- ✅ **Versão Room**: Incrementada para v9 para compatibilidade com novos dispositivos
+
+### 📊 Métricas Atualizadas
+- ✅ **Testes**: 180 testes passando (100% coverage em use-cases)
+- ✅ **Performance**: Timeout implementados para evitar ANRs
+- ✅ **Estabilidade**: Sem crashes de localização ou conectividade
+
+---
+
 ## [1.0.0] - 2025-12-11
 
 ### ✨ Funcionalidades Core Implementadas

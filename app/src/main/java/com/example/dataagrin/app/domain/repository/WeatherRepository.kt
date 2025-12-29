@@ -4,5 +4,10 @@ import com.example.dataagrin.app.domain.model.Weather
 import kotlinx.coroutines.flow.Flow
 
 interface WeatherRepository {
-    fun getWeather(hasLoadedSuccessfully: Boolean = false): Flow<Weather?>
+    fun getWeather(
+        latitude: Double,
+        longitude: Double,
+        cityName: String,
+        hasLoadedSuccessfully: Boolean = false,
+    ): Flow<Weather?>
 }

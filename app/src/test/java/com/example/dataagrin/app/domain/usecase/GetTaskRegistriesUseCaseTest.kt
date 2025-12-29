@@ -12,19 +12,18 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class GetTaskRegistriesUseCaseTest {
-
     private val taskRegistryRepository: TaskRegistryRepository = mockk()
     private val getTaskRegistriesUseCase = GetTaskRegistriesUseCase(taskRegistryRepository)
 
     @Test
-    fun `invoke should return task registries from repository`() = runBlocking {
-        val fakeTaskRegistries = listOf(TaskRegistry(1, "Planting", "Area 51", "08:00", "10:00", "Notes"))
-        coEvery { taskRegistryRepository.getAllTaskRegistries() } returns flowOf(fakeTaskRegistries)
+    fun `invoke should return task registries from repository`() =
+        runBlocking {
+            val fakeTaskRegistries = listOf(TaskRegistry(1, "Planting", "Area 51", "08:00", "10:00", "Notes"))
+            coEvery { taskRegistryRepository.getAllTaskRegistries() } returns flowOf(fakeTaskRegistries)
 
-        val result = getTaskRegistriesUseCase.invoke().first()
+            val result = getTaskRegistriesUseCase.invoke().first()
 
-        assertEquals(fakeTaskRegistries, result)
-        coVerify(exactly = 1) { taskRegistryRepository.getAllTaskRegistries() }
-    }
+            assertEquals(fakeTaskRegistries, result)
+            coVerify(exactly = 1) { taskRegistryRepository.getAllTaskRegistries() }
+        }
 }
-

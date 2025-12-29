@@ -12,9 +12,10 @@ object FirebaseManager {
     fun initialize() {
         // Habilitar offline persistence com a nova API
         try {
-            firestore.firestoreSettings = firestoreSettings {
-                setLocalCacheSettings(PersistentCacheSettings.newBuilder().build())
-            }
+            firestore.firestoreSettings =
+                firestoreSettings {
+                    setLocalCacheSettings(PersistentCacheSettings.newBuilder().build())
+                }
         } catch (_: Exception) {
             // Offline persistence já está habilitado
         }
@@ -22,5 +23,4 @@ object FirebaseManager {
 
     // Collections
     const val TASKS_COLLECTION = "tasks"
-    const val TASK_REGISTRY_COLLECTION = "task_registries"
 }

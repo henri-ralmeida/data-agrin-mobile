@@ -5,8 +5,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class TimeValidationTest {
-
-    // ==================== isValidTimeFormat Tests ====================
+    // ==================== Testes de isValidTimeFormat ====================
 
     @Test
     fun `isValidTimeFormat returns true for valid time 00-00`() {
@@ -55,7 +54,7 @@ class TimeValidationTest {
         assertFalse(TimeValidation.isValidTimeFormat("-1:00"))
     }
 
-    // ==================== isValidTimeRange Tests ====================
+    // ==================== Testes de isValidTimeRange ====================
 
     @Test
     fun `isValidTimeRange returns true for valid time in range`() {
@@ -75,7 +74,7 @@ class TimeValidationTest {
         assertFalse(TimeValidation.isValidTimeRange(""))
     }
 
-    // ==================== isEndTimeAfterStartTime Tests ====================
+    // ==================== Testes de isEndTimeAfterStartTime ====================
 
     @Test
     fun `isEndTimeAfterStartTime returns true when end is after start`() {

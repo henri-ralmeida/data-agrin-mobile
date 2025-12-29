@@ -6,16 +6,16 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class TaskRegistryTest {
-
     @Test
     fun `TaskRegistry should have default values`() {
-        val registry = TaskRegistry(
-            type = "Planting",
-            area = "Area 1",
-            startTime = "08:00",
-            endTime = "10:00",
-            observations = "Notes"
-        )
+        val registry =
+            TaskRegistry(
+                type = "Planting",
+                area = "Area 1",
+                startTime = "08:00",
+                endTime = "10:00",
+                observations = "Notes",
+            )
 
         assertEquals(0, registry.id)
         assertFalse(registry.isModified)
@@ -24,16 +24,17 @@ class TaskRegistryTest {
 
     @Test
     fun `TaskRegistry should be created with all fields`() {
-        val registry = TaskRegistry(
-            id = 1,
-            type = "Harvesting",
-            area = "Area 2",
-            startTime = "14:00",
-            endTime = "16:00",
-            observations = "Harvest notes",
-            isModified = true,
-            isDeleted = false
-        )
+        val registry =
+            TaskRegistry(
+                id = 1,
+                type = "Harvesting",
+                area = "Area 2",
+                startTime = "14:00",
+                endTime = "16:00",
+                observations = "Harvest notes",
+                isModified = true,
+                isDeleted = false,
+            )
 
         assertEquals(1, registry.id)
         assertEquals("Harvesting", registry.type)
@@ -47,14 +48,15 @@ class TaskRegistryTest {
 
     @Test
     fun `TaskRegistry with isDeleted flag should be marked correctly`() {
-        val deletedRegistry = TaskRegistry(
-            type = "Deleted Task",
-            area = "Area",
-            startTime = "10:00",
-            endTime = "12:00",
-            observations = "Tarefa excluída",
-            isDeleted = true
-        )
+        val deletedRegistry =
+            TaskRegistry(
+                type = "Deleted Task",
+                area = "Area",
+                startTime = "10:00",
+                endTime = "12:00",
+                observations = "Tarefa excluída",
+                isDeleted = true,
+            )
 
         assertTrue(deletedRegistry.isDeleted)
         assertFalse(deletedRegistry.isModified)
@@ -62,14 +64,15 @@ class TaskRegistryTest {
 
     @Test
     fun `TaskRegistry with isModified flag should be marked correctly`() {
-        val modifiedRegistry = TaskRegistry(
-            type = "Modified Task",
-            area = "Area",
-            startTime = "10:00",
-            endTime = "12:00",
-            observations = "Alteração: Nome",
-            isModified = true
-        )
+        val modifiedRegistry =
+            TaskRegistry(
+                type = "Modified Task",
+                area = "Area",
+                startTime = "10:00",
+                endTime = "12:00",
+                observations = "Alteração: Nome",
+                isModified = true,
+            )
 
         assertTrue(modifiedRegistry.isModified)
         assertFalse(modifiedRegistry.isDeleted)
@@ -77,20 +80,22 @@ class TaskRegistryTest {
 
     @Test
     fun `TaskRegistry copy should work correctly`() {
-        val original = TaskRegistry(
-            id = 1,
-            type = "Original",
-            area = "Area 1",
-            startTime = "08:00",
-            endTime = "10:00",
-            observations = "Original notes"
-        )
+        val original =
+            TaskRegistry(
+                id = 1,
+                type = "Original",
+                area = "Area 1",
+                startTime = "08:00",
+                endTime = "10:00",
+                observations = "Original notes",
+            )
 
-        val modified = original.copy(
-            type = "Modified",
-            observations = "Modified notes",
-            isModified = true
-        )
+        val modified =
+            original.copy(
+                type = "Modified",
+                observations = "Modified notes",
+                isModified = true,
+            )
 
         assertEquals("Modified", modified.type)
         assertEquals("Modified notes", modified.observations)

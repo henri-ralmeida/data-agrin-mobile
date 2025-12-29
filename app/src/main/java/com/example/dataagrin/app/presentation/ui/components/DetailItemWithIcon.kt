@@ -1,5 +1,6 @@
 package com.example.dataagrin.app.presentation.ui.components
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,31 +21,32 @@ fun DetailItemWithIcon(
     label: String,
     value: String,
     icon: ImageVector,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    valueColor: Color? = null,
 ) {
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Icon(
             imageVector = icon,
             contentDescription = label,
-            tint = Color(0xFF1B5E20),
-            modifier = Modifier.size(18.dp)
+            tint = if (isSystemInDarkTheme()) Color.White else Color(0xFF1B5E20),
+            modifier = Modifier.size(18.dp),
         )
         Column {
             Text(
                 label,
                 fontSize = 11.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = Color(0xFF9E9E9E)
+                color = Color(0xFF9E9E9E),
             )
             Text(
                 value,
                 fontSize = 13.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = Color.Black
+                color = valueColor ?: Color.Black,
             )
         }
     }
