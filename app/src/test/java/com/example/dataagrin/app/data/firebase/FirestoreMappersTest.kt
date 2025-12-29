@@ -1,30 +1,31 @@
 package com.example.dataagrin.app.data.firebase
 
+import com.example.dataagrin.app.domain.model.SyncStatus
 import com.example.dataagrin.app.domain.model.Task
 import com.example.dataagrin.app.domain.model.TaskRegistry
 import com.example.dataagrin.app.domain.model.TaskStatus
-import com.example.dataagrin.app.domain.model.SyncStatus
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class FirestoreMappersTest {
-
-    // ==================== Task to Map Tests ====================
+    // ==================== Testes de Task para Map ====================
 
     @Test
     fun `toFirestoreMap should convert Task correctly`() {
-        val task = Task(
-            id = 1,
-            name = "Test Task",
-            area = "Area 1",
-            scheduledTime = "10:00",
-            endTime = "12:00",
-            observations = "Test notes",
-            status = TaskStatus.PENDING,
-            syncStatus = SyncStatus.LOCAL,
-            createdAt = 1000L,
-            updatedAt = 2000L
-        )
+        val task =
+            Task(
+                id = 1,
+                name = "Test Task",
+                area = "Area 1",
+                scheduledTime = "10:00",
+                endTime = "12:00",
+                observations = "Test notes",
+                status = TaskStatus.PENDING,
+                syncStatus = SyncStatus.LOCAL,
+                createdAt = 1000L,
+                updatedAt = 2000L,
+            )
 
         val map = task.toFirestoreMap()
 
@@ -42,13 +43,14 @@ class FirestoreMappersTest {
 
     @Test
     fun `toFirestoreMap should handle empty optional fields`() {
-        val task = Task(
-            id = 2,
-            name = "Minimal Task",
-            area = "Area 2",
-            scheduledTime = "08:00",
-            status = TaskStatus.IN_PROGRESS
-        )
+        val task =
+            Task(
+                id = 2,
+                name = "Minimal Task",
+                area = "Area 2",
+                scheduledTime = "08:00",
+                status = TaskStatus.IN_PROGRESS,
+            )
 
         val map = task.toFirestoreMap()
 
@@ -56,21 +58,22 @@ class FirestoreMappersTest {
         assertEquals("", map["observations"])
     }
 
-    // ==================== Map to Task Tests ====================
+    // ==================== Testes de Map para Task ====================
 
     @Test
     fun `toTask should convert Map correctly`() {
-        val map = mapOf<String, Any>(
-            "id" to 1L,
-            "name" to "Test Task",
-            "area" to "Area 1",
-            "scheduledTime" to "10:00",
-            "endTime" to "12:00",
-            "observations" to "Test notes",
-            "status" to "PENDING",
-            "createdAt" to 1000L,
-            "updatedAt" to 2000L
-        )
+        val map =
+            mapOf<String, Any>(
+                "id" to 1L,
+                "name" to "Test Task",
+                "area" to "Area 1",
+                "scheduledTime" to "10:00",
+                "endTime" to "12:00",
+                "observations" to "Test notes",
+                "status" to "PENDING",
+                "createdAt" to 1000L,
+                "updatedAt" to 2000L,
+            )
 
         val task = map.toTask()
 
@@ -85,13 +88,14 @@ class FirestoreMappersTest {
 
     @Test
     fun `toTask should handle missing optional fields with defaults`() {
-        val map = mapOf<String, Any>(
-            "id" to 1L,
-            "name" to "Test",
-            "area" to "Area",
-            "scheduledTime" to "10:00",
-            "status" to "COMPLETED"
-        )
+        val map =
+            mapOf<String, Any>(
+                "id" to 1L,
+                "name" to "Test",
+                "area" to "Area",
+                "scheduledTime" to "10:00",
+                "status" to "COMPLETED",
+            )
 
         val task = map.toTask()
 
@@ -102,33 +106,35 @@ class FirestoreMappersTest {
 
     @Test
     fun `toTask should handle invalid status with default PENDING`() {
-        val map = mapOf<String, Any>(
-            "id" to 1L,
-            "name" to "Test",
-            "area" to "Area",
-            "scheduledTime" to "10:00",
-            "status" to "INVALID_STATUS"
-        )
+        val map =
+            mapOf<String, Any>(
+                "id" to 1L,
+                "name" to "Test",
+                "area" to "Area",
+                "scheduledTime" to "10:00",
+                "status" to "INVALID_STATUS",
+            )
 
         val task = map.toTask()
 
         assertEquals(TaskStatus.PENDING, task.status)
     }
 
-    // ==================== TaskRegistry to Map Tests ====================
+    // ==================== Testes de TaskRegistry para Map ====================
 
     @Test
     fun `toFirestoreMap should convert TaskRegistry correctly`() {
-        val registry = TaskRegistry(
-            id = 1,
-            type = "Planting",
-            area = "Area 1",
-            startTime = "08:00",
-            endTime = "10:00",
-            observations = "Notes",
-            isModified = true,
-            isDeleted = false
-        )
+        val registry =
+            TaskRegistry(
+                id = 1,
+                type = "Planting",
+                area = "Area 1",
+                startTime = "08:00",
+                endTime = "10:00",
+                observations = "Notes",
+                isModified = true,
+                isDeleted = false,
+            )
 
         val map = registry.toFirestoreMap()
 
@@ -142,20 +148,21 @@ class FirestoreMappersTest {
         assertEquals(false, map["isDeleted"])
     }
 
-    // ==================== Map to TaskRegistry Tests ====================
+    // ==================== Testes de Map para TaskRegistry ====================
 
     @Test
     fun `toTaskRegistry should convert Map correctly`() {
-        val map = mapOf<String, Any>(
-            "id" to 1L,
-            "type" to "Harvesting",
-            "area" to "Area 2",
-            "startTime" to "14:00",
-            "endTime" to "16:00",
-            "observations" to "Harvest notes",
-            "isModified" to false,
-            "isDeleted" to true
-        )
+        val map =
+            mapOf<String, Any>(
+                "id" to 1L,
+                "type" to "Harvesting",
+                "area" to "Area 2",
+                "startTime" to "14:00",
+                "endTime" to "16:00",
+                "observations" to "Harvest notes",
+                "isModified" to false,
+                "isDeleted" to true,
+            )
 
         val registry = map.toTaskRegistry()
 
@@ -170,19 +177,104 @@ class FirestoreMappersTest {
     }
 
     @Test
-    fun `toTaskRegistry should handle missing flags with defaults`() {
-        val map = mapOf<String, Any>(
-            "id" to 1L,
-            "type" to "Test",
-            "area" to "Area",
-            "startTime" to "10:00",
-            "endTime" to "12:00",
-            "observations" to ""
-        )
+    fun `toTask should handle null values gracefully`() {
+        val map =
+            mutableMapOf<String, Any?>(
+                "id" to null,
+                "name" to null,
+                "area" to null,
+                "scheduledTime" to null,
+                "status" to null,
+            )
 
-        val registry = map.toTaskRegistry()
+        val task = (map as Map<String, Any>).toTask()
 
+        assertEquals(0, task.id)
+        assertEquals("", task.name)
+        assertEquals("", task.area)
+        assertEquals("", task.scheduledTime)
+        assertEquals(TaskStatus.PENDING, task.status)
+    }
+
+    @Test
+    fun `toTaskRegistry should handle null values gracefully`() {
+        val map =
+            mutableMapOf<String, Any?>(
+                "id" to null,
+                "type" to null,
+                "area" to null,
+                "startTime" to null,
+                "endTime" to null,
+                "observations" to null,
+            )
+
+        val registry = (map as Map<String, Any>).toTaskRegistry()
+
+        assertEquals(0, registry.id)
+        assertEquals("", registry.type)
+        assertEquals("", registry.area)
+        assertEquals("", registry.startTime)
+        assertEquals("", registry.endTime)
+        assertEquals("", registry.observations)
         assertEquals(false, registry.isModified)
         assertEquals(false, registry.isDeleted)
+    }
+
+    @Test
+    fun `toFirestoreMap should handle TaskRegistry with minimal data`() {
+        val registry =
+            TaskRegistry(
+                id = 1,
+                type = "Test",
+                area = "Area",
+                startTime = "08:00",
+                endTime = "10:00",
+                observations = "",
+            )
+
+        val map = registry.toFirestoreMap()
+
+        assertEquals(1, map["id"])
+        assertEquals("Test", map["type"])
+        assertEquals("Area", map["area"])
+        assertEquals("08:00", map["startTime"])
+        assertEquals("10:00", map["endTime"])
+        assertEquals("", map["observations"])
+        assertEquals(false, map["isModified"])
+        assertEquals(false, map["isDeleted"])
+    }
+
+    @Test
+    fun `toTask should handle enum conversion errors`() {
+        val map =
+            mapOf<String, Any>(
+                "id" to 1L,
+                "name" to "Test",
+                "area" to "Area",
+                "scheduledTime" to "10:00",
+                "status" to 123, // Status inválido
+            )
+
+        val task = map.toTask()
+
+        assertEquals(TaskStatus.PENDING, task.status) // Deve usar PENDING como padrão
+    }
+
+    @Test
+    fun `toTask should handle missing timestamps with defaults`() {
+        val map =
+            mapOf<String, Any>(
+                "id" to 1L,
+                "name" to "Test",
+                "area" to "Area",
+                "scheduledTime" to "10:00",
+                "status" to "COMPLETED",
+            )
+
+        val task = map.toTask()
+
+        assertTrue(task.createdAt > 0) // Deve definir horário atual
+        assertTrue(task.updatedAt > 0)
+        assertEquals(SyncStatus.LOCAL, task.syncStatus)
     }
 }

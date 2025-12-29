@@ -1,0 +1,10 @@
+build:
+  maxIssues: 0
+
+style:
+  UnusedImports:
+    active: true
+  UnusedPrivateMember:
+    active: true
+  UnusedPrivateClass:
+    active: true

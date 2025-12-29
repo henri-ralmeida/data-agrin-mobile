@@ -12,7 +12,8 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Testes-76%20passando-brightgreen" alt="Tests"/>
+  <img src="https://img.shields.io/badge/Version-1.1.0-blue" alt="Version"/>
+  <img src="https://img.shields.io/badge/Testes-180%20passando-brightgreen" alt="Tests"/>
   <img src="https://img.shields.io/badge/Cobertura%20UseCases-100%25-brightgreen" alt="Coverage"/>
   <img src="https://img.shields.io/badge/Min%20SDK-26-blue" alt="Min SDK"/>
   <img src="https://img.shields.io/badge/Target%20SDK-34-blue" alt="Target SDK"/>
@@ -24,6 +25,7 @@
 
 - [Funcionalidades](#-funcionalidades)
 - [Screenshots](#-screenshots)
+- [UX & Design](#-ux--design)
 - [Stack Técnico](#️-stack-técnico)
 - [Arquitetura](#-arquitetura)
 - [Estrutura do Projeto](#-estrutura-do-projeto)
@@ -31,6 +33,7 @@
 - [Testes](#-testes)
 - [Responsividade](#-responsividade)
 - [API de Clima](#-api-de-clima)
+- [Localização GPS](#-localização-gps)
 - [Banco de Dados](#️-banco-de-dados)
 - [Sincronização Firebase](#-sincronização-firebase)
 
@@ -39,111 +42,221 @@
 ## ✨ Funcionalidades
 
 ### 📋 Tela de Tarefas (100% Offline)
-| Recurso | Descrição |
-|---------|-----------|
-| ✅ Listar tarefas | Nome, área/talhão, horário previsto |
-| ✅ Status visual | Pendente 🔴 / Em andamento 🟠 / Finalizada 🟢 |
-| ✅ Atualizar status | Um clique para mudar estado |
-| ✅ Editar tarefa | Nome, horários, área, observações |
-| ✅ Deletar tarefa | Com confirmação |
-| ✅ Persistência local | Room Database |
-| ✅ Sincronização cloud | Firebase Firestore |
-| ✅ Layout responsivo | Grid em tablets, lista em smartphones |
+| Recurso               | Descrição                                     |
+|-----------------------|-----------------------------------------------|
+| ✅ Listar tarefas      | Nome, área/talhão, horário previsto           |
+| ✅ Status visual       | Pendente 🔴 / Em andamento 🟠 / Finalizada 🟢 |
+| ✅ Atualizar status    | Um clique para mudar estado                   |
+| ✅ Editar tarefa       | Nome, horários, área, observações             |
+| ✅ Deletar tarefa      | Com confirmação                               |
+| ✅ Persistência local  | Room Database                                 |
+| ✅ Sincronização cloud | Firebase Firestore                            |
+| ✅ Layout responsivo   | Grid em tablets, lista em smartphones         |
+| ✅ Dark Mode           | Tema escuro automático                        |
 
 ### 📝 Registro de Atividades (100% Offline)
-| Recurso | Descrição |
-|---------|-----------|
+| Recurso               | Descrição                                  |
+|-----------------------|--------------------------------------------|
 | ✅ Formulário completo | Tipo, talhão, hora início/fim, observações |
-| ✅ Validação de campos | Horários válidos, campos obrigatórios |
-| ✅ Histórico | Lista de todas atividades registradas |
-| ✅ Persistência local | Room Database |
-| ✅ Sincronização cloud | Firebase Firestore |
-| ✅ Layout responsivo | Side-by-side em tablets |
+| ✅ Autocomplete        | Sugestões de atividades agrícolas          |
+| ✅ Validação de campos | Horários válidos, campos obrigatórios      |
+| ✅ Histórico           | Lista de todas atividades registradas      |
+| ✅ Persistência local  | Room Database                              |
+| ✅ Sincronização cloud | Firebase Firestore                         |
+| ✅ Layout responsivo   | Side-by-side em tablets                    |
+| ✅ Dark Mode           | Tema escuro automático                     |
 
 ### 🌤️ Previsão Climática (Online + Cache)
-| Recurso | Descrição |
-|---------|-----------|
-| ✅ Dados atuais | Temperatura, umidade, condição |
-| ✅ Previsão horária | Próximas 3-6 horas |
-| ✅ Ícones dinâmicos | Emojis por condição climática |
-| ✅ Indicador de fonte | 🟢 API / 🟡 Cache |
-| ✅ Fallback offline | Última consulta salva |
-| ✅ Pull to refresh | Atualização manual |
+| Recurso                      | Descrição                                          |
+|------------------------------|----------------------------------------------------|
+| ✅ Localização GPS            | Obtém clima da localização real do usuário         |
+| ✅ Dados atuais               | Temperatura, umidade, condição                     |
+| ✅ Previsão horária           | Carrossel horizontal com próximas horas            |
+| ✅ Ícones dinâmicos           | Emojis por condição climática                      |
+| ✅ Indicador de fonte         | 🟢 Online / 🟡 Offline (cache)                     |
+| ✅ Fallback inteligente       | Última localização salva quando offline            |
+| ✅ Pull to refresh            | Atualização manual                                 |
+| ✅ **Alertas dinâmicos**      | ⚠️ Badges vermelho/laranja para GPS/Internet off   |
+| ✅ **Mensagens informativas** | "Sem Conexão/Geolocalização" embaixo dos dados     |
+| ✅ **Timeout seguro**         | 10s GPS + 5s geocoding para evitar travamentos     |
+| ✅ **Correção de crash**      | Flag isResumed previne "Already resumed" exception |
+| ✅ **Botão inteligente**      | "Tentar novamente" abre configurações de rede      |
+| ✅ Dark Mode                  | Tema escuro automático                             |
+
+### 🎨 UX & Melhorias Visuais
+| Recurso                          | Descrição                                      |
+|----------------------------------|------------------------------------------------|
+| ✅ Dark Mode completo             | Suporte a tema claro/escuro do sistema         |
+| ✅ Botão pulsante                 | FAB com animação para nova tarefa              |
+| ✅ Carrossel de previsão          | Scroll horizontal para previsão horária        |
+| ✅ GPS dinâmico                   | Localização real sem valores hardcoded         |
+| ✅ **Alertas dinâmicos**          | Badges vermelho/laranja para conectividade/GPS |
+| ✅ **Mensagens contextuais**      | Avisos embaixo dos dados quando offline        |
+| ✅ **Telas de erro persistentes** | Aparecem sempre ao reiniciar app               |
+| ✅ **Estado em tempo real**       | GPS/Internet atualizam dinamicamente           |
+| ✅ Telas de erro amigáveis        | Feedback visual para GPS/permissões            |
 
 ---
 
 ## 📱 Screenshots
 
-| Tarefas (Smartphone) | Registros (Smartphone) | Clima |
-|:--------------------:|:----------------------:|:-----:|
-| Lista vertical | Formulário + Histórico | Dados + Previsão |
+### Tema Claro ☀️
 
-| Tarefas (Tablet/Landscape) | Registros (Tablet/Landscape) |
-|:--------------------------:|:----------------------------:|
-| Grid 2 colunas | Side-by-side |
+|        Tarefas         |         Registrar         |      Clima      |
+|:----------------------:|:-------------------------:|:---------------:|
+| Lista com FAB pulsante | Formulário + Autocomplete | GPS + Carrossel |
+
+### Tema Escuro 🌙
+
+|    Tarefas    |    Registrar    |     Clima     |
+|:-------------:|:---------------:|:-------------:|
+| Cards escuros | Formulário dark | Previsão dark |
+
+### Telas de Estado
+
+| Sem Permissão GPS  | GPS Indisponível | Offline com Cache  |
+|:------------------:|:----------------:|:------------------:|
+| Solicita permissão | Pede ativar GPS  | Mostra última loc. |
+
+---
+
+## 🎨 UX & Design
+
+### Dark Mode
+
+O app detecta automaticamente o tema do sistema e adapta todas as telas:
+
+| Propriedade | Tema Claro                                                                                                                         | Tema Escuro                                                                                                |
+|-------------|------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------|
+| Background  | <span style="background-color: #FAFAFA; color: #000; padding: 2px 4px; border-radius: 3px;">#FAFAFA</span>                         | <span style="background-color: #121212; color: #FFF; padding: 2px 4px; border-radius: 3px;">#121212</span> |
+| Cards       | <span style="background-color: #FFFFFF; color: #000; padding: 2px 4px; border-radius: 3px; border: 1px solid #CCC;">#FFFFFF</span> | <span style="background-color: #1E1E1E; color: #FFF; padding: 2px 4px; border-radius: 3px;">#1E1E1E</span> |
+| Primary     | <span style="background-color: #4CAF50; color: #FFF; padding: 2px 4px; border-radius: 3px;">#4CAF50</span>                         | <span style="background-color: #81C784; color: #000; padding: 2px 4px; border-radius: 3px;">#81C784</span> |
+| Text        | <span style="background-color: #1A1A1A; color: #FFF; padding: 2px 4px; border-radius: 3px;">#1A1A1A</span>                         | <span style="background-color: #E0E0E0; color: #000; padding: 2px 4px; border-radius: 3px;">#E0E0E0</span> |
+
+### Fluxo de Localização GPS
+
+```
+                    ┌──────────────┐
+                    │ Abriu o App  │
+                    └──────┬───────┘
+                           │
+                           ▼
+                ┌─────────────────────┐
+                │ Tem permissão GPS?  │
+                └─────────┬───────────┘
+                          │
+              ┌───────────┴───────────┐
+              │                       │
+           ❌ NÃO                   ✅ SIM
+              │                       │
+              ▼                       ▼
+    ┌──────────────────┐    ┌──────────────────┐
+    │ Tela: "Permissão │    │ Conseguiu obter  │
+    │   necessária"    │    │  localização?    │
+    │                  │    └────────┬─────────┘
+    │ [Abrir Config]   │             │
+    └──────────────────┘  ┌──────────┴──────────┐
+                          │                     │
+                       ❌ NÃO                 ✅ SIM
+                          │                     │
+                          ▼                     ▼
+               ┌───────────────────┐   ┌────────────────┐
+               │ Tem localização   │   │ Salva loc. +   │
+               │   salva (cache)?  │   │ Mostra clima   │
+               └─────────┬─────────┘   │ da cidade real │
+                         │             └────────────────┘
+              ┌──────────┴──────────┐
+              │                     │
+           ❌ NÃO                 ✅ SIM
+              │                     │
+              ▼                     ▼
+    ┌─────────────────┐   ┌──────────────────────┐
+    │ Tela: "GPS      │   │ Usa última loc.      │
+    │  indisponível"  │   │ + marca como offline │
+    └─────────────────┘   └──────────────────────┘
+```
+
+### Autocomplete de Atividades
+Conforme você preenche no aplicativo, ele salva localmente para sugerir caso você delete ou altere a atividade.
+
+- 🌱 Plantio
+- 🌱 Plantio de mudas
+- 📋 Planejamento de safra
+
+### Carrossel de Previsão Horária
+
+Previsão por hora ➡️
+
+| Agora | 15h | 16h | 17h |
+|:-----:|:---:|:---:|:---:|
+|  🌤️  | 🌤️ | 🌥️ | 🌙  |
+|  28°  | 27° | 25° | 23° |
+|  65%  | 68% | 72% | 75% |
 
 ---
 
 ## 🛠️ Stack Técnico
 
-| Categoria | Tecnologia |
-|-----------|------------|
-| **Linguagem** | Kotlin 2.0 |
-| **UI** | Jetpack Compose + Material 3 |
-| **Arquitetura** | Clean Architecture + MVVM |
-| **DI** | Koin 3.5 |
-| **Database** | Room 2.6 |
-| **Network** | Retrofit 2.9 + OkHttp |
-| **Async** | Coroutines + Flow + StateFlow |
-| **Cloud Sync** | Firebase Firestore |
-| **Testes** | JUnit 4 + MockK + Coroutines Test |
-| **Cobertura** | JaCoCo |
-| **Responsividade** | WindowSizeClass |
+| Categoria          | Tecnologia                            |
+|--------------------|---------------------------------------|
+| **Linguagem**      | Kotlin 2.0                            |
+| **UI**             | Jetpack Compose + Material 3          |
+| **Arquitetura**    | Clean Architecture + MVVM             |
+| **DI**             | Koin 3.5                              |
+| **Database**       | Room 2.6                              |
+| **Network**        | Retrofit 2.9 + OkHttp                 |
+| **Async**          | Coroutines + Flow + StateFlow         |
+| **Cloud Sync**     | Firebase Firestore                    |
+| **Localização**    | Google Play Services Location         |
+| **Testes**         | JUnit 4 + MockK + Coroutines Test     |
+| **Cobertura**      | JaCoCo                                |
+| **Responsividade** | WindowSizeClass                       |
+| **Tema**           | Material 3 Dynamic Colors + Dark Mode |
 
 ---
 
-## 🏗 Arquitetura
+## 📐 Arquitetura
 
 ### Clean Architecture + MVVM
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                      PRESENTATION                           │
-│  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐     │
-│  │ TaskScreen  │    │TaskRegistry │    │WeatherScreen│     │
-│  │ (Compose)   │    │  Screen     │    │  (Compose)  │     │
-│  └──────┬──────┘    └──────┬──────┘    └──────┬──────┘     │
-│         │                  │                  │             │
-│  ┌──────▼──────┐    ┌──────▼──────┐    ┌──────▼──────┐     │
-│  │TaskViewModel│    │TaskRegistry │    │Weather      │     │
-│  │             │    │  ViewModel  │    │  ViewModel  │     │
-│  └──────┬──────┘    └──────┬──────┘    └──────┬──────┘     │
-└─────────┼──────────────────┼──────────────────┼─────────────┘
-          │                  │                  │
-┌─────────▼──────────────────▼──────────────────▼─────────────┐
-│                        DOMAIN                               │
-│  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐     │
-│  │GetTasksUse  │    │InsertTask   │    │GetWeather   │     │
-│  │  Case       │    │RegistryUse │    │  UseCase    │     │
-│  └──────┬──────┘    └──────┬──────┘    └──────┬──────┘     │
-│         │                  │                  │             │
-│  ┌──────▼──────────────────▼──────────────────▼──────┐     │
-│  │              Repository Interfaces                │     │
-│  └──────┬──────────────────┬──────────────────┬──────┘     │
-└─────────┼──────────────────┼──────────────────┼─────────────┘
-          │                  │                  │
-┌─────────▼──────────────────▼──────────────────▼─────────────┐
-│                         DATA                                │
-│  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐     │
-│  │TaskRepo     │    │TaskRegistry │    │WeatherRepo  │     │
-│  │  Impl       │    │  RepoImpl   │    │    Impl     │     │
-│  └──────┬──────┘    └──────┬──────┘    └─────┬───────┘     │
-│         │                  │                 │              │
-│  ┌──────▼──────┐    ┌──────▼──────┐    ┌────▼────┐        │
-│  │  Room DAO   │    │  Room DAO   │    │Retrofit │        │
-│  │  Firebase   │    │  Firebase   │    │Room DAO │        │
-│  └─────────────┘    └─────────────┘    └─────────┘        │
-└─────────────────────────────────────────────────────────────┘
+│                        PRESENTATION                         │
+│  ┌──────────────┐    ┌──────────────┐    ┌─────────────┐    │
+│  │  TaskScreen  │    │ TaskRegistry │    │WeatherScreen│    │
+│  │  (Compose)   │    │    Screen    │    │  (Compose)  │    │
+│  └──────┬───────┘    └──────┬───────┘    └──────┬──────┘    │
+│         │                   │                   │           │
+│  ┌──────▼──────┐     ┌──────▼───────┐    ┌──────▼──────┐    │
+│  │TaskViewModel│     │ TaskRegistry │    │   Weather   │    │
+│  │             │     │  ViewModel   │    │  ViewModel  │    │
+│  └──────┬──────┘     └──────┬───────┘    └──────┬──────┘    │
+└─────────┼───────────────────┼───────────────────┼───────────┘
+          │                   │                   │
+┌─────────▼───────────────────▼───────────────────▼───────────┐
+│                          DOMAIN                             │
+│  ┌─────────────┐     ┌─────────────┐     ┌─────────────┐    │
+│  │ GetTasksUse │     │ InsertTask  │     │  GetWeather │    │
+│  │    Case     │     │ RegistryUse │     │   UseCase   │    │
+│  └──────┬──────┘     └──────┬──────┘     └──────┬──────┘    │
+│         │                   │                   │           │
+│  ┌──────▼───────────────────▼───────────────────▼──────┐    │
+│  │                Repository Interfaces                │    │
+│  └──────┬───────────────────┬────────────────────┬─────┘    │
+└─────────┼───────────────────┼────────────────────┼──────────┘
+          │                   │                    │
+┌─────────▼───────────────────▼────────────────────▼───────────┐
+│                           DATA                               │
+│  ┌─────────────┐     ┌──────────────┐    ┌─────────────┐     │
+│  │  TaskRepo   │     │ TaskRegistry │    │ WeatherRepo │     |
+│  │    Impl     │     │   RepoImpl   │    │    Impl     │     │
+│  └──────┬──────┘     └──────┬───────┘    └──────┬──────┘     │
+│         │                   │                   │            |
+│  ┌──────▼──────┐     ┌──────▼───────┐    ┌──────▼──────┐     │
+│  │  Room DAO   │     │   Room DAO   │    │   Retrofit  │     │
+│  │  Firebase   │     │   Firebase   │    │   Room DAO  │     │
+│  └─────────────┘     └──────────────┘    └─────────────┘     │
+└──────────────────────────────────────────────────────────────┘
 ```
 
 ### Fluxo de Dados
@@ -171,7 +284,8 @@ app/src/
 │   │   ├── remote/             # Retrofit: WeatherApi, DTOs
 │   │   ├── firebase/           # Firestore: TaskFirestoreRepository, Mappers
 │   │   ├── repository/         # Implementações dos repositórios
-│   │   └── connectivity/       # ConnectivityChecker
+│   │   ├── connectivity/       # ConnectivityChecker
+│   │   └── location/           # LocationHelper (GPS + Geocoder)
 │   │
 │   ├── presentation/
 │   │   ├── ui/
@@ -184,9 +298,9 @@ app/src/
 │   │   └── viewmodel/          # TaskViewModel, TaskRegistryViewModel, WeatherViewModel
 │   │
 │   ├── di/                     # Koin: AppModule
-│   ├── ui/theme/               # Material Theme, Colors, Typography
+│   ├── ui/theme/               # Material Theme, Colors (Dark/Light), Typography
 │   ├── DataAgrinApp.kt         # Application (Koin init)
-│   └── MainActivity.kt         # Activity + WindowSizeClass
+│   └── MainActivity.kt         # Activity + WindowSizeClass + Location Permission
 │
 └── test/java/com/example/dataagrin/app/
     ├── domain/
@@ -219,12 +333,12 @@ git clone https://github.com/seu-usuario/DataAgrinMobile.git
 cd DataAgrinMobile
 
 # 2. Abra no Android Studio
-# File → Open → selecione a pasta DataAgrinMobile
+File → Open → selecione a pasta DataAgrinMobile
 
 # 3. Aguarde o sync do Gradle
 
 # 4. Execute o app
-# Run → Run 'app' (Shift+F10)
+Run → Run 'app' (Shift+F10)
 ```
 
 ### Build via Terminal
@@ -259,16 +373,22 @@ start app/build/reports/jacoco/index.html
 
 ### Cobertura de Código
 
-| Pacote | Cobertura | Testes |
-|--------|-----------|--------|
-| `domain.usecase` | 🟢 **100%** | GetTasks, GetTaskById, InsertTask, UpdateTask, DeleteTask |
-| `domain.repository` | 🟢 **100%** | Interfaces |
-| `presentation.viewmodel` | 🟢 **88%** | TaskViewModel, TaskRegistryViewModel, WeatherViewModel |
-| `presentation.ui.utils` | 🟢 **89%** | TimeValidation |
-| `domain.model` | 🟢 **80%** | Task, TaskRegistry |
-| `data.firebase` | 🟡 **38%** | FirestoreMappers |
+| Pacote                   | Cobertura   | Testes                                                                |
+|--------------------------|-------------|-----------------------------------------------------------------------|
+| `domain.usecase`         | 🟢 **100%** | GetTasks, GetTaskById, InsertTask, UpdateTask, DeleteTask             |
+| `domain.repository`      | 🟢 **100%** | Interfaces                                                            |
+| `presentation.viewmodel` | 🟢 **81%**  | TaskViewModel, TaskRegistryViewModel, WeatherViewModel                |
+| `presentation.ui.utils`  | 🟢 **93%**  | TimeValidation, TaskFormValidation                                    |
+| `domain.model`           | 🟢 **87%**  | Task, TaskRegistry, TaskStatus, SyncStatus                            |
+| `data.repository`        | 🟢 **93%**  | TaskRepositoryImpl, TaskRegistryRepositoryImpl, WeatherRepositoryImpl |
+| `data.connectivity`      | 🟢 **91%**  | ConnectivityChecker                                                   |
+| `data.location`          | 🟢 **81%**  | LocationHelper                                                        |
+| `data.local`             | 🟢 **71%**  | DAOs, Converters                                                      |
+| `data.firebase`          | 🟡 **38%**  | FirestoreMappers                                                      |
+| `presentation.ui`        | 🔴 **0%**   | Telas Compose (não testáveis unitariamente)                           |
+| `ui.theme`               | 🔴 **0%**   | Temas (não testáveis unitariamente)                                   |
 
-**Total: 76 testes passando ✅**
+**Total: 180 testes passando ✅ | Cobertura geral: 18% (devido ao UI não ser coberto por testes unitários)**
 
 ### Estrutura de Testes
 
@@ -291,11 +411,11 @@ fun `invoke should return tasks from repository`() = runBlocking {
 
 O app adapta o layout baseado no **WindowSizeClass**:
 
-| Classe | Dispositivo | Layout |
-|--------|-------------|--------|
-| **Compact** | Smartphones portrait | Lista vertical |
-| **Medium** | Smartphones landscape | Layout adaptado |
-| **Expanded** | Tablets / Desktop | Grid 2 colunas / Side-by-side |
+| Classe       | Dispositivo           | Layout                        |
+|--------------|-----------------------|-------------------------------|
+| **Compact**  | Smartphones portrait  | Lista vertical                |
+| **Medium**   | Smartphones landscape | Layout adaptado               |
+| **Expanded** | Tablets / Desktop     | Grid 2 colunas / Side-by-side |
 
 ### Implementação
 
@@ -318,26 +438,80 @@ if (isExpandedScreen) {
 
 ### Open-Meteo (Gratuita)
 
-| Propriedade | Valor |
-|-------------|-------|
-| **Base URL** | `https://api.open-meteo.com/v1/forecast` |
-| **Autenticação** | Nenhuma |
-| **Rate Limit** | 10.000 req/dia |
+| Propriedade      | Valor                                                    |
+|------------------|----------------------------------------------------------|
+| **Base URL**     | `https://api.open-meteo.com/v1/forecast`                 |
+| **Autenticação** | Nenhuma                                                  |
+| **Rate Limit**   | 10.000 req/dia                                           |
 | **Documentação** | [open-meteo.com/en/docs](https://open-meteo.com/en/docs) |
 
 ### Parâmetros Utilizados
 
 ```
-?latitude=-23.55
-&longitude=-46.64
+?latitude={GPS_LAT}
+&longitude={GPS_LON}
 &current=temperature_2m,relative_humidity_2m,weather_code
-&hourly=temperature_2m,weather_code
-&timezone=America/Sao_Paulo
+&hourly=temperature_2m,weather_code,relative_humidity_2m
 ```
 
-### Localização Padrão
+### Localização
 
-📍 **São Paulo, SP** (-23.55, -46.64)
+📍 **Dinâmica via GPS** - O app obtém a localização real do dispositivo
+
+---
+
+## 📍 Localização GPS
+
+### Permissões Necessárias
+
+```xml
+<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+```
+
+### Fluxo de Obtenção
+
+```
+┌───────────────┬─────────────────────────────────────────────┐
+│ Etapa         │ Descrição                                   │
+├───────────────┼─────────────────────────────────────────────┤
+│ 1. Permissão  │ Solicita permissão ao usuário na abertura   │
+│ 2. GPS        │ Usa FusedLocationProviderClient             │
+│ 3. Geocoder   │ Converte coordenadas em nome da cidade      │
+│ 4. Cache      │ Salva última localização para uso offline   │
+│ 5. Fallback   │ Se offline, usa última localização salva    │
+└───────────────┴─────────────────────────────────────────────┘
+```
+
+### Comportamento por Cenário
+
+| Cenário                         | Comportamento                    |
+|---------------------------------|----------------------------------|
+| ✅ Permissão concedida + GPS on  | Mostra clima da localização real |
+| ✅ Permissão concedida + Offline | Usa última localização salva     |
+| ❌ Permissão negada              | Exibe tela solicitando permissão |
+| ❌ GPS desligado (sem cache)     | Exibe tela "GPS indisponível"    |
+
+### Implementação
+
+```kotlin
+// LocationHelper.kt
+class LocationHelper(context: Context) {
+    private val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
+    
+    suspend fun getCurrentLocation(): LocationData? {
+        // 1. Verifica permissão
+        // 2. Tenta lastLocation (rápido)
+        // 3. Fallback: getCurrentLocation do GPS
+        // 4. Geocoder para nome da cidade
+        // 5. Salva no SharedPreferences
+    }
+    
+    suspend fun getLocationOrSavedFallback(): LocationData? {
+        return getCurrentLocation() ?: getSavedLocation()
+    }
+}
+```
 
 ---
 
@@ -356,12 +530,16 @@ abstract class AppDatabase : RoomDatabase()
 
 ### Tabelas
 
-| Tabela | Campos |
-|--------|--------|
-| `tasks` | id, name, area, scheduledTime, endTime, observations, status |
-| `task_registry` | id, type, area, startTime, endTime, observations |
-| `weather_cache` | id, temperature, humidity, weatherCode, weatherDescription, lastUpdated |
-| `hourly_weather_cache` | id, time, temperature, weatherCode, humidity, description, weatherId (FK) |
+```
+┌────────────────────────┬──────────────────────────────────────────────────────────────────────────────┐
+│ Tabela                 │ Campos                                                                       │
+├────────────────────────┼──────────────────────────────────────────────────────────────────────────────┤
+│ `tasks`                │ id, name, area, scheduledTime, endTime, observations, status                 │
+│ `task_registry`        │ id, type, area, startTime, endTime, observations                             │
+│ `weather_cache`        │ id, temperature, humidity, weatherCode, weatherDescription, lastUpdated      │
+│ `hourly_weather_cache` │ id, time, temperature, weatherCode, humidity, description, weatherId (FK)    │
+└────────────────────────┴──────────────────────────────────────────────────────────────────────────────┘
+```
 
 ---
 
@@ -405,8 +583,13 @@ O app mantém um log de todas as alterações em tarefas, registrando:
 ### AndroidManifest.xml
 
 ```xml
+<!-- Internet -->
 <uses-permission android:name="android.permission.INTERNET" />
 <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+<!-- Localização GPS -->
+<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
 <application
     android:name=".DataAgrinApp"
@@ -441,6 +624,9 @@ dependencies {
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     
+    // Google Play Services - Location
+    implementation("com.google.android.gms:play-services-location:21.1.0")
+    
     // Testing
     testImplementation("junit:junit:4.13.2")
     testImplementation("io.mockk:mockk:1.13.10")
@@ -471,12 +657,19 @@ dependencies {
 ### Diferenciais Implementados
 
 - [x] Sincronização com Firebase Firestore
-- [x] Testes unitários (76 testes)
+- [x] Testes unitários (180 testes)
 - [x] Cobertura de código com JaCoCo
 - [x] UI responsiva (WindowSizeClass)
 - [x] Animações via Compose
 - [x] Injeção de dependência (Koin)
 - [x] Modo offline completo
+- [x] **Dark Mode** completo (segue tema do sistema)
+- [x] **GPS dinâmico** (localização real do usuário)
+- [x] **Autocomplete** de atividades agrícolas
+- [x] **Carrossel** de previsão horária
+- [x] **Botão pulsante** (FAB animado)
+- [x] **Telas de erro** amigáveis (GPS/permissões)
+- [x] **Geocoder** (converte coordenadas → nome da cidade)
 
 ---
 

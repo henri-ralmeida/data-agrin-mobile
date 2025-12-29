@@ -1,20 +1,19 @@
 package com.example.dataagrin.app.domain.model
 
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class TaskTest {
-
     @Test
     fun `Task should have default values`() {
-        val task = Task(
-            name = "Test",
-            area = "Area 1",
-            scheduledTime = "10:00",
-            status = TaskStatus.PENDING
-        )
+        val task =
+            Task(
+                name = "Test",
+                area = "Area 1",
+                scheduledTime = "10:00",
+                status = TaskStatus.PENDING,
+            )
 
         assertEquals(0, task.id)
         assertEquals("", task.endTime)
@@ -24,16 +23,17 @@ class TaskTest {
 
     @Test
     fun `Task should be created with all fields`() {
-        val task = Task(
-            id = 1,
-            name = "Test Task",
-            area = "Area 1",
-            scheduledTime = "09:00",
-            endTime = "17:00",
-            observations = "Test notes",
-            status = TaskStatus.IN_PROGRESS,
-            syncStatus = SyncStatus.SYNCED
-        )
+        val task =
+            Task(
+                id = 1,
+                name = "Test Task",
+                area = "Area 1",
+                scheduledTime = "09:00",
+                endTime = "17:00",
+                observations = "Test notes",
+                status = TaskStatus.IN_PROGRESS,
+                syncStatus = SyncStatus.SYNCED,
+            )
 
         assertEquals(1, task.id)
         assertEquals("Test Task", task.name)
@@ -47,18 +47,20 @@ class TaskTest {
 
     @Test
     fun `Task copy should work correctly`() {
-        val originalTask = Task(
-            id = 1,
-            name = "Original",
-            area = "Area 1",
-            scheduledTime = "10:00",
-            status = TaskStatus.PENDING
-        )
+        val originalTask =
+            Task(
+                id = 1,
+                name = "Original",
+                area = "Area 1",
+                scheduledTime = "10:00",
+                status = TaskStatus.PENDING,
+            )
 
-        val updatedTask = originalTask.copy(
-            name = "Updated",
-            status = TaskStatus.COMPLETED
-        )
+        val updatedTask =
+            originalTask.copy(
+                name = "Updated",
+                status = TaskStatus.COMPLETED,
+            )
 
         assertEquals("Updated", updatedTask.name)
         assertEquals(TaskStatus.COMPLETED, updatedTask.status)
@@ -68,11 +70,10 @@ class TaskTest {
 }
 
 class TaskStatusTest {
-
     @Test
     fun `TaskStatus should have all expected values`() {
-        val statuses = TaskStatus.values()
-        
+        val statuses = TaskStatus.entries.toTypedArray()
+
         assertEquals(3, statuses.size)
         assertTrue(statuses.contains(TaskStatus.PENDING))
         assertTrue(statuses.contains(TaskStatus.IN_PROGRESS))
@@ -81,11 +82,10 @@ class TaskStatusTest {
 }
 
 class SyncStatusTest {
-
     @Test
     fun `SyncStatus should have all expected values`() {
-        val statuses = SyncStatus.values()
-        
+        val statuses = SyncStatus.entries.toTypedArray()
+
         assertEquals(4, statuses.size)
         assertTrue(statuses.contains(SyncStatus.LOCAL))
         assertTrue(statuses.contains(SyncStatus.SYNCING))

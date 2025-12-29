@@ -12,18 +12,18 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class GetWeatherUseCaseTest {
-
     private val weatherRepository: WeatherRepository = mockk()
     private val getWeatherUseCase = GetWeatherUseCase(weatherRepository)
 
     @Test
-    fun `invoke should return weather from repository`() = runBlocking {
-        val fakeWeather = Weather(25.0, 60, "Céu limpo", false, emptyList(), "2024-01-01 10:00")
-        coEvery { weatherRepository.getWeather() } returns flowOf(fakeWeather)
+    fun `invoke should return weather from repository`() =
+        runBlocking {
+            val fakeWeather = Weather(25.0, 60, "Céu limpo", false, emptyList(), "2024-01-01 10:00")
+            coEvery { weatherRepository.getWeather(any(), any(), any(), any()) } returns flowOf(fakeWeather)
 
-        val result = getWeatherUseCase.invoke().first()
+            val result = getWeatherUseCase.invoke(-23.5505, -46.6333, "São Paulo").first()
 
-        assertEquals(fakeWeather, result)
-        coVerify(exactly = 1) { weatherRepository.getWeather() }
-    }
+            assertEquals(fakeWeather, result)
+            coVerify(exactly = 1) { weatherRepository.getWeather(any(), any(), any(), any()) }
+        }
 }

@@ -1,13 +1,13 @@
 package com.example.dataagrin.app.presentation.ui
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -18,9 +18,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -28,21 +28,23 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Notes
+import androidx.compose.material.icons.filled.AccessTime
+import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.CheckCircleOutline
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.PlayCircle
-import androidx.compose.material.icons.filled.CheckCircleOutline
+import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Terrain
-import androidx.compose.material.icons.filled.AccessTime
-import androidx.compose.material.icons.automirrored.filled.Notes
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
@@ -70,15 +72,18 @@ import com.example.dataagrin.app.presentation.ui.components.formatTimeValue
 import com.example.dataagrin.app.presentation.ui.components.parseTimeToRaw
 import com.example.dataagrin.app.presentation.ui.utils.TimeValidation
 import com.example.dataagrin.app.presentation.viewmodel.TaskViewModel
+import com.example.dataagrin.app.ui.theme.AppTheme
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskScreen(
     viewModel: TaskViewModel = koinViewModel(),
-    isExpandedScreen: Boolean = false
+    isExpandedScreen: Boolean = false,
+    onNavigateToRegister: () -> Unit = {},
 ) {
     val tasks by viewModel.tasks.collectAsState()
+    val colors = AppTheme.colors
     var showEditDialog by remember { mutableStateOf(false) }
     var showDeleteConfirm by remember { mutableStateOf(false) }
     var taskToDelete by remember { mutableStateOf<Task?>(null) }
@@ -91,26 +96,61 @@ fun TaskScreen(
     var timeError by remember { mutableStateOf("") }
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFFF5F5F5))
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(colors.background),
     ) {
         // Header
         TaskScreenHeader()
 
+        // Botão para registrar nova tarefa - aparece no topo quando há tarefas
+        if (!tasks.isEmpty() && !isExpandedScreen) {
+            Button(
+                onClick = onNavigateToRegister,
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = colors.headerBackground),
+                shape = RoundedCornerShape(8.dp),
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Icon(
+                        Icons.Filled.AddCircle,
+                        contentDescription = "Registrar Atividade",
+                        modifier = Modifier.size(18.dp),
+                        tint = colors.buttonText,
+                    )
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Text(
+                        "Registrar Atividade",
+                        color = Color.White,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Medium,
+                    )
+                }
+            }
+        }
+
         // Lista de tarefas
         if (tasks.isEmpty()) {
-            EmptyTasksState()
+            EmptyTasksState(onNavigateToRegister)
         } else {
             if (isExpandedScreen) {
                 // Layout em grid para tablets/landscape
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(2),
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     items(tasks, key = { it.id }) { task ->
                         TaskCard(
@@ -130,23 +170,24 @@ fun TaskScreen(
                             onDelete = {
                                 taskToDelete = task
                                 showDeleteConfirm = true
-                            }
+                            },
                         )
                     }
                 }
             } else {
                 // Layout em lista para smartphones
                 LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     items(tasks, key = { it.id }) { task ->
                         AnimatedVisibility(
                             visible = true,
                             enter = slideInVertically(initialOffsetY = { 100 }) + fadeIn(),
-                            exit = slideOutVertically() + fadeOut()
+                            exit = slideOutVertically() + fadeOut(),
                         ) {
                             TaskCard(
                                 task = task,
@@ -165,7 +206,7 @@ fun TaskScreen(
                                 onDelete = {
                                     taskToDelete = task
                                     showDeleteConfirm = true
-                                }
+                                },
                             )
                         }
                     }
@@ -192,7 +233,7 @@ fun TaskScreen(
                     timeError = ""
                     val formattedScheduledTime = formatTimeValue(editScheduledTime)
                     val formattedEndTime = formatTimeValue(editEndTime)
-                    
+
                     if (editScheduledTime.length < 4) {
                         timeError = "Horário de início obrigatório (4 dígitos)"
                         return@EditTaskDialog
@@ -220,8 +261,8 @@ fun TaskScreen(
                                 scheduledTime = formattedScheduledTime,
                                 endTime = if (editEndTime.length == 4) formattedEndTime else "",
                                 area = editArea,
-                                observations = editObservations
-                            )
+                                observations = editObservations,
+                            ),
                         )
                     }
                     showEditDialog = false
@@ -231,7 +272,7 @@ fun TaskScreen(
                     showEditDialog = false
                     selectedTask = null
                     timeError = ""
-                }
+                },
             )
         }
 
@@ -246,32 +287,34 @@ fun TaskScreen(
                     Text(
                         "Confirmar exclusão",
                         fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp
+                        fontSize = 18.sp,
                     )
                 },
                 text = {
                     Text(
                         "Tem certeza que deseja deletar esta tarefa? Esta ação não pode ser desfeita.",
-                        fontSize = 14.sp
+                        fontSize = 14.sp,
                     )
                 },
                 confirmButton = {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Button(
                             onClick = {
                                 showDeleteConfirm = false
                                 taskToDelete = null
                             },
-                            modifier = Modifier
-                                .width(120.dp)
-                                .height(44.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color.LightGray
-                            )
+                            modifier =
+                                Modifier
+                                    .width(120.dp)
+                                    .height(44.dp),
+                            colors =
+                                ButtonDefaults.buttonColors(
+                                    containerColor = Color.LightGray,
+                                ),
                         ) {
                             Text("Cancelar", color = Color.Black, fontSize = 14.sp)
                         }
@@ -282,89 +325,149 @@ fun TaskScreen(
                                 showDeleteConfirm = false
                                 taskToDelete = null
                             },
-                            modifier = Modifier
-                                .width(120.dp)
-                                .height(44.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color.Red
-                            )
+                            modifier =
+                                Modifier
+                                    .width(120.dp)
+                                    .height(44.dp),
+                            colors =
+                                ButtonDefaults.buttonColors(
+                                    containerColor = Color.Red,
+                                ),
                         ) {
-                            Text("Deletar", fontSize = 14.sp)
+                            Text("Deletar", fontSize = 14.sp, color = Color.White)
                         }
                     }
                 },
-                dismissButton = {}
+                dismissButton = {},
             )
+        }
+
+        // Botão flutuante para registrar nova atividade - aparece sempre
+        if (!isExpandedScreen) {
+            Box(modifier = Modifier.fillMaxSize()) {
+                FloatingActionButton(
+                    onClick = onNavigateToRegister,
+                    modifier =
+                        Modifier
+                            .align(Alignment.BottomEnd)
+                            .padding(16.dp),
+                    containerColor = colors.headerBackground,
+                    contentColor = colors.buttonText,
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        Icon(
+                            Icons.Filled.AddCircle,
+                            contentDescription = "Registrar Atividade",
+                            tint = colors.buttonText,
+                        )
+                        Spacer(modifier = Modifier.padding(8.dp))
+                        Text(
+                            "Registrar Atividade",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Medium,
+                        )
+                    }
+                }
+            }
         }
     }
 }
 
 @Composable
 private fun TaskScreenHeader() {
+    val colors = AppTheme.colors
     Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(Color(0xFF1B5E20))
-            .padding(16.dp)
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .background(colors.headerBackground)
+                .padding(16.dp),
     ) {
         Column {
             Text(
                 "Tarefas do Dia",
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.White,
-                modifier = Modifier.padding(bottom = 8.dp)
+                color = colors.headerText,
+                modifier = Modifier.padding(bottom = 8.dp),
             )
             Text(
                 "Gerencie suas atividades agrícolas",
                 fontSize = 14.sp,
-                color = Color(0xFFE8F5E9),
-                modifier = Modifier.padding(bottom = 8.dp)
+                color = colors.headerSubtext,
+                modifier = Modifier.padding(bottom = 8.dp),
             )
         }
-        
+
         // Emoji decorativo de trator
         Text(
             "🚜",
             fontSize = 64.sp,
-            modifier = Modifier
-                .align(Alignment.CenterEnd)
-                .alpha(0.6f)
+            modifier =
+                Modifier
+                    .align(Alignment.CenterEnd)
+                    .alpha(0.6f),
         )
     }
 }
 
 @Composable
-private fun EmptyTasksState() {
+private fun EmptyTasksState(onNavigateToRegister: () -> Unit) {
+    val colors = AppTheme.colors
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        contentAlignment = Alignment.Center
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+        contentAlignment = Alignment.Center,
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Center,
         ) {
             Icon(
                 Icons.Filled.CheckCircle,
                 contentDescription = "Sem tarefas",
                 modifier = Modifier.size(64.dp),
-                tint = Color(0xFF1B5E20)
+                tint = colors.primary,
             )
             Spacer(modifier = Modifier.height(16.dp))
             Text(
                 "Nenhuma tarefa para hoje",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = Color.Gray
+                color = Color.Gray,
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                "Novas tarefas aparecerão aqui",
+                "Comece registrando sua primeira atividade!",
                 fontSize = 14.sp,
-                color = Color(0xFF9E9E9E)
+                color = colors.textSecondary,
             )
+            Spacer(modifier = Modifier.height(24.dp))
+            Button(
+                onClick = onNavigateToRegister,
+                colors = ButtonDefaults.buttonColors(containerColor = colors.primary),
+                shape = RoundedCornerShape(8.dp),
+                modifier = Modifier.fillMaxWidth(0.8f),
+            ) {
+                Icon(
+                    Icons.Filled.AddCircle,
+                    contentDescription = "Registrar Atividade",
+                    modifier = Modifier.size(20.dp),
+                    tint = colors.buttonText,
+                )
+                Spacer(modifier = Modifier.padding(8.dp))
+                Text(
+                    "Registrar Atividade",
+                    color = colors.buttonText,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.SemiBold,
+                )
+            }
         }
     }
 }
@@ -374,93 +477,99 @@ fun TaskCard(
     task: Task,
     onStatusChange: (TaskStatus) -> Unit,
     onEdit: () -> Unit = {},
-    onDelete: () -> Unit = {}
+    onDelete: () -> Unit = {},
 ) {
+    val colors = AppTheme.colors
     var editPressed by remember { mutableStateOf(false) }
     var deletePressed by remember { mutableStateOf(false) }
-    
+
     val editScale by animateFloatAsState(
         targetValue = if (editPressed) 0.95f else 1f,
-        animationSpec = spring(dampingRatio = 0.8f)
+        animationSpec = spring(dampingRatio = 0.8f),
     )
-    
+
     val deleteScale by animateFloatAsState(
         targetValue = if (deletePressed) 0.95f else 1f,
-        animationSpec = spring(dampingRatio = 0.8f)
+        animationSpec = spring(dampingRatio = 0.8f),
     )
-    
+
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(enabled = false) { },
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .clickable(enabled = false) { },
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        shape = RoundedCornerShape(12.dp)
+        colors = CardDefaults.cardColors(containerColor = colors.card),
+        shape = RoundedCornerShape(12.dp),
     ) {
         Column(
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(16.dp),
         ) {
             // Linha 1: Nome da tarefa
             Text(
                 text = task.name,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF1B5E20),
-                modifier = Modifier.padding(bottom = 12.dp)
+                color = colors.textPrimary,
+                modifier = Modifier.padding(bottom = 12.dp),
             )
 
             // Linha 2: Talhão + Horário
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 12.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 12.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 DetailItemWithIcon(
                     label = "Talhão",
                     value = task.area,
-                    icon = Icons.Filled.Terrain
+                    icon = Icons.Filled.Terrain,
+                    valueColor = colors.textPrimary,
                 )
                 DetailItemWithIcon(
                     label = "Horário",
                     value = if (task.endTime.isNotEmpty()) "${task.scheduledTime} - ${task.endTime}" else task.scheduledTime,
-                    icon = Icons.Filled.AccessTime
+                    icon = Icons.Filled.AccessTime,
+                    valueColor = colors.textPrimary,
                 )
             }
 
             // Linha 2.5: Observações (se houver)
             if (task.observations.isNotEmpty()) {
                 Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(Color(0xFFF5F5F5), shape = RoundedCornerShape(8.dp))
-                        .padding(12.dp)
-                        .padding(bottom = 12.dp)
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .background(colors.card, shape = RoundedCornerShape(8.dp))
+                            .padding(12.dp)
+                            .padding(bottom = 12.dp),
                 ) {
                     Column {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(6.dp),
-                            modifier = Modifier.padding(bottom = 6.dp)
+                            modifier = Modifier.padding(bottom = 6.dp),
                         ) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.Notes,
                                 contentDescription = "Observações",
-                                tint = Color(0xFF666666),
-                                modifier = Modifier.size(16.dp)
+                                tint = colors.textTertiary,
+                                modifier = Modifier.size(16.dp),
                             )
                             Text(
                                 "Observações",
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.SemiBold,
-                                color = Color(0xFF666666)
+                                color = colors.textTertiary,
                             )
                         }
                         Text(
                             task.observations,
                             fontSize = 13.sp,
-                            color = Color(0xFF333333),
-                            lineHeight = 18.sp
+                            color = colors.textSecondary,
+                            lineHeight = 18.sp,
                         )
                     }
                 }
@@ -468,61 +577,64 @@ fun TaskCard(
 
             // Linha 3: Status + Botão atualizar
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 8.dp),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 8.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 StatusBadge(task.status)
-                
+
                 // Botão para ciclar status
                 Box(
-                    modifier = Modifier
-                        .background(
-                            color = Color(0xFF1B5E20),
-                            shape = RoundedCornerShape(8.dp)
-                        )
-                        .clickable {
-                            val nextStatus = when (task.status) {
-                                TaskStatus.PENDING -> TaskStatus.IN_PROGRESS
-                                TaskStatus.IN_PROGRESS -> TaskStatus.COMPLETED
-                                TaskStatus.COMPLETED -> TaskStatus.PENDING
-                            }
-                            onStatusChange(nextStatus)
-                        }
-                        .padding(horizontal = 12.dp, vertical = 6.dp)
+                    modifier =
+                        Modifier
+                            .background(
+                                color = colors.headerBackground,
+                                shape = RoundedCornerShape(8.dp),
+                            ).clickable {
+                                val nextStatus =
+                                    when (task.status) {
+                                        TaskStatus.PENDING -> TaskStatus.IN_PROGRESS
+                                        TaskStatus.IN_PROGRESS -> TaskStatus.COMPLETED
+                                        TaskStatus.COMPLETED -> TaskStatus.PENDING
+                                    }
+                                onStatusChange(nextStatus)
+                            }.padding(horizontal = 12.dp, vertical = 6.dp),
                 ) {
                     Text(
                         "Atualizar",
                         fontSize = 12.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = Color.White
+                        color = colors.buttonText,
                     )
                 }
             }
 
             // Linha 4: Edit e Delete buttons
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 12.dp),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(top = 12.dp),
                 horizontalArrangement = Arrangement.End,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 // Edit button
                 IconButton(
                     onClick = {
                         onEdit()
                     },
-                    modifier = Modifier
-                        .size(36.dp)
-                        .graphicsLayer(scaleX = editScale, scaleY = editScale)
+                    modifier =
+                        Modifier
+                            .size(36.dp)
+                            .graphicsLayer(scaleX = editScale, scaleY = editScale),
                 ) {
                     Icon(
                         imageVector = Icons.Default.Edit,
                         contentDescription = "Editar tarefa",
-                        tint = Color(0xFF1B5E20)
+                        tint = colors.primary,
                     )
                 }
 
@@ -531,14 +643,15 @@ fun TaskCard(
                     onClick = {
                         onDelete()
                     },
-                    modifier = Modifier
-                        .size(36.dp)
-                        .graphicsLayer(scaleX = deleteScale, scaleY = deleteScale)
+                    modifier =
+                        Modifier
+                            .size(36.dp)
+                            .graphicsLayer(scaleX = deleteScale, scaleY = deleteScale),
                 ) {
                     Icon(
                         imageVector = Icons.Default.Delete,
                         contentDescription = "Deletar tarefa",
-                        tint = Color.Red
+                        tint = Color.Red,
                     )
                 }
             }
@@ -552,57 +665,62 @@ private fun StatusBadge(status: TaskStatus) {
         val backgroundColor: Color,
         val textColor: Color,
         val label: String,
-        val icon: androidx.compose.ui.graphics.vector.ImageVector
+        val icon: androidx.compose.ui.graphics.vector.ImageVector,
     )
 
-    val statusInfo = when (status) {
-        TaskStatus.PENDING -> StatusInfo(
-            Color(0xFFD32F2F),
-            Color.White,
-            "Pendente",
-            Icons.Filled.Schedule
-        )
-        TaskStatus.IN_PROGRESS -> StatusInfo(
-            Color(0xFFF57C00),
-            Color.White,
-            "Em andamento",
-            Icons.Filled.PlayCircle
-        )
-        TaskStatus.COMPLETED -> StatusInfo(
-            Color(0xFF1B5E20),
-            Color.White,
-            "Finalizada",
-            Icons.Filled.CheckCircleOutline
-        )
-    }
+    val statusInfo =
+        when (status) {
+            TaskStatus.PENDING ->
+                StatusInfo(
+                    AppTheme.colors.statusPending,
+                    Color.White,
+                    "Pendente",
+                    Icons.Filled.Schedule,
+                )
+            TaskStatus.IN_PROGRESS ->
+                StatusInfo(
+                    AppTheme.colors.statusInProgress,
+                    Color.White,
+                    "Em andamento",
+                    Icons.Filled.PlayCircle,
+                )
+            TaskStatus.COMPLETED ->
+                StatusInfo(
+                    AppTheme.colors.statusCompleted,
+                    Color.White,
+                    "Finalizada",
+                    Icons.Filled.CheckCircleOutline,
+                )
+        }
 
     // Animação de cor
     val backgroundColor by animateColorAsState(
         targetValue = statusInfo.backgroundColor,
-        label = "statusColorAnimation"
+        label = "statusColorAnimation",
     )
 
     Box(
-        modifier = Modifier
-            .background(backgroundColor, shape = RoundedCornerShape(8.dp))
-            .padding(horizontal = 12.dp, vertical = 6.dp),
-        contentAlignment = Alignment.Center
+        modifier =
+            Modifier
+                .background(backgroundColor, shape = RoundedCornerShape(8.dp))
+                .padding(horizontal = 12.dp, vertical = 6.dp),
+        contentAlignment = Alignment.Center,
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(6.dp)
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
         ) {
             Icon(
                 imageVector = statusInfo.icon,
                 contentDescription = statusInfo.label,
                 tint = statusInfo.textColor,
-                modifier = Modifier.size(16.dp)
+                modifier = Modifier.size(16.dp),
             )
             Text(
                 statusInfo.label,
                 fontSize = 12.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = statusInfo.textColor
+                color = statusInfo.textColor,
             )
         }
     }
@@ -624,7 +742,7 @@ private fun EditTaskDialog(
     area: String,
     onAreaChange: (String) -> Unit,
     onConfirm: () -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -632,13 +750,13 @@ private fun EditTaskDialog(
             Text(
                 "Editar Tarefa",
                 fontWeight = FontWeight.Bold,
-                fontSize = 20.sp
+                fontSize = 20.sp,
             )
         },
         text = {
             Column(
                 modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 // Task Name Field
                 OutlinedTextField(
@@ -646,10 +764,11 @@ private fun EditTaskDialog(
                     onValueChange = onTaskNameChange,
                     label = { Text("Nome da Tarefa") },
                     modifier = Modifier.fillMaxWidth(),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Color(0xFF1B5E20),
-                        focusedLabelColor = Color(0xFF1B5E20)
-                    )
+                    colors =
+                        OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = AppTheme.colors.primary,
+                            focusedLabelColor = AppTheme.colors.primary,
+                        ),
                 )
 
                 // Scheduled Time Field
@@ -661,14 +780,14 @@ private fun EditTaskDialog(
                     },
                     label = "Horário de Início",
                     modifier = Modifier.fillMaxWidth(),
-                    isError = timeError.isNotEmpty()
+                    isError = timeError.isNotEmpty(),
                 )
                 if (timeError.isNotEmpty()) {
                     Text(
                         timeError,
                         color = Color.Red,
                         fontSize = 12.sp,
-                        modifier = Modifier.padding(top = 4.dp, start = 16.dp)
+                        modifier = Modifier.padding(top = 4.dp, start = 16.dp),
                     )
                 }
 
@@ -680,7 +799,7 @@ private fun EditTaskDialog(
                         onTimeErrorChange("")
                     },
                     label = "Horário de Término",
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 )
 
                 // Area Field
@@ -689,10 +808,11 @@ private fun EditTaskDialog(
                     onValueChange = onAreaChange,
                     label = { Text("Talhão") },
                     modifier = Modifier.fillMaxWidth(),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Color(0xFF1B5E20),
-                        focusedLabelColor = Color(0xFF1B5E20)
-                    )
+                    colors =
+                        OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = AppTheme.colors.primary,
+                            focusedLabelColor = AppTheme.colors.primary,
+                        ),
                 )
 
                 // Observations Field
@@ -703,46 +823,52 @@ private fun EditTaskDialog(
                     placeholder = { Text("Adicione observações... (opcional)") },
                     modifier = Modifier.fillMaxWidth(),
                     minLines = 3,
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Color(0xFF1B5E20),
-                        focusedLabelColor = Color(0xFF1B5E20)
-                    )
+                    colors =
+                        OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = AppTheme.colors.primary,
+                            focusedLabelColor = AppTheme.colors.primary,
+                        ),
                 )
             }
         },
         confirmButton = {
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
                 horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 Button(
                     onClick = onDismiss,
-                    modifier = Modifier
-                        .width(120.dp)
-                        .height(44.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.LightGray
-                    )
+                    modifier =
+                        Modifier
+                            .width(120.dp)
+                            .height(44.dp),
+                    colors =
+                        ButtonDefaults.buttonColors(
+                            containerColor = Color.LightGray,
+                        ),
                 ) {
                     Text("Cancelar", color = Color.Black, fontSize = 13.sp)
                 }
                 Spacer(modifier = Modifier.width(12.dp))
                 Button(
                     onClick = onConfirm,
-                    modifier = Modifier
-                        .width(120.dp)
-                        .height(44.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF1B5E20)
-                    )
+                    modifier =
+                        Modifier
+                            .width(120.dp)
+                            .height(44.dp),
+                    colors =
+                        ButtonDefaults.buttonColors(
+                            containerColor = AppTheme.colors.headerBackground,
+                        ),
                 ) {
                     Text("Salvar", fontSize = 13.sp)
                 }
             }
         },
-        dismissButton = {}
+        dismissButton = {},
     )
 }

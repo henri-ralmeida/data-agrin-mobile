@@ -7,7 +7,10 @@ data class Weather(
     val isFromCache: Boolean,
     val hourlyForecast: List<HourlyWeather>,
     val lastUpdated: String,
-    val weatherCode: Int = 0
+    val weatherCode: Int = 0,
+    val cityName: String = "Carregando...",
+    val latitude: Double = 0.0,
+    val longitude: Double = 0.0,
 )
 
 data class HourlyWeather(
@@ -15,5 +18,5 @@ data class HourlyWeather(
     val temperature: Double,
     val weatherCode: Int = 0,
     val humidity: Int = 0,
-    val description: String = ""
+    val description: String = "",
 )

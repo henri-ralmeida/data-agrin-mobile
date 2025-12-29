@@ -34,18 +34,18 @@ fun TimeInputField(
     label: String,
     modifier: Modifier = Modifier,
     isError: Boolean = false,
-    errorColor: Color = Color.Red
+    errorColor: Color = Color.Red,
 ) {
     val context = LocalContext.current
     val calendar = Calendar.getInstance()
-    
+
     // Parse hora atual do valor se existir
     val currentHour = value.take(2).toIntOrNull() ?: calendar.get(Calendar.HOUR_OF_DAY)
     val currentMinute = value.drop(2).take(2).toIntOrNull() ?: calendar.get(Calendar.MINUTE)
-    
+
     Row(
         modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         OutlinedTextField(
             value = value,
@@ -60,34 +60,36 @@ fun TimeInputField(
             visualTransformation = TimeVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             isError = isError,
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = if (isError) errorColor else Color(0xFF1B5E20),
-                focusedLabelColor = Color(0xFF1B5E20),
-                errorBorderColor = errorColor,
-                errorLabelColor = errorColor
-            ),
+            colors =
+                OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = if (isError) errorColor else Color(0xFF1B5E20),
+                    focusedLabelColor = Color(0xFF1B5E20),
+                    errorBorderColor = errorColor,
+                    errorLabelColor = errorColor,
+                ),
             singleLine = true,
             trailingIcon = {
                 Icon(
                     Icons.Filled.AccessTime,
                     contentDescription = "Selecionar hora",
                     tint = Color(0xFF1B5E20),
-                    modifier = Modifier
-                        .size(24.dp)
-                        .clickable {
-                            TimePickerDialog(
-                                context,
-                                { _, hour, minute ->
-                                    val formattedTime = String.format("%02d%02d", hour, minute)
-                                    onValueChange(formattedTime)
-                                },
-                                currentHour,
-                                currentMinute,
-                                true // 24h format
-                            ).show()
-                        }
+                    modifier =
+                        Modifier
+                            .size(24.dp)
+                            .clickable {
+                                TimePickerDialog(
+                                    context,
+                                    { _, hour, minute ->
+                                        val formattedTime = String.format("%02d%02d", hour, minute)
+                                        onValueChange(formattedTime)
+                                    },
+                                    currentHour,
+                                    currentMinute,
+                                    true, // 24h format
+                                ).show()
+                            },
                 )
-            }
+            },
         )
     }
 }
@@ -99,37 +101,39 @@ fun TimeInputField(
 class TimeVisualTransformation : VisualTransformation {
     override fun filter(text: AnnotatedString): TransformedText {
         val rawText = text.text
-        
+
         // Constrói o texto formatado
-        val formatted = buildString {
-            for (i in rawText.indices) {
-                append(rawText[i])
-                // Adiciona ":" após o segundo dígito, se houver mais dígitos
-                if (i == 1 && rawText.length > 2) {
-                    append(':')
+        val formatted =
+            buildString {
+                for (i in rawText.indices) {
+                    append(rawText[i])
+                    // Adiciona ":" após o segundo dígito, se houver mais dígitos
+                    if (i == 1 && rawText.length > 2) {
+                        append(':')
+                    }
                 }
             }
-        }
-        
-        val offsetMapping = object : OffsetMapping {
-            override fun originalToTransformed(offset: Int): Int {
-                // Mapeia posição do texto original para o transformado
-                return when {
-                    offset <= 2 -> offset
-                    else -> offset + 1 // Após posição 2, adiciona 1 pelo ":"
-                }.coerceAtMost(formatted.length)
+
+        val offsetMapping =
+            object : OffsetMapping {
+                override fun originalToTransformed(offset: Int): Int {
+                    // Mapeia posição do texto original para o transformado
+                    return when {
+                        offset <= 2 -> offset
+                        else -> offset + 1 // Após posição 2, adiciona 1 pelo ":"
+                    }.coerceAtMost(formatted.length)
+                }
+
+                override fun transformedToOriginal(offset: Int): Int {
+                    // Mapeia posição do texto transformado para o original
+                    return when {
+                        offset <= 2 -> offset
+                        offset == 3 -> 2 // Se está no ":", volta para posição 2
+                        else -> offset - 1 // Após o ":", subtrai 1
+                    }.coerceIn(0, rawText.length)
+                }
             }
-            
-            override fun transformedToOriginal(offset: Int): Int {
-                // Mapeia posição do texto transformado para o original
-                return when {
-                    offset <= 2 -> offset
-                    offset == 3 -> 2 // Se está no ":", volta para posição 2
-                    else -> offset - 1 // Após o ":", subtrai 1
-                }.coerceIn(0, rawText.length)
-            }
-        }
-        
+
         return TransformedText(AnnotatedString(formatted), offsetMapping)
     }
 }
@@ -145,6 +149,4 @@ fun formatTimeValue(rawValue: String): String {
 /**
  * Converte formato HH:mm para 4 dígitos (para edição)
  */
-fun parseTimeToRaw(formattedTime: String): String {
-    return formattedTime.replace(":", "").filter { it.isDigit() }.take(4)
-}
+fun parseTimeToRaw(formattedTime: String): String = formattedTime.replace(":", "").filter { it.isDigit() }.take(4)
