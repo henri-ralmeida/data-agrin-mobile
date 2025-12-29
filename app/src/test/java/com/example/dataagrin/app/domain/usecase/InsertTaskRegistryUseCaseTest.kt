@@ -9,18 +9,17 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
 class InsertTaskRegistryUseCaseTest {
-
     private val taskRegistryRepository: TaskRegistryRepository = mockk()
     private val insertTaskRegistryUseCase = InsertTaskRegistryUseCase(taskRegistryRepository)
 
     @Test
-    fun `invoke should call insertTaskRegistry on repository`() = runBlocking {
-        val fakeTaskRegistry = TaskRegistry(1, "Planting", "Area 51", "08:00", "10:00", "Notes")
-        coEvery { taskRegistryRepository.insertTaskRegistry(fakeTaskRegistry) } returns Unit
+    fun `invoke should call insertTaskRegistry on repository`() =
+        runBlocking {
+            val fakeTaskRegistry = TaskRegistry(1, "Planting", "Area 51", "08:00", "10:00", "Notes")
+            coEvery { taskRegistryRepository.insertTaskRegistry(fakeTaskRegistry) } returns Unit
 
-        insertTaskRegistryUseCase.invoke(fakeTaskRegistry)
+            insertTaskRegistryUseCase.invoke(fakeTaskRegistry)
 
-        coVerify(exactly = 1) { taskRegistryRepository.insertTaskRegistry(fakeTaskRegistry) }
-    }
+            coVerify(exactly = 1) { taskRegistryRepository.insertTaskRegistry(fakeTaskRegistry) }
+        }
 }
-

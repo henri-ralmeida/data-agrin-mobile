@@ -5,5 +5,6 @@ import kotlinx.coroutines.flow.Flow
 
 interface TaskRegistryRepository {
     fun getAllTaskRegistries(): Flow<List<TaskRegistry>>
+
     suspend fun insertTaskRegistry(taskRegistry: TaskRegistry)
 }

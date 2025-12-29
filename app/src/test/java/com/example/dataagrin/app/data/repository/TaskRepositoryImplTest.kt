@@ -15,14 +15,14 @@ import org.junit.Before
 import org.junit.Test
 
 class TaskRepositoryImplTest {
-
     private val taskDao: TaskDao = mockk()
     private lateinit var repository: TaskRepositoryImpl
 
-    private val fakeTasks = listOf(
-        Task(1, "Task 1", "Area 1", "08:00", "", "", TaskStatus.PENDING),
-        Task(2, "Task 2", "Area 2", "10:00", "12:00", "Notes", TaskStatus.IN_PROGRESS)
-    )
+    private val fakeTasks =
+        listOf(
+            Task(1, "Task 1", "Area 1", "08:00", "", "", TaskStatus.PENDING),
+            Task(2, "Task 2", "Area 2", "10:00", "12:00", "Notes", TaskStatus.IN_PROGRESS),
+        )
 
     @Before
     fun setUp() {
@@ -30,64 +30,70 @@ class TaskRepositoryImplTest {
     }
 
     @Test
-    fun `getAllTasks should return flow of tasks from dao`() = runBlocking {
-        coEvery { taskDao.getAllTasks() } returns flowOf(fakeTasks)
+    fun `getAllTasks should return flow of tasks from dao`() =
+        runBlocking {
+            coEvery { taskDao.getAllTasks() } returns flowOf(fakeTasks)
 
-        val result = repository.getAllTasks().first()
+            val result = repository.getAllTasks().first()
 
-        assertEquals(fakeTasks, result)
-        coVerify(exactly = 1) { taskDao.getAllTasks() }
-    }
-
-    @Test
-    fun `getTaskById should return task when found`() = runBlocking {
-        val expectedTask = fakeTasks[0]
-        coEvery { taskDao.getTaskById(1) } returns expectedTask
-
-        val result = repository.getTaskById(1)
-
-        assertEquals(expectedTask, result)
-        coVerify(exactly = 1) { taskDao.getTaskById(1) }
-    }
+            assertEquals(fakeTasks, result)
+            coVerify(exactly = 1) { taskDao.getAllTasks() }
+        }
 
     @Test
-    fun `getTaskById should return null when not found`() = runBlocking {
-        coEvery { taskDao.getTaskById(999) } returns null
+    fun `getTaskById should return task when found`() =
+        runBlocking {
+            val expectedTask = fakeTasks[0]
+            coEvery { taskDao.getTaskById(1) } returns expectedTask
 
-        val result = repository.getTaskById(999)
+            val result = repository.getTaskById(1)
 
-        assertNull(result)
-        coVerify(exactly = 1) { taskDao.getTaskById(999) }
-    }
-
-    @Test
-    fun `insertTask should call dao and return id`() = runBlocking {
-        val newTask = Task(0, "New Task", "Area 3", "14:00", "", "", TaskStatus.PENDING)
-        coEvery { taskDao.insertTask(newTask) } returns 3L
-
-        val result = repository.insertTask(newTask)
-
-        assertEquals(3L, result)
-        coVerify(exactly = 1) { taskDao.insertTask(newTask) }
-    }
+            assertEquals(expectedTask, result)
+            coVerify(exactly = 1) { taskDao.getTaskById(1) }
+        }
 
     @Test
-    fun `updateTask should call dao`() = runBlocking {
-        val taskToUpdate = fakeTasks[0].copy(name = "Updated Name")
-        coEvery { taskDao.updateTask(taskToUpdate) } returns Unit
+    fun `getTaskById should return null when not found`() =
+        runBlocking {
+            coEvery { taskDao.getTaskById(999) } returns null
 
-        repository.updateTask(taskToUpdate)
+            val result = repository.getTaskById(999)
 
-        coVerify(exactly = 1) { taskDao.updateTask(taskToUpdate) }
-    }
+            assertNull(result)
+            coVerify(exactly = 1) { taskDao.getTaskById(999) }
+        }
 
     @Test
-    fun `deleteTask should call dao with correct id`() = runBlocking {
-        val taskId = 1
-        coEvery { taskDao.deleteTaskById(taskId) } returns Unit
+    fun `insertTask should call dao and return id`() =
+        runBlocking {
+            val newTask = Task(0, "New Task", "Area 3", "14:00", "", "", TaskStatus.PENDING)
+            coEvery { taskDao.insertTask(newTask) } returns 3L
 
-        repository.deleteTask(taskId)
+            val result = repository.insertTask(newTask)
 
-        coVerify(exactly = 1) { taskDao.deleteTaskById(taskId) }
-    }
+            assertEquals(3L, result)
+            coVerify(exactly = 1) { taskDao.insertTask(newTask) }
+        }
+
+    @Test
+    fun `updateTask should call dao`() =
+        runBlocking {
+            val taskToUpdate = fakeTasks[0].copy(name = "Updated Name")
+            coEvery { taskDao.updateTask(taskToUpdate) } returns Unit
+
+            repository.updateTask(taskToUpdate)
+
+            coVerify(exactly = 1) { taskDao.updateTask(taskToUpdate) }
+        }
+
+    @Test
+    fun `deleteTask should call dao with correct id`() =
+        runBlocking {
+            val taskId = 1
+            coEvery { taskDao.deleteTaskById(taskId) } returns Unit
+
+            repository.deleteTask(taskId)
+
+            coVerify(exactly = 1) { taskDao.deleteTaskById(taskId) }
+        }
 }

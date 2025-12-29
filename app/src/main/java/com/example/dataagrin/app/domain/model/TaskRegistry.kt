@@ -13,5 +13,5 @@ data class TaskRegistry(
     val endTime: String,
     val observations: String,
     val isModified: Boolean = false,
-    val isDeleted: Boolean = false
+    val isDeleted: Boolean = false,
 )

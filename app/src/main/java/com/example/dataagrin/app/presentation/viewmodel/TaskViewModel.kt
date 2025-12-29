@@ -26,13 +26,12 @@ class TaskViewModel(
     private val updateTaskUseCase: UpdateTaskUseCase,
     private val deleteTaskUseCase: DeleteTaskUseCase,
     private val taskFirestoreRepository: TaskFirestoreRepository,
-    private val insertTaskRegistryUseCase: InsertTaskRegistryUseCase
+    private val insertTaskRegistryUseCase: InsertTaskRegistryUseCase,
 ) : ViewModel() {
-
     private val _tasks = MutableStateFlow<List<Task>>(emptyList())
     val tasks: StateFlow<List<Task>> = _tasks.asStateFlow()
 
-    private val _syncStatus = MutableStateFlow<SyncStatus>(SyncStatus.LOCAL)
+    private val _syncStatus = MutableStateFlow(SyncStatus.LOCAL)
     val syncStatus: StateFlow<SyncStatus> = _syncStatus.asStateFlow()
 
     init {
@@ -40,16 +39,17 @@ class TaskViewModel(
     }
 
     private fun loadTasks() {
-        getTasksUseCase().onEach { taskList ->
-            _tasks.value = taskList
-        }.launchIn(viewModelScope)
+        getTasksUseCase()
+            .onEach { taskList ->
+                _tasks.value = taskList
+            }.launchIn(viewModelScope)
     }
 
     fun updateTask(task: Task) {
         viewModelScope.launch {
             // Busca a task original para comparar
             val originalTask = getTaskByIdUseCase(task.id)
-            
+
             // Detecta o que foi alterado
             val changes = mutableListOf<String>()
             originalTask?.let { original ->
@@ -59,33 +59,34 @@ class TaskViewModel(
                 if (original.observations != task.observations) changes.add("Observação")
                 if (original.status != task.status) changes.add("Status")
             }
-            
-            val observationText = if (changes.isNotEmpty()) {
-                "Alteração: ${changes.joinToString(", ")}"
-            } else {
-                "Tarefa alterada"
-            }
-            
+
+            val observationText =
+                if (changes.isNotEmpty()) {
+                    "Alteração: ${changes.joinToString(", ")}"
+                } else {
+                    "Tarefa alterada"
+                }
+
             // Marca como SYNCING
-            val updatedTask = task.copy(
-                syncStatus = SyncStatus.SYNCING,
-                updatedAt = System.currentTimeMillis()
-            )
+            val updatedTask =
+                task.copy(
+                    syncStatus = SyncStatus.SYNCING,
+                    updatedAt = System.currentTimeMillis(),
+                )
             updateTaskUseCase(updatedTask)
 
             // Cria registro no histórico de tarefas (com flag isModified)
-            val currentTime = java.util.Calendar.getInstance().let { 
-                "${it.get(java.util.Calendar.HOUR_OF_DAY)}:${String.format("%02d", it.get(java.util.Calendar.MINUTE))}" 
-            }
-            val taskRegistry = TaskRegistry(
-                type = task.name,
-                area = task.area,
-                startTime = currentTime,
-                endTime = currentTime,
-                observations = observationText,
-                isModified = true,
-                isDeleted = false
-            )
+            // Usa o horário da tarefa (`scheduledTime`/`endTime`) em vez da hora do dispositivo
+            val taskRegistry =
+                TaskRegistry(
+                    type = task.name,
+                    area = task.area,
+                    startTime = task.scheduledTime,
+                    endTime = task.endTime.ifEmpty { task.scheduledTime },
+                    observations = observationText,
+                    isModified = true,
+                    isDeleted = false,
+                )
             insertTaskRegistryUseCase(taskRegistry)
 
             // Sincroniza com Firebase (com ação alterado)
@@ -97,18 +98,17 @@ class TaskViewModel(
     fun deleteTask(task: Task) {
         viewModelScope.launch {
             // Cria registro no histórico de tarefas (com flag isDeleted)
-            val currentTime = java.util.Calendar.getInstance().let { 
-                "${it.get(java.util.Calendar.HOUR_OF_DAY)}:${String.format("%02d", it.get(java.util.Calendar.MINUTE))}" 
-            }
-            val taskRegistry = TaskRegistry(
-                type = task.name,
-                area = task.area,
-                startTime = currentTime,
-                endTime = currentTime,
-                observations = "Tarefa excluída",
-                isModified = false,
-                isDeleted = true
-            )
+            // Usa o horário da tarefa para manter consistência com o que foi agendado
+            val taskRegistry =
+                TaskRegistry(
+                    type = task.name,
+                    area = task.area,
+                    startTime = task.scheduledTime,
+                    endTime = task.endTime.ifEmpty { task.scheduledTime },
+                    observations = "Tarefa excluída",
+                    isModified = false,
+                    isDeleted = true,
+                )
             insertTaskRegistryUseCase(taskRegistry)
 
             deleteTaskUseCase(task.id)
@@ -124,23 +124,22 @@ class TaskViewModel(
             try {
                 // 1. Obter pr\u00f3ximo ID sequencial do Firebase
                 val nextId = taskFirestoreRepository.getNextTaskId()
-                
+
                 // 2. Criar task com o ID correto
-                val newTask = task.copy(
-                    id = nextId,
-                    syncStatus = SyncStatus.SYNCING,
-                    createdAt = System.currentTimeMillis(),
-                    updatedAt = System.currentTimeMillis()
-                )
-                
+                val newTask =
+                    task.copy(
+                        id = nextId,
+                        syncStatus = SyncStatus.SYNCING,
+                        createdAt = System.currentTimeMillis(),
+                        updatedAt = System.currentTimeMillis(),
+                    )
+
                 // 3. Insere no Room com o ID do Firebase
                 insertTaskUseCase(newTask)
-                
+
                 // 4. Sincroniza com Firebase (cria tasks[nextId])
                 trySyncTask(newTask)
-                
             } catch (e: Exception) {
-                e.printStackTrace()
                 _syncStatus.value = SyncStatus.SYNC_ERROR
             }
         }
@@ -154,7 +153,6 @@ class TaskViewModel(
                 _syncStatus.value = SyncStatus.SYNCED
             } catch (e: Exception) {
                 _syncStatus.value = SyncStatus.SYNC_ERROR
-                e.printStackTrace()
             }
         }
     }
@@ -167,7 +165,6 @@ class TaskViewModel(
                 _syncStatus.value = SyncStatus.SYNCED
             } catch (e: Exception) {
                 _syncStatus.value = SyncStatus.SYNC_ERROR
-                e.printStackTrace()
             }
         }
     }
@@ -180,7 +177,6 @@ class TaskViewModel(
                 _syncStatus.value = SyncStatus.SYNCED
             } catch (e: Exception) {
                 _syncStatus.value = SyncStatus.SYNC_ERROR
-                e.printStackTrace()
             }
         }
     }
