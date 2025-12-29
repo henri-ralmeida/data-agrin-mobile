@@ -862,7 +862,8 @@ private fun EditTaskDialog(
                             .height(44.dp),
                     colors =
                         ButtonDefaults.buttonColors(
-                            containerColor = AppTheme.colors.headerBackground,
+                            containerColor = Color.White,
+                            contentColor = AppTheme.colors.primary,
                         ),
                 ) {
                     Text("Salvar", fontSize = 13.sp)

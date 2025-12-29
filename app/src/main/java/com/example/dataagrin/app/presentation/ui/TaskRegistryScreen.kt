@@ -513,8 +513,8 @@ fun TaskRegistryForm(onInsertTaskRegistry: (TaskRegistry) -> Unit) {
                             .graphicsLayer(scaleX = saveScale, scaleY = saveScale),
                     colors =
                         ButtonDefaults.buttonColors(
-                            containerColor = colors.headerBackground,
-                            contentColor = Color.White,
+                            containerColor = Color.White,
+                            contentColor = colors.primary,
                         ),
                     shape = RoundedCornerShape(8.dp),
                 ) {
@@ -522,7 +522,6 @@ fun TaskRegistryForm(onInsertTaskRegistry: (TaskRegistry) -> Unit) {
                         Icons.Filled.AddCircle,
                         contentDescription = "Salvar",
                         modifier = Modifier.size(20.dp),
-                        tint = Color.White,
                     )
                     Spacer(modifier = Modifier.padding(4.dp))
                     Text(

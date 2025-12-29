@@ -621,7 +621,7 @@ fun HourlyForecastItem(
     val isNextHour = isHighlighted || hourly.time.toIntOrNull() == currentHour + 1
 
     // Destacar a próxima hora com o tom antigo (melhor contraste)
-    val backgroundColor = if (isNextHour) Color(0xFFFFD54F) else colors.surface
+    val backgroundColor = if (isNextHour) colors.statusCompleted else colors.surface
 
     // Box externo para permitir badge "pregada" fora do card branco
     Box(
@@ -643,13 +643,13 @@ fun HourlyForecastItem(
                             .offset(y = (-12).dp),
                 )
 
-                // Placa laranja (mais reduzida)
+                // Placa verde (mais reduzida)
                 Box(
                     modifier =
                         Modifier
                             .align(Alignment.TopCenter)
                             .offset(y = (-8).dp)
-                            .background(colors.statusInProgress, RoundedCornerShape(4.dp))
+                            .background(colors.headerBackground, RoundedCornerShape(4.dp))
                             .padding(horizontal = 10.dp, vertical = 2.dp),
                 ) {
                     Text(text = "PRÓXIMA", fontSize = 9.sp, color = Color.White, fontWeight = FontWeight.Bold)
@@ -681,7 +681,7 @@ fun HourlyForecastItem(
                     fontSize = 13.sp,
                     fontWeight = if (isNextHour) FontWeight.Bold else FontWeight.Normal,
                     textAlign = TextAlign.Center,
-                    color = if (isSystemInDarkTheme() && isNextHour) Color(0xFFFF9800) else colors.textPrimary,
+                    color = if (isNextHour) Color.White else colors.textPrimary,
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -701,7 +701,7 @@ fun HourlyForecastItem(
                     fontSize = 15.sp,
                     fontWeight = if (isNextHour) FontWeight.Bold else FontWeight.Normal,
                     textAlign = TextAlign.Center,
-                    color = if (isSystemInDarkTheme() && isNextHour) Color(0xFFFF9800) else colors.textPrimary,
+                    color = if (isNextHour) Color.White else colors.textPrimary,
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -716,7 +716,7 @@ fun HourlyForecastItem(
                         Text(
                             text = hourly.description,
                             fontSize = 9.sp,
-                            color = if (isSystemInDarkTheme() && isNextHour) Color(0xFFFF9800) else colors.textSecondary,
+                            color = if (isNextHour) Color.White else colors.textSecondary,
                             maxLines = 2,
                             textAlign = TextAlign.Center,
                             lineHeight = 12.sp,
@@ -730,7 +730,7 @@ fun HourlyForecastItem(
                     Text(
                         text = "${hourly.humidity}% 💧",
                         fontSize = 11.sp,
-                        color = colors.textTertiary,
+                        color = if (isNextHour) Color.White else colors.textTertiary,
                         textAlign = TextAlign.Center,
                     )
                 }
