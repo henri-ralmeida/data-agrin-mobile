@@ -4,7 +4,9 @@
   <img src="https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=android&logoColor=white" alt="Android"/>
   <img src="https://img.shields.io/badge/Kotlin-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white" alt="Kotlin"/>
   <img src="https://img.shields.io/badge/Jetpack%20Compose-4285F4?style=for-the-badge&logo=jetpackcompose&logoColor=white" alt="Jetpack Compose"/>
+  <img src="https://img.shields.io/badge/Material%203-1976D2?style=for-the-badge&logo=material-design&logoColor=white" alt="Material 3"/>
   <img src="https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black" alt="Firebase"/>
+  <img src="https://img.shields.io/badge/Room-0078D4?style=for-the-badge&logo=microsoft&logoColor=white" alt="Room"/>
 </p>
 
 <p align="center">
@@ -12,11 +14,17 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Version-1.1.0-blue" alt="Version"/>
-  <img src="https://img.shields.io/badge/Testes-180%20passando-brightgreen" alt="Tests"/>
-  <img src="https://img.shields.io/badge/Cobertura%20UseCases-100%25-brightgreen" alt="Coverage"/>
-  <img src="https://img.shields.io/badge/Min%20SDK-26-blue" alt="Min SDK"/>
-  <img src="https://img.shields.io/badge/Target%20SDK-34-blue" alt="Target SDK"/>
+  <img src="https://img.shields.io/badge/Version-1.1.0-blue?style=flat-square" alt="Version"/>
+  <img src="https://img.shields.io/badge/Testes-180%20passando-brightgreen?style=flat-square" alt="Tests"/>
+  <img src="https://img.shields.io/badge/Cobertura%20UseCases-100%25-brightgreen?style=flat-square" alt="Coverage"/>
+  <img src="https://img.shields.io/badge/Build-Passing-brightgreen?style=flat-square" alt="Build"/>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Min%20SDK-26-blue?style=flat-square" alt="Min SDK"/>
+  <img src="https://img.shields.io/badge/Target%20SDK-34-blue?style=flat-square" alt="Target SDK"/>
+  <img src="https://img.shields.io/badge/Gradle-02303A?style=flat-square&logo=gradle&logoColor=white" alt="Gradle"/>
+  <img src="https://img.shields.io/badge/License-MIT-yellow?style=flat-square" alt="License"/>
 </p>
 
 ---
@@ -197,21 +205,44 @@ Previsão por hora ➡️
 
 ## 🛠️ Stack Técnico
 
-| Categoria          | Tecnologia                            |
-|--------------------|---------------------------------------|
-| **Linguagem**      | Kotlin 2.0                            |
-| **UI**             | Jetpack Compose + Material 3          |
-| **Arquitetura**    | Clean Architecture + MVVM             |
-| **DI**             | Koin 3.5                              |
-| **Database**       | Room 2.6                              |
-| **Network**        | Retrofit 2.9 + OkHttp                 |
-| **Async**          | Coroutines + Flow + StateFlow         |
-| **Cloud Sync**     | Firebase Firestore                    |
-| **Localização**    | Google Play Services Location         |
-| **Testes**         | JUnit 4 + MockK + Coroutines Test     |
-| **Cobertura**      | JaCoCo                                |
-| **Responsividade** | WindowSizeClass                       |
-| **Tema**           | Material 3 Dynamic Colors + Dark Mode |
+<table align="center">
+  <tr>
+    <td align="center"><img src="https://img.shields.io/badge/Kotlin-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white"/><br><b>Kotlin 2.0</b></td>
+    <td align="center"><img src="https://img.shields.io/badge/Jetpack%20Compose-4285F4?style=for-the-badge&logo=jetpackcompose&logoColor=white"/><br><b>Compose</b></td>
+    <td align="center"><img src="https://img.shields.io/badge/Material%203-1976D2?style=for-the-badge&logo=material-design&logoColor=white"/><br><b>Material 3</b></td>
+    <td align="center"><img src="https://img.shields.io/badge/Koin-FF6B00?style=for-the-badge&logo=koin&logoColor=white"/><br><b>Koin 3.5</b></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="https://img.shields.io/badge/Room-0078D4?style=for-the-badge&logo=microsoft&logoColor=white"/><br><b>Room 2.6</b></td>
+    <td align="center"><img src="https://img.shields.io/badge/Retrofit-00D9FF?style=for-the-badge&logo=retrofit&logoColor=black"/><br><b>Retrofit 2.9</b></td>
+    <td align="center"><img src="https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black"/><br><b>Firestore</b></td>
+    <td align="center"><img src="https://img.shields.io/badge/Coroutines-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white"/><br><b>Coroutines</b></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="https://img.shields.io/badge/Location-4285F4?style=for-the-badge&logo=google&logoColor=white"/><br><b>Play Services</b></td>
+    <td align="center"><img src="https://img.shields.io/badge/JUnit5-25A162?style=for-the-badge&logo=junit5&logoColor=white"/><br><b>JUnit 5</b></td>
+    <td align="center"><img src="https://img.shields.io/badge/MockK-FF6B00?style=for-the-badge&logo=kotlin&logoColor=white"/><br><b>MockK</b></td>
+    <td align="center"><img src="https://img.shields.io/badge/JaCoCo-003A86?style=for-the-badge&logo=codecov&logoColor=white"/><br><b>JaCoCo</b></td>
+  </tr>
+</table>
+
+### Stack Completo
+
+| Categoria | Tecnologia |
+|-----------|------------|
+| **Linguagem** | Kotlin 2.0 |
+| **UI Framework** | Jetpack Compose + Material 3 |
+| **Arquitetura** | Clean Architecture + MVVM |
+| **Injeção de Dependência** | Koin 3.5 |
+| **Banco de Dados Local** | Room 2.6 |
+| **HTTP Client** | Retrofit 2.9 + OkHttp |
+| **Async & Reactive** | Coroutines + Flow + StateFlow |
+| **Cloud Sync** | Firebase Firestore |
+| **Localização** | Google Play Services Location |
+| **Testes Unitários** | JUnit 4 + MockK + Coroutines Test |
+| **Cobertura de Código** | JaCoCo |
+| **Responsividade** | WindowSizeClass |
+| **Tema** | Material 3 Dynamic Colors + Dark Mode |
 
 ---
 
@@ -320,10 +351,12 @@ app/src/
 
 ### Pré-requisitos
 
-- **Android Studio** Hedgehog (2023.1+) ou mais recente
-- **JDK** 11+
-- **Android SDK** 26-34
-- Emulador ou dispositivo físico
+| Requisito | Versão | Obrigatório |
+|-----------|--------|-------------|
+| ![Android Studio](https://img.shields.io/badge/Android%20Studio-3DDC84?style=flat-square&logo=android&logoColor=white) | 2023.1+ | ✅ |
+| ![JDK](https://img.shields.io/badge/JDK-ED8B00?style=flat-square&logo=openjdk&logoColor=white) | 11+ | ✅ |
+| ![Android SDK](https://img.shields.io/badge/Android%20SDK-3DDC84?style=flat-square&logo=android&logoColor=white) | 26-34 | ✅ |
+| ![Emulador](https://img.shields.io/badge/Emulador%20ou%20Dispositivo-3DDC84?style=flat-square&logo=android&logoColor=white) | - | ✅ |
 
 ### Instalação
 
@@ -680,7 +713,20 @@ Este projeto foi desenvolvido como parte de um desafio técnico para a **Data Ag
 ---
 
 <p align="center">
+  <img src="https://img.shields.io/badge/Kotlin-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white"/>
+  <img src="https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=android&logoColor=white"/>
+  <img src="https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black"/>
+  <img src="https://img.shields.io/badge/Compose-4285F4?style=for-the-badge&logo=jetpackcompose&logoColor=white"/>
+</p>
+
+<p align="center">
   <b>Desenvolvido com ❤️ usando Kotlin + Jetpack Compose</b>
+</p>
+
+<p align="center">
+  <a href="https://github.com/seu-usuario">
+    <img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub"/>
+  </a>
 </p>
 
 <p align="center">
